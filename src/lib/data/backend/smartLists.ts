@@ -44,3 +44,59 @@ export async function GetSmartListByID(list_id: string): Promise<SmartList> {
     return res.json();
 }
 
+export async function CreateSmartList(user_id: string, name: string, description: string): Promise<SmartList> {
+    const res = await fetch(`${BASE_URL}/smart-lists/${user_id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            description,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error creating smart list: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+export async function UpdateSmartList(list_id: string, name: string, description: string, filterCriteria: any): Promise<SmartList> {
+    const res = await fetch(`${BASE_URL}/smart-lists/name/${list_id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            description,
+            filterCriteria,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating smart list: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+export async function SetSmartListFilterCriteria(smart_list_id: string, filterCriteria: any): Promise<SmartList> {
+    const res = await fetch(`${BASE_URL}/smart-lists/filter/${smart_list_id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            filterCriteria,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating smart list filter criteria: ${res.statusText}`);
+    }
+
+    return res.json();
+}

@@ -7,7 +7,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
 // Create Deal
 // ----------------------------------------------
 
-export async function CreateDeal(contact_id: string, assigned_to_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, state_id: string): Promise<Deal> {
+export async function CreateDeal(contact_id: string, assigned_to_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
     const res = await fetch(`${BASE_URL}/deals`, {
         method: 'POST',
         headers: {
@@ -32,7 +32,7 @@ export async function CreateDeal(contact_id: string, assigned_to_id: string, tit
             property_state,
             property_zip,
             description,
-            state_id,
+            stage_id,
         }),
     });
 
@@ -66,7 +66,7 @@ export async function GetDealByID(deal_id: string): Promise<Deal> {
 // Update Deal
 // ----------------------------------------------
 
-export async function UpdateDeal(deal_id: string, contact_id: string, assigned_to_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, state_id: string): Promise<Deal> {
+export async function UpdateDeal(deal_id: string, contact_id: string, assigned_to_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
     const res = await fetch(`${BASE_URL}/deals/${deal_id}`, {
         method: 'PUT',
         headers: {
@@ -91,7 +91,7 @@ export async function UpdateDeal(deal_id: string, contact_id: string, assigned_t
             property_state,
             property_zip,
             description,
-            state_id,
+            stage_id,
         }),
     });
 

@@ -42,6 +42,7 @@ export default async function PeoplePage() {
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950">
             <PeoplePageClient
+                userId={userId}
                 initialContacts={contacts}
                 smartLists={smartLists}
             />

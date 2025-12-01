@@ -118,3 +118,22 @@ export async function SearchContacts(ownerID: string, query: string): Promise<Co
 
     return res.json();
 }
+
+// ----------------------------------------------
+// Get Contacts by Smart List ID
+// ----------------------------------------------
+
+export async function GetContactsBySmartListID(list_id: string): Promise<Contact[]> {
+    const res = await fetch(`${BASE_URL}/contacts/smart-list/${list_id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error fetching contacts: ${res.statusText}`);
+    }
+
+    return res.json();
+}

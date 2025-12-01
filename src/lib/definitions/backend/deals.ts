@@ -6,8 +6,8 @@ import { NullString, NullTime, NullUUID, NullInt } from "../nullTypes";
 
 export interface Deal {
     ID: string; // uuid.UUID
-    ContactID: NullUUID;
-    AssignedToID: NullUUID;
+    ContactID: string;
+    AssignedToID: string;
     Title: string;
     Price: number; // int32
     ClosingDate: NullTime;
@@ -24,7 +24,7 @@ export interface Deal {
     PropertyState: NullString;
     PropertyZipCode: NullString;
     Description: NullString;
-    StageID: NullUUID;
+    StageID: string;
     CreatedAt: NullTime;
     UpdatedAt: NullTime;
 }

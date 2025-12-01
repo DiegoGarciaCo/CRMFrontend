@@ -28,9 +28,7 @@ export default async function DealsPage() {
             ? result.value
             : [];
 
-    console.log("Deals Result:", dealsResult);
     const deals = safe(dealsResult);
-    console.log("Deals:", deals);
     const stages = safe(stagesResult);
 
     // Sort stages by OrderIndex

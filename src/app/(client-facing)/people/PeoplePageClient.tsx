@@ -8,11 +8,12 @@ import ContactsTable from '@/components/people/ContactsTable';
 import ContactDetailsDrawer from '@/components/people/ContactDetailsDrawer';
 
 interface PeoplePageClientProps {
+    userId: string;
     initialContacts: Contact[];
     smartLists: SmartList[];
 }
 
-export default function PeoplePageClient({ initialContacts, smartLists }: PeoplePageClientProps) {
+export default function PeoplePageClient({ userId, initialContacts, smartLists }: PeoplePageClientProps) {
     const [activeListId, setActiveListId] = useState<string | null>(null);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -77,6 +78,7 @@ export default function PeoplePageClient({ initialContacts, smartLists }: People
     return (
         <>
             <SmartListSidebar
+                userId={userId}
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={setActiveListId}
