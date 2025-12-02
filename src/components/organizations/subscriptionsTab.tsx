@@ -22,7 +22,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 export function SubscriptionsTab() {
     const { data: activeOrganization } = authClient.useActiveOrganization()
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+    const [subscriptions, setSubscriptions] = useState<any[]>([])
 
     useEffect(() => {
         if (activeOrganization == null) {

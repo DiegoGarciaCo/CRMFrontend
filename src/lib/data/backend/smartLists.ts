@@ -83,14 +83,15 @@ export async function UpdateSmartList(list_id: string, name: string, description
     return res.json();
 }
 
-export async function SetSmartListFilterCriteria(smart_list_id: string, filterCriteria: any): Promise<SmartList> {
-    const res = await fetch(`${BASE_URL}/smart-lists/filter/${smart_list_id}`, {
+export async function SetSmartListFilterCriteria(smart_list_id: string, filter_criteria: any): Promise<SmartList> {
+    console.log('Setting filter criteria:', filter_criteria);
+    const res = await fetch(`${BASE_URL}/smart-lists/${smart_list_id}/filter`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            filterCriteria,
+            filter_criteria,
         }),
     });
 
