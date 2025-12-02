@@ -2,7 +2,8 @@ import {
     twoFactorClient,
     inferAdditionalFields,
     adminClient,
-    organizationClient
+    organizationClient,
+    apiKeyClient
 } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/react"
 import { auth } from "./auth"
@@ -13,6 +14,7 @@ export const authClient = createAuthClient({
     /** The base URL of the server (optional if you're using the same domain) */
     plugins: [inferAdditionalFields<typeof auth>(),
     passkeyClient(),
+    apiKeyClient(),
     adminClient(),
     organizationClient(),
     stripeClient({

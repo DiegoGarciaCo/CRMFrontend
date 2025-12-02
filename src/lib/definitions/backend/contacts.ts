@@ -1,4 +1,6 @@
 import { NullString, NullTime, NullUUID } from "../nullTypes";
+import { Email } from "./emails";
+import { PhoneNumber } from "./phoneNumbers";
 
 // ------------------------------
 // Client Interface
@@ -57,4 +59,36 @@ export interface CreateContactInput {
     price_range: string;
     timeframe: string;
     owner_id: string;
+}
+
+// ------------------------------
+// Contact with Details Interface
+// ------------------------------
+
+export interface ContactWithDetails {
+    ID: string; // uuid.UUID
+
+    FirstName: string;
+    LastName: string;
+
+    Birthdate: NullTime; // sql.NullTime
+
+    Source: NullString;  // sql.NullString
+    Status: NullString;  // sql.NullString
+    Address: NullString; // sql.NullString
+    City: NullString;    // sql.NullString
+    State: NullString;   // sql.NullString
+    ZipCode: NullString; // sql.NullString
+
+    Lender: NullString;      // sql.NullString
+    PriceRange: NullString;  // sql.NullString
+    Timeframe: NullString;   // sql.NullString
+
+    OwnerID: NullUUID; // uuid.NullUUID
+
+    CreatedAt: NullTime;       // sql.NullTime
+    UpdatedAt: NullTime;       // sql.NullTime
+    LastContactedAt: NullTime; // sql.NullTime
+    Emails: string; // JSON stringified Email[]
+    PhoneNumbers: string; // JSON stringified PhoneNumber[]
 }

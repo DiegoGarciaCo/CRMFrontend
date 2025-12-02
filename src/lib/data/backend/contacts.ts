@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { Contact } from '../../definitions/backend/contacts';
+import { Contact, ContactWithDetails } from '../../definitions/backend/contacts';
 import { CreateContactEmailInput } from '../../definitions/backend/emails';
 import { CreateContactPhoneNumberInput } from '../../definitions/backend/phoneNumbers';
 
@@ -45,7 +45,7 @@ export async function CreateContact(first_name: string, last_name: string, phone
 // Get Contact By ID
 // ----------------------------------------------
 
-export async function GetContactByID(contactID: string): Promise<Contact> {
+export async function GetContactByID(contactID: string): Promise<ContactWithDetails> {
     const res = await fetch(`${BASE_URL}/contacts/contact/${contactID}`, {
         method: 'GET',
         headers: {

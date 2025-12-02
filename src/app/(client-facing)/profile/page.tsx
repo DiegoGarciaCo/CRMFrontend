@@ -17,7 +17,6 @@ import {
     User,
 } from "lucide-react"
 import { headers } from "next/headers"
-import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ReactNode, Suspense } from "react"
@@ -30,6 +29,7 @@ import { ChangePasswordForm } from "@/components/profile/changePasswordForm"
 import { SetPasswordButton } from "@/components/profile/setPasswordButton"
 import { TwoFactorAuth } from "@/components/profile/twoFactorAuth"
 import { PasskeyManagement } from "@/components/profile/passkeyManagement"
+import AvatarUpload from "@/components/profile/AvatarUploadButton"
 
 export default async function ProfilePage() {
     const session = await auth.api.getSession({ headers: await headers() })
@@ -43,19 +43,7 @@ export default async function ProfilePage() {
                     Back to Home
                 </Link>
                 <div className="flex items-center space-x-4">
-                    <div className="size-16 bg-muted rounded-full flex items-center justify-center overflow-hidden">
-                        {session.user.image ? (
-                            <Image
-                                width={64}
-                                height={64}
-                                src={session.user.image}
-                                alt="User Avatar"
-                                className="object-cover"
-                            />
-                        ) : (
-                            <User className="size-8 text-muted-foreground" />
-                        )}
-                    </div>
+                    <AvatarUpload session={session} />
                     <div className="flex-1">
                         <div className="flex gap-1 justify-between items-start">
                             <h1 className="text-3xl font-bold">

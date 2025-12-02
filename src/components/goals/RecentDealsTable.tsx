@@ -81,7 +81,7 @@ export default function RecentDealsTable({ deals }: RecentDealsTableProps) {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {deal.StageID.Valid && getStatusBadge(deal.StageID.UUID)}
+                    {deal.StageID && getStatusBadge(deal.StageID)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right">
                     <div className="font-semibold text-zinc-900 dark:text-zinc-50">{formatCurrency(deal.Price)}</div>

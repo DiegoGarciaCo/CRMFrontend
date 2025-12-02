@@ -1,15 +1,15 @@
-import { NullBool, NullString, NullTime, NullUUID } from '../nullTypes';
+import { NullTime } from '../nullTypes';
 
 // ------------------------------
 // Phone Numbers Interface
 // ------------------------------
 
 export interface PhoneNumber {
-    ID: string; // uuid.UUID
-    ContactID: NullUUID;
-    PhoneNumber: string;
-    Type: NullString;
-    IsPrimary: NullBool;
+    id: string; // uuid.UUID
+    contact_id: string;
+    phone_number: string;
+    type: string;
+    is_primary: boolean;
     CreatedAt: NullTime;
     UpdatedAt: NullTime;
 }

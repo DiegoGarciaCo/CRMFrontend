@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
-import { admin, createAuthMiddleware, organization, twoFactor } from "better-auth/plugins";
+import { admin, apiKey, createAuthMiddleware, organization, twoFactor } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { sendDeleteAccountVerificationEmail, sendEmailVerificationEmail, sendOrganizationInviteEmail, sendPasswordResetEmail, sendWelcomeEmail } from "./data/emails/sendEmails";
 import { passkey } from "@better-auth/passkey";
@@ -97,7 +97,8 @@ export const auth = betterAuth({
                     invitation,
                 });
             },
-        })
+        }),
+        apiKey(),
     ],
     hooks: {
         after: createAuthMiddleware(async ctx => {
