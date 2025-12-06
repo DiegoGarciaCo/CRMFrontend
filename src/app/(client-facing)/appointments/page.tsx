@@ -17,9 +17,9 @@ export default async function AppointmentsPage() {
 
     // Fetch all appointment data in parallel
     const [allAppointmentsResult, upcomingResult, todayResult] = await Promise.allSettled([
-        ListAllAppointments(userId),
-        ListUpcomingAppointments(userId),
-        ListTodaysAppointments(userId),
+        ListAllAppointments(),
+        ListUpcomingAppointments(),
+        ListTodaysAppointments(),
     ]);
 
     const safe = (result: any) =>

@@ -17,11 +17,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-import { SearchContacts } from "@/lib/data/backend/contacts";
-import { CreateDeal } from "@/lib/data/backend/deals";
 
 import type { Contact } from "@/lib/definitions/backend/contacts";
 import type { Stage } from "@/lib/definitions/backend/stage";
+import { CreateDeal, SearchContacts } from "@/lib/data/backend/clientCalls";
 
 export default function CreateDealSheet({ userId, stages }: { userId: string, stages: Stage[] }) {
     const [open, setOpen] = useState(false);
@@ -60,7 +59,7 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
         const delay = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
-                    const results = await SearchContacts(userId, contactSearch);
+                    const results = await SearchContacts(contactSearch);
                     setContacts(results);
                 } catch {
                     toast.error("Error searching contacts.");
@@ -80,7 +79,6 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
         try {
             await CreateDeal(
                 selectedContact,
-                userId, // assigned_to_id
                 title,
                 Number(price),
                 closingDate,

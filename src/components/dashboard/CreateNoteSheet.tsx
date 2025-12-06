@@ -17,17 +17,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-import { SearchContacts } from "@/lib/data/backend/contacts";
 import type { Contact } from "@/lib/definitions/backend/contacts";
-import { CreateContactNote } from "@/lib/data/backend/notes";
-import { CreateContactLog } from "@/lib/data/backend/contactLogs";
+import { CreateContactLog, CreateContactNote, SearchContacts } from "@/lib/data/backend/clientCalls";
 
 interface CreateNoteSheetProps {
     ownerId: string; // for contact search
-    userId: string; // created_by
 }
 
-export default function CreateNoteSheet({ ownerId, userId }: CreateNoteSheetProps) {
+export default function CreateNoteSheet({ ownerId }: CreateNoteSheetProps) {
     const [open, setOpen] = useState(false);
     const [tab, setTab] = useState<"note" | "log">("note");
 
@@ -45,7 +42,7 @@ export default function CreateNoteSheet({ ownerId, userId }: CreateNoteSheetProp
         const delayDebounce = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
-                    const results = await SearchContacts(ownerId, contactSearch);
+                    const results = await SearchContacts(contactSearch);
                     setContacts(results);
                 } catch {
                     toast.error("Error searching contacts.");
@@ -62,11 +59,11 @@ export default function CreateNoteSheet({ ownerId, userId }: CreateNoteSheetProp
         if (!selectedContact) return toast.error("Please select a contact");
         try {
             if (tab === "note") {
-                await CreateContactNote(selectedContact, note, userId);
+                await CreateContactNote(selectedContact, note);
                 toast.success("Note created!");
             } else {
                 if (!contactMethod) return toast.error("Please enter contact method");
-                await CreateContactLog(selectedContact, contactMethod, userId, note);
+                await CreateContactLog(selectedContact, contactMethod, note);
                 toast.success("Contact log created!");
             }
             setOpen(false);

@@ -6,19 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-import { CreateContact } from "@/lib/data/backend/contacts";
 import {
     CreateContactPhoneNumberInput,
 } from "@/lib/definitions/backend/phoneNumbers";
 import {
     CreateContactEmailInput,
 } from "@/lib/definitions/backend/emails";
+import { CreateContact } from "@/lib/data/backend/clientCalls";
 
 export default function CreateContactForm({
-    userId,
     onSuccess,
 }: {
-    userId: string;
     onSuccess: () => void;
 }) {
     const [firstName, setFirstName] = useState("");
@@ -90,7 +88,6 @@ export default function CreateContactForm({
                 lender,
                 priceRange,
                 timeframe,
-                userId,
             );
 
             toast.success("Contact created!");

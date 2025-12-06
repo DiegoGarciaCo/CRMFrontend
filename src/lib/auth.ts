@@ -19,7 +19,12 @@ export const auth = betterAuth({
     advanced: {
         database: {
             generateId: false,
-        }
+        },
+        cookiePrefix: "crm",
+        crossSubDomainCookies: {
+            enabled: true,
+            domain: process.env.COOKIE_DOMAIN,
+        },
     },
     user: {
         modelName: "users",
@@ -38,9 +43,6 @@ export const auth = betterAuth({
     },
     account: {
         modelName: "accounts",
-    },
-    verification: {
-        modelName: "verifications",
     },
     emailAndPassword: {
         enabled: true,

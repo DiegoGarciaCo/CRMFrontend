@@ -4,23 +4,24 @@ import { SmartList } from '@/lib/definitions/backend/smartList';
 import { useState } from 'react';
 import SmartListFilterModal from './SmartListFilterModal';
 import CreateSmartListModal from './CreateSmartListModal';
+import { Tag } from '@/lib/definitions/backend/tag';
 
 interface SmartListSidebarProps {
-    userId: string;
     smartLists: SmartList[];
     activeListId: string | null;
     onListClick: (listId: string | null) => void;
     totalContacts: number;
     onFilterUpdate: () => void;
+    Tags: Tag[];
 }
 
 export default function SmartListSidebarNew({
-    userId,
     smartLists,
     activeListId,
     onListClick,
     totalContacts,
     onFilterUpdate,
+    Tags,
 }: SmartListSidebarProps) {
     const [filterModalOpen, setFilterModalOpen] = useState(false);
     const [selectedList, setSelectedList] = useState<SmartList | null>(null);
@@ -94,7 +95,7 @@ export default function SmartListSidebarNew({
                         ))}
 
                         {/* Create New List Button */}
-                        <CreateSmartListModal userId={userId} />
+                        <CreateSmartListModal />
                     </div>
                 </div>
             </div>
@@ -106,11 +107,11 @@ export default function SmartListSidebarNew({
                     onClose={() => setFilterModalOpen(false)}
                     smartListId={selectedList.ID}
                     smartListName={selectedList.Name}
-                    currentFilter={selectedList.FilterCriteria}
                     onFilterUpdate={() => {
                         onFilterUpdate();
                         setFilterModalOpen(false);
                     }}
+                    tags={Tags}
                 />
             )}
         </>

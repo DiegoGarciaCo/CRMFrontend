@@ -1,4 +1,4 @@
-import { NullString, NullTime, NullUUID, NullInt } from "../nullTypes";
+import { NullString, NullTime, NullInt } from "../nullTypes";
 
 // --------------------------------------------------------------
 //    Contact Log Interface
@@ -27,4 +27,5 @@ export interface Deal {
     StageID: string;
     CreatedAt: NullTime;
     UpdatedAt: NullTime;
+    ClosedDate: NullTime;
 }

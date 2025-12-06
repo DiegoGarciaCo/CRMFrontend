@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useRouter } from 'next/navigation';
-import { SearchContacts } from '@/lib/data/backend/contacts';
 import { toast } from 'sonner';
+import { SearchContacts } from '@/lib/data/backend/clientCalls';
 
 interface Contact {
     ID: string;
@@ -35,7 +35,7 @@ export default function ContactSearchInput({ ownerID }: ContactSearchInputProps)
         const timeout = setTimeout(async () => {
             try {
                 setLoading(true);
-                const contacts = await SearchContacts(ownerID, query);
+                const contacts = await SearchContacts(query);
                 setResults(contacts);
             } catch (err) {
                 console.error(err);

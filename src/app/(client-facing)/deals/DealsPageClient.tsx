@@ -12,23 +12,21 @@ import {
 } from '@dnd-kit/core';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AddStageModal } from "@/components/deals/addStageModal";
-import { GetStagesByClientType } from "@/lib/data/backend/stages";
-import { UpdateDeal } from "@/lib/data/backend/deals";
 import { Stage } from "@/lib/definitions/backend/stage";
 import { Deal } from "@/lib/definitions/backend/deals";
 import DealCard from "@/components/deals/DealCard";
 import StageColumn from "@/components/deals/StageColumn";
 import CreateDealSheet from "@/components/deals/CreateDealSheet";
+import { GetStagesByClientType, UpdateDeal } from "@/lib/data/backend/clientCalls";
 
 interface DealsPageClientProps {
     deals: Deal[];
-    stages: Stage[];
     userId: string;
 }
 
-export default function DealsPipelinePage({ deals: initialDeals, stages: initialStages, userId }: DealsPageClientProps) {
+export default function DealsPipelinePage({ deals: initialDeals, userId }: DealsPageClientProps) {
     const [clientType, setClientType] = useState<"buyer" | "seller">("buyer");
-    const [stages, setStages] = useState<Stage[]>(initialStages);
+    const [stages, setStages] = useState<Stage[]>([]);
     const [deals, setDeals] = useState<Deal[]>(initialDeals);
     const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -47,7 +45,7 @@ export default function DealsPipelinePage({ deals: initialDeals, stages: initial
     useEffect(() => {
         const fetchStages = async () => {
             try {
-                const newStages = await GetStagesByClientType(clientType, userId);
+                const newStages = await GetStagesByClientType(clientType);
                 setStages(newStages ?? []);
             } catch (err) {
                 console.error("Failed to load stages", err);
@@ -113,7 +111,6 @@ export default function DealsPipelinePage({ deals: initialDeals, stages: initial
             await UpdateDeal(
                 dealId,
                 deal.ContactID,
-                deal.AssignedToID,
                 deal.Title,
                 deal.Price,
                 deal.ClosingDate.Valid ? deal.ClosingDate.Time : '',
@@ -210,7 +207,7 @@ export default function DealsPipelinePage({ deals: initialDeals, stages: initial
 
                             {/* Add Stage Column */}
                             <div className="flex-shrink-0 min-w-[300px] min-h-[50vh] flex items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/50">
-                                <AddStageModal userId={userId} />
+                                <AddStageModal />
                             </div>
                         </div>
                     </TabsContent>

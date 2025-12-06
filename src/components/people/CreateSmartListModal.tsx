@@ -15,19 +15,16 @@ import {
     DialogFooter,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { CreateSmartList } from '@/lib/data/backend/clientCalls';
 
-import { CreateSmartList } from '@/lib/data/backend/smartLists';
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required'),
     description: z.string().optional(),
 });
 
-interface CreateSmartListModalProps {
-    userId: string;
-}
 
-export default function CreateSmartListModal({ userId }: CreateSmartListModalProps) {
+export default function CreateSmartListModal() {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -44,7 +41,7 @@ export default function CreateSmartListModal({ userId }: CreateSmartListModalPro
         setIsLoading(true);
 
         try {
-            await CreateSmartList(userId, name, description);
+            await CreateSmartList(name, description);
             toast.success('Smart list created!');
             location.reload();
 

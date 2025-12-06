@@ -13,3 +13,13 @@ export interface Tag {
     CreatedAt: NullTime;
     UpdatedAt: NullTime;
 }
+
+export interface TagLower {
+    id: string;                 // uuid.UUID
+    name: string;
+    description: string;
+    userID: string;
+    created_at: NullTime;
+    updated_at: NullTime;
+}
+

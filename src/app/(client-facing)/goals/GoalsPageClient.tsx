@@ -7,7 +7,7 @@ import GoalProgressCard from '@/components/goals/GoalProgressCard';
 import TransactionsProgressCard from '@/components/goals/TransactionsProgressCard';
 import GoalInsightsPanel from '@/components/goals/GoalInsightsPanel';
 import RecentDealsTable from '@/components/goals/RecentDealsTable';
-import { CreateGoal } from '@/lib/data/backend/goals';
+import { CreateGoal } from '@/lib/data/backend/clientCalls';
 
 interface GoalsPageClientProps {
     goal: Goal | undefined;
@@ -15,9 +15,8 @@ interface GoalsPageClientProps {
     userId: string;
 }
 
-export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClientProps) {
+export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
     const currentGoal = goal?.ID ? goal : null;
-    console.log("Current Goal:", currentGoal);
     const [showForm, setShowForm] = useState(false);
 
     const [form, setForm] = useState({
@@ -37,8 +36,7 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
         e.preventDefault();
 
 
-        const res = await CreateGoal(form.year, form.month, form.income_goal, form.transaction_goal, form.estimated_average_sale_price, form.estimated_average_commission_rate, userId);
-        console.log(res);
+        await CreateGoal(form.year, form.month, form.income_goal, form.transaction_goal, form.estimated_average_sale_price, form.estimated_average_commission_rate);
 
         // Optionally refresh page or state here
         location.reload();
@@ -47,16 +45,21 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
     // Calculate metrics from deals
     const metrics = useMemo(() => {
         // Separate closed and pipeline deals
-        // For this example, we'll consider deals with Commission as "closed"
-        // You might want to adjust this based on your actual stage logic
-        const closedDeals = deals.filter(deal => deal.Commission.Valid && deal.Commission.Int32 > 0);
-        const pipelineDeals = deals.filter(deal => !deal.Commission.Valid || deal.Commission.Int32 === 0);
+        const closedDeals = deals.filter(deal => deal.ClosedDate.Valid);
+        const pipelineDeals = deals.filter(deal => !deal.ClosedDate.Valid);
 
         const closedVolume = closedDeals.reduce((sum, deal) => sum + deal.Price, 0);
         const pipelineVolume = pipelineDeals.reduce((sum, deal) => sum + deal.Price, 0);
 
+        const closedCommissionPaid = closedDeals.reduce((sum, deal) =>
+            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
+        );
+        const pipelineCommissionPending = pipelineDeals.reduce((sum, deal) =>
+            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
+        );
+
         const totalCommission = closedDeals.reduce((sum, deal) =>
-            sum + (deal.Commission.Valid ? deal.Commission.Int32 : 0), 0
+            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
         );
 
         const closedTransactions = closedDeals.length;
@@ -77,6 +80,8 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
         return {
             closedVolume,
             pipelineVolume,
+            closedCommissionPaid,
+            pipelineCommissionPending,
             totalCommission,
             closedTransactions,
             pipelineTransactions,
@@ -266,8 +271,8 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
             <div className="mb-6">
                 <GoalProgressCard
                     incomeGoal={incomeGoal}
-                    closedVolume={metrics.closedVolume}
-                    pipelineVolume={metrics.pipelineVolume}
+                    closedVolume={metrics.closedCommissionPaid}
+                    pipelineVolume={metrics.pipelineCommissionPending}
                 />
             </div>
 
@@ -285,8 +290,8 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
                 {/* Insights Panel */}
                 <GoalInsightsPanel
                     incomeGoal={incomeGoal}
-                    closedVolume={metrics.closedVolume}
-                    pipelineVolume={metrics.pipelineVolume}
+                    closedVolume={metrics.closedCommissionPaid}
+                    pipelineVolume={metrics.pipelineCommissionPending}
                     monthsPassed={currentMonth}
                     totalMonths={totalMonths}
                     averageSalePrice={metrics.averageSalePrice}
@@ -312,7 +317,7 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
                 <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Under Contract</p>
+                            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Volume Under Contract</p>
                             <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{formatCurrency(metrics.pipelineVolume)}</p>
                         </div>
                         <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/30">
@@ -382,7 +387,7 @@ export default function GoalsPageClient({ goal, deals, userId }: GoalsPageClient
                 <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Projected Total</p>
+                            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Projected Total Volume</p>
                             <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                                 {formatCurrency(metrics.closedVolume + metrics.pipelineVolume)}
                             </p>

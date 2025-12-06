@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 import { z } from "zod";
-import { CreateStage } from "@/lib/data/backend/stages";
 import { toast } from "sonner";
+import { CreateStage } from "@/lib/data/backend/clientCalls";
 
 const StageSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -21,7 +21,7 @@ const StageSchema = z.object({
 
 type StageFormValues = z.infer<typeof StageSchema>;
 
-export function AddStageModal({ userId }: { userId: string }) {
+export function AddStageModal() {
     const [open, setOpen] = useState(false);
 
     const form = useForm<StageFormValues>({
@@ -41,7 +41,6 @@ export function AddStageModal({ userId }: { userId: string }) {
                 values.description ?? "",
                 values.client_type,
                 values.order_index,
-                userId
             );
 
             toast.success("Stage created!");

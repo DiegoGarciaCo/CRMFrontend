@@ -1,6 +1,4 @@
 import { NullString, NullTime, NullUUID } from "../nullTypes";
-import { Email } from "./emails";
-import { PhoneNumber } from "./phoneNumbers";
 
 // ------------------------------
 // Client Interface
@@ -91,4 +89,5 @@ export interface ContactWithDetails {
     LastContactedAt: NullTime; // sql.NullTime
     Emails: string; // JSON stringified Email[]
     PhoneNumbers: string; // JSON stringified PhoneNumber[]
+    Tags: string; // JSON stringified Tag[]
 }

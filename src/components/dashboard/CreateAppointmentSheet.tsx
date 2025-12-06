@@ -17,9 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-import { CreateAppointment } from "@/lib/data/backend/appointments";
 import type { Contact } from "@/lib/definitions/backend/contacts";
-import { SearchContacts } from "@/lib/data/backend/contacts";
+import { CreateAppointment, SearchContacts } from "@/lib/data/backend/clientCalls";
 
 export default function CreateAppointmentSheet({ ownerId }: { ownerId: string }) {
     const [open, setOpen] = useState(false);
@@ -41,7 +40,7 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
         const delayDebounce = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
-                    const results = await SearchContacts(ownerId, contactSearch);
+                    const results = await SearchContacts(contactSearch);
                     setContacts(results);
                 } catch {
                     toast.error("Error searching contacts.");
@@ -59,7 +58,6 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
 
         try {
             await CreateAppointment(
-                ownerId,
                 selectedContact,
                 title,
                 scheduledAt,

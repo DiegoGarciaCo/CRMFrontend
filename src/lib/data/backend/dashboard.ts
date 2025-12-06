@@ -1,24 +1,29 @@
 import { Contact } from "../../definitions/backend/contacts";
 import { Appointment } from "../../definitions/backend/appointments";
-import { toast } from "sonner";
-import { Task } from "@/lib/definitions/backend/tasks";
+import { cookies } from "next/headers";
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+
+
 
 // ----------------------------------------------
 // Get Dashboard Contacts
 // ----------------------------------------------
 
 export async function GetDashboardContacts(): Promise<Contact[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
     const res = await fetch(`${BASE_URL}/dashboard/5-newest-contacts`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching dashboard contacts: ${res.statusText}`);
+        throw new Error(`Error fetching dashboard contacts: ${res.statusText}`);
     }
 
     return res.json();
@@ -28,16 +33,21 @@ export async function GetDashboardContacts(): Promise<Contact[]> {
 // Get Appointment Count
 // ----------------------------------------------
 
-export async function GetAppointmentCount(assigned_to_id: string): Promise<number> {
-    const res = await fetch(`${BASE_URL}/dashboard/appointments/${assigned_to_id}`, {
+export async function GetAppointmentCount(): Promise<number> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching appointment count: ${res.statusText}`);
+        throw new Error(`Error fetching appointment count: ${res.statusText}`);
     }
 
     const data = await res.json();
@@ -48,16 +58,21 @@ export async function GetAppointmentCount(assigned_to_id: string): Promise<numbe
 // Get Task Count
 // ----------------------------------------------
 
-export async function GetTaskCount(assigned_to_id: string): Promise<number> {
-    const res = await fetch(`${BASE_URL}/dashboard/tasks-today/${assigned_to_id}`, {
+export async function GetTaskCount(): Promise<number> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/tasks-today`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching task count: ${res.statusText}`);
+        throw new Error(`Error fetching task count: ${res.statusText}`);
     }
 
     const data = await res.json();
@@ -68,16 +83,21 @@ export async function GetTaskCount(assigned_to_id: string): Promise<number> {
 // New Contacts Count
 // ----------------------------------------------
 
-export async function GetNewContactsCount(owner_id: string): Promise<number> {
-    const res = await fetch(`${BASE_URL}/dashboard/new-contacts/${owner_id}`, {
+export async function GetNewContactsCount(): Promise<number> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/new-contacts`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching new contacts count: ${res.statusText}`);
+        throw new Error(`Error fetching new contacts count: ${res.statusText}`);
     }
 
     const data = await res.json();
@@ -88,16 +108,21 @@ export async function GetNewContactsCount(owner_id: string): Promise<number> {
 // Get 5 Upcoming Appointments
 // ----------------------------------------------
 
-export async function GetUpcomingAppointments(assigned_to_id: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE_URL}/dashboard/5-upcoming-appointments/${assigned_to_id}`, {
+export async function GetUpcomingAppointments(): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/5-upcoming-appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching upcoming appointments: ${res.statusText}`);
+        throw new Error(`Error fetching upcoming appointments: ${res.statusText}`);
     } return res.json();
 }
 
@@ -105,16 +130,21 @@ export async function GetUpcomingAppointments(assigned_to_id: string): Promise<A
 // Get Contacts Count 
 // ----------------------------------------------
 
-export async function GetContactsCount(owner_id: string): Promise<number> {
-    const res = await fetch(`${BASE_URL}/dashboard/contacts-count/${owner_id}`, {
+export async function GetContactsCount(): Promise<number> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/contacts-count`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching contacts count: ${res.statusText}`);
+        throw new Error(`Error fetching contacts count: ${res.statusText}`);
     }
 
     const data = await res.json();

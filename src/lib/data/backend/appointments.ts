@@ -1,51 +1,28 @@
-import { toast } from 'sonner';
 import { Appointment } from '../../definitions/backend/appointments';
+import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
 
-// ----------------------------------------------
-// Create Appointment
-// ----------------------------------------------
-
-export async function CreateAppointment(assigned_to_id: string, contact_id: string, title: string, scheduled_at: string, notes: string, outcome: string, location: string, type: string): Promise<Appointment> {
-    const res = await fetch(`${BASE_URL}/appointments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            assigned_to_id,
-            contact_id,
-            title,
-            scheduled_at,
-            notes,
-            outcome,
-            location,
-            type,
-        }),
-    });
-
-    if (!res.ok) {
-        toast.error(`Error creating appointment: ${res.statusText}`);
-    }
-
-    return res.json();
-}
 
 // ----------------------------------------------
 // Get Appointment by ID
 // ----------------------------------------------
 
 export async function GetAppointmentByID(appointment_id: string): Promise<Appointment> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching appointment: ${res.statusText}`);
+        throw new Error(`Error fetching appointment: ${res.statusText}`);
     }
 
     return res.json();
@@ -56,10 +33,15 @@ export async function GetAppointmentByID(appointment_id: string): Promise<Appoin
 // ----------------------------------------------
 
 export async function UpdateAppointment(appointment_id: string, contact_id: string, title: string, scheduled_at: string, notes: string, outcome: string, location: string, type: string): Promise<Appointment> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
         body: JSON.stringify({
             contact_id,
@@ -73,7 +55,7 @@ export async function UpdateAppointment(appointment_id: string, contact_id: stri
     });
 
     if (!res.ok) {
-        toast.error(`Error updating appointment: ${res.statusText}`);
+        throw new Error(`Error updating appointment: ${res.statusText}`);
     }
 
     return res.json();
@@ -84,15 +66,20 @@ export async function UpdateAppointment(appointment_id: string, contact_id: stri
 // ----------------------------------------------
 
 export async function DeleteAppointment(appointment_id: string): Promise<void> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error deleting appointment: ${res.statusText}`);
+        throw new Error(`Error deleting appointment: ${res.statusText}`);
     }
 
     return;
@@ -102,16 +89,21 @@ export async function DeleteAppointment(appointment_id: string): Promise<void> {
 // List Today's Appointments
 // ----------------------------------------------
 
-export async function ListTodaysAppointments(assignedToID: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE_URL}/appointments/today/${assignedToID}`, {
+export async function ListTodaysAppointments(): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/appointments/today`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching today's appointments: ${res.statusText}`);
+        throw new Error(`Error fetching today's appointments: ${res.statusText}`);
     }
 
     return res.json();
@@ -121,16 +113,21 @@ export async function ListTodaysAppointments(assignedToID: string): Promise<Appo
 // List Upcoming Appointments
 // ----------------------------------------------
 
-export async function ListUpcomingAppointments(assignedToID: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE_URL}/appointments/upcoming/${assignedToID}`, {
+export async function ListUpcomingAppointments(): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/appointments/upcoming`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching upcoming appointments: ${res.statusText}`);
+        throw new Error(`Error fetching upcoming appointments: ${res.statusText}`);
     }
 
     return res.json();
@@ -140,16 +137,21 @@ export async function ListUpcomingAppointments(assignedToID: string): Promise<Ap
 // List Past Appointments
 // ----------------------------------------------
 
-export async function ListPastAppointments(assignedToID: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE_URL}/appointments/past/${assignedToID}`, {
+export async function ListPastAppointments(): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/appointments/past`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching past appointments: ${res.statusText}`);
+        throw new Error(`Error fetching past appointments: ${res.statusText}`);
     }
 
     return res.json();
@@ -159,16 +161,21 @@ export async function ListPastAppointments(assignedToID: string): Promise<Appoin
 // List All Appointments
 // ----------------------------------------------
 
-export async function ListAllAppointments(assignedToID: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE_URL}/appointments/assigned/${assignedToID}`, {
+export async function ListAllAppointments(): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching all appointments: ${res.statusText}`);
+        throw new Error(`Error fetching all appointments: ${res.statusText}`);
     }
 
     return res.json();
@@ -179,15 +186,20 @@ export async function ListAllAppointments(assignedToID: string): Promise<Appoint
 // ----------------------------------------------
 
 export async function ListAppointmentsByContactID(contact_id: string): Promise<Appointment[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("crm.session_token");
+    const encoded = encodeURIComponent(session?.value || '');
+
     const res = await fetch(`${BASE_URL}/appointments/contact/${contact_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            Cookie: `crm.session_token=${encoded}`,
         },
     });
 
     if (!res.ok) {
-        toast.error(`Error fetching appointments for contact: ${res.statusText}`);
+        throw new Error(`Error fetching appointments by contact ID: ${res.statusText}`);
     }
 
     return res.json();

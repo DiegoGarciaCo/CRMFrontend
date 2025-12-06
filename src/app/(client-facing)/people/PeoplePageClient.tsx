@@ -6,17 +6,19 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SmartListSidebar from '@/components/people/SmartListSidebar';
 import ContactsTable from '@/components/people/ContactsTable';
-import { GetContactsBySmartListID } from '@/lib/data/backend/contacts';
 import { Button } from '@/components/ui/button';
 import ImportContactsModal from '@/components/people/ImportContactsModal';
+import { Tag } from '@/lib/definitions/backend/tag';
+import { GetContactsBySmartListID } from '@/lib/data/backend/clientCalls';
 
 interface PeoplePageClientProps {
     userId: string;
     initialContacts: Contact[];
     smartLists: SmartList[];
+    tags: Tag[];
 }
 
-export default function PeoplePageClient({ userId, initialContacts, smartLists }: PeoplePageClientProps) {
+export default function PeoplePageClient({ userId, initialContacts, smartLists, tags }: PeoplePageClientProps) {
     const router = useRouter();
     const [activeListId, setActiveListId] = useState<string | null>(null);
     const [contacts, setContacts] = useState<Contact[]>(initialContacts);
@@ -79,12 +81,12 @@ export default function PeoplePageClient({ userId, initialContacts, smartLists }
     return (
         <div className="flex h-screen">
             <SmartListSidebar
-                userId={userId}
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
                 totalContacts={initialContacts.length}
                 onFilterUpdate={handleFilterUpdate}
+                Tags={tags}
             />
 
             <div className="flex-1 overflow-auto">

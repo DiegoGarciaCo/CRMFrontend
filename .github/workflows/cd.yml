@@ -1,0 +1,92 @@
+name: cd
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-push:
+    name: build-and-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: set up node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: install deps
+        run: npm ci
+
+      - name: build app
+        env:
+          BASE_URL: ${{ secrets.BASE_URL}}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET}}
+          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL}}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID}}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET}}
+          APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID}}
+          APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET}}
+          APPLE_APP_BUNDLE_IDENTIFIER: ${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER}}
+          DATABASE_URL: ${{ secrets.DATABASE_URL}}
+          POSTMARK_SERVER_TOKEN: ${{ secrets.POSTMARK_SERVER_TOKEN}}
+          POSTMARK_FROM_EMAIL: ${{ secrets.POSTMARK_FROM_EMAIL}}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET}}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY}}
+          COOKIE_DOMAIN: ${{ secrets.COOKIE_DOMAIN}}
+        run: npm run build
+
+      - name: build image
+        run: docker build -t dgarcia51/crm:${{ github.sha }} .
+
+      - name: tag image
+        run: docker tag dgarcia51/crm:${{ github.sha }} dgarcia51/crm:latest
+
+      - name: login to docker hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{vars.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_TOKEN}}
+
+      - name: push image
+        run: |
+          docker push dgarcia51/crm:${{ github.sha }}
+          docker push dgarcia51/crm:latest
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - build-and-push
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo BASE_URL=${{ secrets.BASE_URL}} >> .env.crm
+          echo BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET}} >> .env.crm
+          echo BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL}} >> .env.crm 
+          echo GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID}} >> .env.crm
+          echo GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET}} >> .env.crm
+          echo APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID}} >> .env.crm
+          echo APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET}} >> .env.crm
+          echo APPLE_APP_BUNDLE_IDENTIFIER=${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER}} >> .env.crm
+          echo POSTMARK_SERVER_TOKEN=${{ secrets.POSTMARK_SERVER_TOKEN }} >> .env.crm
+          echo POSTMARK_FROM_EMAIL=${{ secrets.POSTMARK_FROM_EMAIL}} >> .env.crm
+          echo DATABASE_URL=${{ secrets.DATABASE_URL}} >> .env.crm
+          echo STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET}} >> .env.crm
+          echo STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY}} >> .env.crm
+          echo COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN}} >> .env.crm
+
+      - name: deploy stack
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: crm
+          file: docker-compose.yml
+          host: soldbyghost.com
+          user: ghost
+          ssh_key: ${{ secrets.SSH_KEY }}

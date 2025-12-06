@@ -3,6 +3,9 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { User } from "lucide-react"; // your fallback icon
+import { toast } from "sonner";
+
+const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
 
 export default function AvatarUpload({ session }: { session: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -11,9 +14,22 @@ export default function AvatarUpload({ session }: { session: any }) {
         fileInputRef.current?.click();
     };
     const onUpload = async (file: File) => {
-        // Placeholder for upload logic
-        console.log("Uploading file:", file);
-        // Implement actual upload logic here, e.g., call an API endpoint
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch(`${BASE_URL}/upload-profile-picture`, {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!res.ok) {
+            toast.error(`Error uploading profile picture: ${res.statusText}`);
+        }
+        else {
+            toast.success('Profile picture uploaded successfully!');
+            location.reload();
+        }
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

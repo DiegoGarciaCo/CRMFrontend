@@ -4,6 +4,7 @@ import PeoplePageClient from './PeoplePageClient';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { GetAllTags } from '@/lib/data/backend/tags';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +19,10 @@ export default async function PeoplePage() {
     }
 
     // Fetch data in parallel
-    const [contactsResult, smartListsResult] = await Promise.allSettled([
-        GetAllContacts(userId),
-        GetAllSmartLists(userId),
+    const [contactsResult, smartListsResult, tagsResult] = await Promise.allSettled([
+        GetAllContacts(),
+        GetAllSmartLists(),
+        GetAllTags(),
     ]);
 
     const safe = (result: any) =>
@@ -30,14 +32,8 @@ export default async function PeoplePage() {
 
     const contacts = safe(contactsResult);
     const smartLists = safe(smartListsResult);
+    const tags = safe(tagsResult);
 
-    // Debug logging (remove in production)
-    if (contactsResult.status === 'rejected') {
-        console.error('Failed to fetch contacts:', contactsResult.reason);
-    }
-    if (smartListsResult.status === 'rejected') {
-        console.error('Failed to fetch smart lists:', smartListsResult.reason);
-    }
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950">
@@ -45,6 +41,7 @@ export default async function PeoplePage() {
                 userId={userId}
                 initialContacts={contacts}
                 smartLists={smartLists}
+                tags={tags}
             />
         </div>
     );

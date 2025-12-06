@@ -17,15 +17,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import type { Contact } from "@/lib/definitions/backend/contacts";
-import { SearchContacts } from "@/lib/data/backend/contacts";
-import { CreateTask } from "@/lib/data/backend/task";
+import { CreateTask, SearchContacts } from "@/lib/data/backend/clientCalls";
 
 interface CreateTaskSheetProps {
     ownerId: string; // for contact search
-    userId: string; // assigned_to_id (current user)
 }
 
-export default function CreateTaskSheet({ ownerId, userId }: CreateTaskSheetProps) {
+export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
     const [open, setOpen] = useState(false);
 
     // Form state
@@ -45,7 +43,7 @@ export default function CreateTaskSheet({ ownerId, userId }: CreateTaskSheetProp
         const delayDebounce = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
-                    const results = await SearchContacts(ownerId, contactSearch);
+                    const results = await SearchContacts(contactSearch);
                     setContacts(results);
                 } catch {
                     toast.error("Error searching contacts.");
@@ -64,7 +62,6 @@ export default function CreateTaskSheet({ ownerId, userId }: CreateTaskSheetProp
         try {
             await CreateTask(
                 selectedContact,
-                userId,
                 title,
                 type,
                 date,
@@ -128,8 +125,8 @@ export default function CreateTaskSheet({ ownerId, userId }: CreateTaskSheetProp
                                     <button
                                         key={c.ID}
                                         className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
-                                                ? "bg-zinc-100 dark:bg-zinc-800"
-                                                : ""
+                                            ? "bg-zinc-100 dark:bg-zinc-800"
+                                            : ""
                                             }`}
                                         onClick={() => {
                                             setSelectedContact(c.ID);

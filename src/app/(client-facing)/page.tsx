@@ -34,12 +34,12 @@ export default async function Dashboard() {
         totalContacts,
     ] = await Promise.allSettled([
         GetDashboardContacts(),
-        GetAppointmentCount(userId),
-        GetTaskCount(userId),
-        GetNewContactsCount(userId),
-        ListUpcomingAppointments(userId),
-        GetTasksDueToday(userId),
-        GetContactsCount(userId),
+        GetAppointmentCount(),
+        GetTaskCount(),
+        GetNewContactsCount(),
+        ListUpcomingAppointments(),
+        GetTasksDueToday(),
+        GetContactsCount(),
     ]);
 
     // Extract data or use fallbacks
@@ -125,10 +125,10 @@ export default async function Dashboard() {
                 <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                     <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Quick Actions</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <CreateContactSheet userId={userId} />
+                        <CreateContactSheet />
                         <CreateAppointmentSheet ownerId={userId} />
-                        <CreateTaskSheet userId={userId} ownerId={userId} />
-                        <CreateNoteSheet userId={userId} ownerId={userId} />
+                        <CreateTaskSheet ownerId={userId} />
+                        <CreateNoteSheet ownerId={userId} />
                     </div>
                 </div>
             </main>

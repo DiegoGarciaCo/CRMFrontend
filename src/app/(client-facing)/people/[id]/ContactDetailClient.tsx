@@ -5,15 +5,11 @@ import { ContactNote } from '@/lib/definitions/backend/notes';
 import { ContactLog } from '@/lib/definitions/backend/contactLogs';
 import { Email } from '@/lib/definitions/backend/emails';
 import { PhoneNumber } from '@/lib/definitions/backend/phoneNumbers';
-import { Tag } from '@/lib/definitions/backend/tag';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CreateContactNote } from '@/lib/data/backend/notes';
-import { CreateContactLog } from '@/lib/data/backend/contactLogs';
-import { AddTagToContact, RemoveTagFromContact } from '@/lib/data/backend/tags';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import {
@@ -23,6 +19,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { AddTagToContact, CreateContactLog, CreateContactNote, RemoveTagFromContact } from '@/lib/data/backend/clientCalls';
+import { NullString, NullTime, NullUUID } from '@/lib/definitions/nullTypes';
+
+interface TagLowercase {
+    id: string;
+    name: string;
+    ID: string;
+    Name: string;
+    Description: NullString;
+    UserID: NullUUID;
+    TeamID: NullUUID;
+    CreatedAt: NullTime;
+    UpdatedAt: NullTime;
+}
 
 interface ContactDetailClientProps {
     contact: ContactWithDetails;
@@ -30,8 +40,8 @@ interface ContactDetailClientProps {
     logs: ContactLog[];
     emails: Email[];
     phoneNumbers: PhoneNumber[];
-    tags: Tag[];
-    allTags: Tag[];
+    tags: TagLowercase[];
+    allTags: TagLowercase[];
     userId: string;
 }
 
@@ -52,9 +62,6 @@ export default function ContactDetailClient({
     const [newLog, setNewLog] = useState({ method: 'Call', note: '' });
     const [isAddingNote, setIsAddingNote] = useState(false);
     const [isAddingLog, setIsAddingLog] = useState(false);
-
-    console.log("Emails:", emails);
-    console.log("Phone Numbers:", phoneNumbers);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -88,7 +95,7 @@ export default function ContactDetailClient({
 
         setIsAddingNote(true);
         try {
-            const note = await CreateContactNote(contact.ID, newNote, userId);
+            const note = await CreateContactNote(contact.ID, newNote);
             setNotes([note, ...notes]);
             setNewNote('');
             toast.success('Note added successfully');
@@ -105,7 +112,7 @@ export default function ContactDetailClient({
 
         setIsAddingLog(true);
         try {
-            const log = await CreateContactLog(contact.ID, newLog.method, userId, newLog.note);
+            const log = await CreateContactLog(contact.ID, newLog.method, newLog.note);
             setLogs([log, ...logs]);
             setNewLog({ method: 'Call', note: '' });
             toast.success('Contact log added successfully');
@@ -321,6 +328,14 @@ export default function ContactDetailClient({
                                 )}
                             </div>
                         </div>
+
+                        {/* Tags Section */}
+                        <TagsSection
+                            contactId={contact.ID}
+                            contactTags={allTags}
+                            availableTags={initialTags}
+                            userId={userId}
+                        />
                     </div>
                 </div>
             </div>
@@ -469,3 +484,134 @@ export default function ContactDetailClient({
     );
 }
 
+
+// Tags Section Component
+interface TagsSectionProps {
+    contactId: string;
+    contactTags: TagLowercase[];
+    availableTags: TagLowercase[];
+    userId: string;
+}
+
+function TagsSection({ contactId, contactTags, availableTags }: TagsSectionProps) {
+    const router = useRouter();
+    const [tags, setTags] = useState<TagLowercase[]>(contactTags);
+    const [selectedTagId, setSelectedTagId] = useState<string>('');
+    const [isAddingTag, setIsAddingTag] = useState(false);
+
+    const handleAddTag = async () => {
+        if (!selectedTagId) return;
+
+        setIsAddingTag(true);
+        try {
+            await AddTagToContact(contactId, selectedTagId);
+
+            // Find the tag that was added
+            const addedTag = availableTags.find(t => t.id === selectedTagId);
+            if (addedTag) {
+                setTags([...tags, addedTag]);
+            }
+
+            setSelectedTagId('');
+            toast.success('Tag added successfully');
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to add tag:', error);
+            toast.error('Failed to add tag');
+        } finally {
+            setIsAddingTag(false);
+        }
+    };
+
+    const handleRemoveTag = async (tagId: string) => {
+        try {
+            await RemoveTagFromContact(contactId, tagId);
+            setTags(tags.filter(t => t.id !== tagId));
+            toast.success('Tag removed successfully');
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to remove tag:', error);
+            toast.error('Failed to remove tag');
+        }
+    };
+
+    // Filter out tags that are already assigned to the contact
+    const availableTagsToAdd = availableTags.filter(
+        availableTag => !tags.some(tag => tag.id === availableTag.id)
+    );
+
+    return (
+        <div>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                Tags
+            </h3>
+            <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/50">
+                {/* Current Tags */}
+                {tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                            <Badge
+                                key={tag.id}
+                                variant="secondary"
+                                className="group flex items-center gap-1 bg-purple-100 pr-1 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50"
+                            >
+                                <span>{tag.name}</span>
+                                <button
+                                    onClick={() => handleRemoveTag(tag.id)}
+                                    className="ml-1 rounded-full p-0.5 hover:bg-purple-300 dark:hover:bg-purple-800"
+                                    title="Remove tag"
+                                >
+                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </Badge>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-xs text-zinc-500 dark:text-zinc-500">No tags assigned</p>
+                )}
+
+                {/* Add Tag */}
+                {availableTagsToAdd.length > 0 && (
+                    <div className="space-y-2 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                        <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            Add Tag
+                        </label>
+                        <div className="flex gap-2">
+                            <Select
+                                value={selectedTagId}
+                                onValueChange={setSelectedTagId}
+                            >
+                                <SelectTrigger className="flex-1 text-xs">
+                                    <SelectValue placeholder="Select a tag..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableTagsToAdd.map((tag) => (
+                                        <SelectItem key={tag.ID} value={tag.ID}>
+                                            {tag.Name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button
+                                size="sm"
+                                onClick={handleAddTag}
+                                disabled={isAddingTag || !selectedTagId}
+                                className="flex-shrink-0"
+                            >
+                                {isAddingTag ? 'Adding...' : 'Add'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {availableTagsToAdd.length === 0 && tags.length > 0 && (
+                    <p className="border-t border-zinc-200 pt-3 text-xs text-zinc-500 dark:border-zinc-700 dark:text-zinc-500">
+                        All available tags have been assigned
+                    </p>
+                )}
+            </div>
+        </div>
+    );
+}

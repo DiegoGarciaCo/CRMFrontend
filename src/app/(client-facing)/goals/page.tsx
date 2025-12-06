@@ -20,8 +20,8 @@ export default async function GoalsPage() {
 
     // Fetch data in parallel
     const [goalsResult, dealsResult] = await Promise.allSettled([
-        GetGoalsByUserIDAndYear(userId, currentYear),
-        GetDealsByAssignedToID(userId),
+        GetGoalsByUserIDAndYear(currentYear),
+        GetDealsByAssignedToID(),
     ]);
 
     const safe = (result: any) =>

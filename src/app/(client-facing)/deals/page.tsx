@@ -1,10 +1,8 @@
 import { GetDealsByAssignedToID } from '@/lib/data/backend/deals';
-import { GetAllStages } from '@/lib/data/backend/stages';
 import DealsPageClient from './DealsPageClient';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Stage } from '@/lib/definitions/backend/stage';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +16,8 @@ export default async function DealsPage() {
     }
 
     // Fetch data in parallel
-    const [dealsResult, stagesResult] = await Promise.allSettled([
-        GetDealsByAssignedToID(userId),
-        GetAllStages(userId),
+    const [dealsResult] = await Promise.allSettled([
+        GetDealsByAssignedToID(),
     ]);
 
     const safe = (result: any) =>
@@ -29,14 +26,11 @@ export default async function DealsPage() {
             : [];
 
     const deals = safe(dealsResult);
-    const stages = safe(stagesResult);
 
-    // Sort stages by OrderIndex
-    const sortedStages = stages.sort((a: Stage, b: Stage) => a.OrderIndex - b.OrderIndex);
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-            <DealsPageClient deals={deals} stages={sortedStages} userId={userId} />
+            <DealsPageClient deals={deals} userId={userId} />
         </div>
     );
 }

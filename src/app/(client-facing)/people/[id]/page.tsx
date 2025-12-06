@@ -1,7 +1,7 @@
 import { GetContactByID } from '@/lib/data/backend/contacts';
 import { GetContactNotesByContactID } from '@/lib/data/backend/notes';
 import { GetContactLogByID } from '@/lib/data/backend/contactLogs';
-import { GetTagsByContactID, GetAllTags } from '@/lib/data/backend/tags';
+import { GetAllTags } from '@/lib/data/backend/tags';
 import ContactDetailClient from './ContactDetailClient';
 import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
@@ -19,12 +19,11 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
     const userId = session?.user?.id as string;
 
     // Fetch all data in parallel
-    const [contactResult, notesResult, logsResult, tagsResult, allTagsResult] = await Promise.allSettled([
+    const [contactResult, notesResult, logsResult, tagsResult] = await Promise.allSettled([
         GetContactByID(id),
         GetContactNotesByContactID(id),
         GetContactLogByID(id),
-        GetTagsByContactID(id),
-        GetAllTags(userId),
+        GetAllTags(),
     ]);
 
     if (contactResult.status === 'rejected') {
@@ -40,7 +39,7 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
     const notes = safe(notesResult);
     const logs = safe(logsResult);
     const tags = safe(tagsResult);
-    const allTags = safe(allTagsResult);
+    const contactTags = JSON.parse(contact.Tags);
 
     const emails = JSON.parse(contact.Emails)
     const phoneNumbers = JSON.parse(contact.PhoneNumbers)
@@ -53,7 +52,7 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
             emails={emails}
             phoneNumbers={phoneNumbers}
             tags={tags}
-            allTags={allTags}
+            allTags={contactTags}
             userId={userId}
         />
     );

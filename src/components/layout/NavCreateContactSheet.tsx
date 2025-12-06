@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import CreateContactForm from "./CreateContactForm";
 
-export default function NavCreateContactSheet({ userId }: { userId: string }) {
+export default function NavCreateContactSheet() {
     const [open, setOpen] = useState(false);
 
     return (
@@ -22,7 +22,6 @@ export default function NavCreateContactSheet({ userId }: { userId: string }) {
                 </SheetHeader>
 
                 <CreateContactForm
-                    userId={userId}
                     onSuccess={() => setOpen(false)}
                 />
             </SheetContent>

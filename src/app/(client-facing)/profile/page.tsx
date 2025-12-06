@@ -30,6 +30,7 @@ import { SetPasswordButton } from "@/components/profile/setPasswordButton"
 import { TwoFactorAuth } from "@/components/profile/twoFactorAuth"
 import { PasskeyManagement } from "@/components/profile/passkeyManagement"
 import AvatarUpload from "@/components/profile/AvatarUploadButton"
+import { APIKeyManagement } from "@/components/profile/apiKeyManagement"
 
 export default async function ProfilePage() {
     const session = await auth.api.getSession({ headers: await headers() })
@@ -164,9 +165,10 @@ async function SecurityTab({
     email: string
     isTwoFactorEnabled: boolean
 }) {
-    const [passkeys, accounts] = await Promise.all([
+    const [passkeys, accounts, apiKeys] = await Promise.all([
         auth.api.listPasskeys({ headers: await headers() }),
         auth.api.listUserAccounts({ headers: await headers() }),
+        auth.api.listApiKeys({ headers: await headers() }),
     ])
 
     const hasPasswordAccount = accounts.some(a => a.providerId === "credential")
@@ -218,6 +220,18 @@ async function SecurityTab({
                 </CardHeader>
                 <CardContent>
                     <PasskeyManagement passkeys={passkeys} />
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>API Keys</CardTitle>
+                    <CardDescription>
+                        Create and manage API keys for server-side access.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <APIKeyManagement apiKeys={apiKeys} />
                 </CardContent>
             </Card>
         </div>

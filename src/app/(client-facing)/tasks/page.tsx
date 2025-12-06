@@ -18,9 +18,9 @@ export default async function TasksPage() {
 
     // Fetch all task data in parallel
     const [allTasksResult, lateTasksResult, todayTasksResult] = await Promise.allSettled([
-        GetTasksByAssignedToID(userId),
-        GetLateTasks(userId),
-        GetTasksDueToday(userId),
+        GetTasksByAssignedToID(),
+        GetLateTasks(),
+        GetTasksDueToday(),
     ]);
 
     const safe = (result: any) =>

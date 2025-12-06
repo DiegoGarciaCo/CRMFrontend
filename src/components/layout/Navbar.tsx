@@ -72,7 +72,7 @@ export default function Navbar({ userId }: { userId: string }) {
                         </button>
 
                         {/* Add Button */}
-                        <NavCreateContactSheet userId={userId} />
+                        <NavCreateContactSheet />
 
                         {/* User Menu */}
                         <UserMenuButton />
