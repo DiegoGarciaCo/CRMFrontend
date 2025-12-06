@@ -39,7 +39,22 @@ jobs:
         run: npm run build
 
       - name: build image
-        run: docker build -t dgarcia51/crm:${{ github.sha }} .
+        run: docker build \
+          --build-arg BASE_URL=${{ secrets.BASE_URL }} \
+          --build-arg BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }} \
+          --build-arg BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }} \
+          --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+          --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+          --build-arg APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }} \
+          --build-arg APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }} \
+          --build-arg APPLE_APP_BUNDLE_IDENTIFIER=${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER }} \
+          --build-arg POSTMARK_SERVER_TOKEN=${{ secrets.POSTMARK_SERVER_TOKEN }} \
+          --build-arg POSTMARK_FROM_EMAIL=${{ secrets.POSTMARK_FROM_EMAIL }} \
+          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --build-arg STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }} \
+          --build-arg STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }} \
+          --build-arg COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }} \
+          -t dgarcia51/crm:${{ github.sha }} .
 
       - name: tag image
         run: docker tag dgarcia51/crm:${{ github.sha }} dgarcia51/crm:latest
