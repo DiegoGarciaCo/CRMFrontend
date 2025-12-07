@@ -1,57 +1,44 @@
+# syntax=docker/dockerfile:1
 FROM node:20-alpine AS base
 
+# Install dependencies
 FROM base AS deps
 RUN apk add --no-cache \
     openssl \
     zlib \
     libgcc \
-    && ln -s /usr/lib/libssl.so.1.1 /usr/lib/libssl.so  # Create symlink for compatibility
+    && ln -s /usr/lib/libssl.so.1.1 /usr/lib/libssl.so
 WORKDIR /app
-
-
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN npm ci
 
+# Builder stage
 FROM base AS builder
 WORKDIR /app
-
-ARG BASE_URL
-ARG BETTER_AUTH_SECRET
-ARG BETTER_AUTH_URL
-ARG GOOGLE_CLIENT_ID
-ARG GOOGLE_CLIENT_SECRET
-ARG APPLE_CLIENT_ID
-ARG APPLE_CLIENT_SECRET
-ARG APPLE_APP_BUNDLE_IDENTIFIER
-ARG POSTMARK_SERVER_TOKEN
-ARG POSTMARK_FROM_EMAIL
-ARG DATABASE_URL
-ARG STRIPE_WEBHOOK_SECRET
-ARG STRIPE_SECRET_KEY
-ARG COOKIE_DOMAIN
-
-ENV BASE_URL=$BASE_URL
-ENV BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET
-ENV BETTER_AUTH_URL=$BETTER_AUTH_URL
-ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-ENV GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-ENV APPLE_CLIENT_ID=$APPLE_CLIENT_ID
-ENV APPLE_CLIENT_SECRET=$APPLE_CLIENT_SECRET
-ENV APPLE_APP_BUNDLE_IDENTIFIER=$APPLE_APP_BUNDLE_IDENTIFIER
-ENV POSTMARK_SERVER_TOKEN=$POSTMARK_SERVER_TOKEN
-ENV POSTMARK_FROM_EMAIL=$POSTMARK_FROM_EMAIL
-ENV DATABASE_URL=$DATABASE_URL
-ENV STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
-ENV STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
-ENV COOKIE_DOMAIN=$COOKIE_DOMAIN
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# Use BuildKit secret mounts to pass env variables at build-time
+RUN --mount=type=secret,id=BASE_URL,env=BASE_URL \
+    --mount=type=secret,id=BETTER_AUTH_SECRET,env=BETTER_AUTH_SECRET \
+    --mount=type=secret,id=BETTER_AUTH_URL,env=BETTER_AUTH_URL \
+    --mount=type=secret,id=GOOGLE_CLIENT_ID,env=GOOGLE_CLIENT_ID \
+    --mount=type=secret,id=GOOGLE_CLIENT_SECRET,env=GOOGLE_CLIENT_SECRET \
+    --mount=type=secret,id=APPLE_CLIENT_ID,env=APPLE_CLIENT_ID \
+    --mount=type=secret,id=APPLE_CLIENT_SECRET,env=APPLE_CLIENT_SECRET \
+    --mount=type=secret,id=APPLE_APP_BUNDLE_IDENTIFIER,env=APPLE_APP_BUNDLE_IDENTIFIER \
+    --mount=type=secret,id=POSTMARK_SERVER_TOKEN,env=POSTMARK_SERVER_TOKEN \
+    --mount=type=secret,id=POSTMARK_FROM_EMAIL,env=POSTMARK_FROM_EMAIL \
+    --mount=type=secret,id=DATABASE_URL,env=DATABASE_URL \
+    --mount=type=secret,id=STRIPE_WEBHOOK_SECRET,env=STRIPE_WEBHOOK_SECRET \
+    --mount=type=secret,id=STRIPE_SECRET_KEY,env=STRIPE_SECRET_KEY \
+    --mount=type=secret,id=COOKIE_DOMAIN,env=COOKIE_DOMAIN \
+    sh -c "npm run build"
 
+# Runner stage
 FROM base AS runner
 WORKDIR /app
 
@@ -61,15 +48,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/public ./public
 
 RUN adduser -D ghost
-
-
 COPY --from=builder --chown=ghost:ghost /app/.next/standalone ./
 COPY --from=builder --chown=ghost:ghost /app/.next/static ./.next/static
 
 USER ghost
-
 EXPOSE 3010
-
 ENV PORT=3010
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]
