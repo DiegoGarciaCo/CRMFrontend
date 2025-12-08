@@ -1,27 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-
-export async function proxy(request: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: request.headers,
-    });
-
-    if (!session) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
-    }
-
-    return NextResponse.next();
-}
-
-export const config = {
-    matcher: [
-        "/",
-        "/people/:path*",
-        "/appointments/:path*",
-        "/deals/:path*",
-        "/goals/:path*",
-        "/organizations/:path*",
-        "/profiles/:path*",
-        "/tasks/:path*",
-    ],
-};
+// import { NextRequest, NextResponse } from "next/server";
+// import { auth } from "@/lib/auth";
+// 
+// export async function proxy(request: NextRequest) {
+//     const session = await auth.api.getSession({
+//         headers: request.headers,
+//     });
+// 
+//     if (!session) {
+//         return NextResponse.redirect(new URL("/auth/login", request.url));
+//     }
+// 
+//     return NextResponse.next();
+// }
+// 
+// export const config = {
+//     matcher: [
+//         "/",
+//         "/people/:path*",
+//         "/appointments/:path*",
+//         "/deals/:path*",
+//         "/goals/:path*",
+//         "/organizations/:path*",
+//         "/profiles/:path*",
+//         "/tasks/:path*",
+//     ],
+// };
