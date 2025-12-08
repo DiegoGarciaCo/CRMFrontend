@@ -135,7 +135,7 @@ jobs:
             export BETTER_AUTH_SECRET="${{ secrets.BETTER_AUTH_SECRET }}"
             export BETTER_AUTH_URL="${{ secrets.BETTER_AUTH_URL }}"
             export NEXT_PUBLIC_BASE_URL="${{ secrets.NEXT_PUBLIC_BASE_URL }}"
-            export NEXT_PUBLIC_BETTER_AUTH_URL="${{ secrets.NEXT_PUBLIC_BETTER_AUTH
+            export NEXT_PUBLIC_BETTER_AUTH_URL="${{ secrets.NEXT_PUBLIC_BETTER_AUTH }}"
             export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
             export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
             export APPLE_CLIENT_ID="${{ secrets.APPLE_CLIENT_ID }}"
