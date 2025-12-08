@@ -78,42 +78,70 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Write .env file on server
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
           host: soldbyghost.com
           username: ghost
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cat <<EOF > /home/ghost/crm/.env
-            PORT=3010
-            NODE_ENV=production
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            BASE_URL=${{ secrets.BASE_URL }}
-            BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-            BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID }}
-            APPLE_CLIENT_SECRET=${{ secrets.APPLE_CLIENT_SECRET }}
-            APPLE_APP_BUNDLE_IDENTIFIER=${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER }}
-            POSTMARK_SERVER_TOKEN=${{ secrets.POSTMARK_SERVER_TOKEN }}
-            POSTMARK_FROM_EMAIL=${{ secrets.POSTMARK_FROM_EMAIL }}
-            STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
-            STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
-            COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
-            S3_REGION=${{ secrets.S3_REGION }}
-            S3_BUCKET=${{ secrets.S3_BUCKET }}
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            EOF
+            # Create working directory
+            mkdir -p ~/crm
+            cd ~/crm
 
-      - name: deploy stack
-        uses: cssnr/stack-deploy-action@v1
-        with:
-          name: crm
-          file: docker-compose.yml
-          host: soldbyghost.com
-          user: ghost
-          ssh_key: ${{ secrets.SSH_KEY }}
+            # Create docker-compose.yml
+            cat > docker-compose.yml << 'COMPOSE_EOF'
+            services:
+              app:
+                image: dgarcia51/crm:latest
+                ports:
+                  - "3010:3010"
+                environment:
+                  - PORT=${PORT}
+                  - NODE_ENV=${NODE_ENV}
+                  - DATABASE_URL=${DATABASE_URL}
+                  - BASE_URL=${BASE_URL}
+                  - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+                  - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+                  - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+                  - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+                  - APPLE_CLIENT_ID=${APPLE_CLIENT_ID}
+                  - APPLE_CLIENT_SECRET=${APPLE_CLIENT_SECRET}
+                  - APPLE_APP_BUNDLE_IDENTIFIER=${APPLE_APP_BUNDLE_IDENTIFIER}
+                  - POSTMARK_SERVER_TOKEN=${POSTMARK_SERVER_TOKEN}
+                  - POSTMARK_FROM_EMAIL=${POSTMARK_FROM_EMAIL}
+                  - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+                  - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+                  - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+                deploy:
+                  replicas: 3
+                  update_config:
+                    parallelism: 1
+                    delay: 10s
+                    failure_action: rollback
+            COMPOSE_EOF
+
+            # Export environment variables
+            export PORT=3010
+            export NODE_ENV=production
+            export DATABASE_URL="${{ secrets.DATABASE_URL }}"
+            export BASE_URL="${{ secrets.BASE_URL }}"
+            export BETTER_AUTH_SECRET="${{ secrets.BETTER_AUTH_SECRET }}"
+            export BETTER_AUTH_URL="${{ secrets.BETTER_AUTH_URL }}"
+            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            export APPLE_CLIENT_ID="${{ secrets.APPLE_CLIENT_ID }}"
+            export APPLE_CLIENT_SECRET="${{ secrets.APPLE_CLIENT_SECRET }}"
+            export APPLE_APP_BUNDLE_IDENTIFIER="${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER }}"
+            export POSTMARK_SERVER_TOKEN="${{ secrets.POSTMARK_SERVER_TOKEN }}"
+            export POSTMARK_FROM_EMAIL="${{ secrets.POSTMARK_FROM_EMAIL }}"
+            export STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}"
+            export STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
+            export COOKIE_DOMAIN="${{ secrets.COOKIE_DOMAIN }}"
+
+            # Deploy stack
+            docker stack deploy -c docker-compose.yml crm
+
+            # Show status
+            echo "Deployment complete!"
+            docker stack ps crm
