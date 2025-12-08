@@ -120,7 +120,7 @@ jobs:
                   - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
                   - COOKIE_DOMAIN=${COOKIE_DOMAIN}
                 deploy:
-                  replicas: 3
+                  replicas: 1
                   update_config:
                     parallelism: 1
                     delay: 10s

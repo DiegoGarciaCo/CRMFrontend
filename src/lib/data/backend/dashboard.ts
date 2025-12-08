@@ -3,7 +3,12 @@ import { Appointment } from "../../definitions/backend/appointments";
 import { cookies } from "next/headers";
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
 
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 
 // ----------------------------------------------
@@ -12,13 +17,15 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetDashboardContacts(): Promise<Contact[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
+    console.log("cookieName:", cookieName);
+    console.log("Cookie:", session);
     const encoded = encodeURIComponent(session?.value || '');
     const res = await fetch(`${BASE_URL}/dashboard/5-newest-contacts`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -35,14 +42,14 @@ export async function GetDashboardContacts(): Promise<Contact[]> {
 
 export async function GetAppointmentCount(): Promise<number> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/dashboard/appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -60,14 +67,14 @@ export async function GetAppointmentCount(): Promise<number> {
 
 export async function GetTaskCount(): Promise<number> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/dashboard/tasks-today`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -85,14 +92,14 @@ export async function GetTaskCount(): Promise<number> {
 
 export async function GetNewContactsCount(): Promise<number> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/dashboard/new-contacts`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -110,14 +117,14 @@ export async function GetNewContactsCount(): Promise<number> {
 
 export async function GetUpcomingAppointments(): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/dashboard/5-upcoming-appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -132,14 +139,14 @@ export async function GetUpcomingAppointments(): Promise<Appointment[]> {
 
 export async function GetContactsCount(): Promise<number> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/dashboard/contacts-count`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
