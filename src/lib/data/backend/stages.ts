@@ -2,6 +2,12 @@ import { Stage } from '../../definitions/backend/stage';
 import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
+
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 // ----------------------------------------------
 // Get All Stages
@@ -9,14 +15,14 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetAllStages(): Promise<Stage[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/stages`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         cache: 'no-store',
     });
@@ -34,14 +40,14 @@ export async function GetAllStages(): Promise<Stage[]> {
 
 export async function GetStageByID(stage_id: string): Promise<Stage> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/stages/${stage_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         cache: 'no-store',
     });

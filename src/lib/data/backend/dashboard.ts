@@ -18,9 +18,8 @@ if (NODE_ENV !== 'production') {
 export async function GetDashboardContacts(): Promise<Contact[]> {
     const cookieStore = await cookies();
     const session = cookieStore.get(cookieName);
-    console.log("cookieName:", cookieName);
-    console.log("Cookie:", session);
     const encoded = encodeURIComponent(session?.value || '');
+
     const res = await fetch(`${BASE_URL}/dashboard/5-newest-contacts`, {
         method: 'GET',
         headers: {

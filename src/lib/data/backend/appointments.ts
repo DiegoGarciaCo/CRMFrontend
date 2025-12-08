@@ -3,6 +3,12 @@ import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL
 
+const NODE_ENV = process.env.NODE_ENV;
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
+
 
 // ----------------------------------------------
 // Get Appointment by ID
@@ -10,14 +16,14 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetAppointmentByID(appointment_id: string): Promise<Appointment> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -34,14 +40,14 @@ export async function GetAppointmentByID(appointment_id: string): Promise<Appoin
 
 export async function UpdateAppointment(appointment_id: string, contact_id: string, title: string, scheduled_at: string, notes: string, outcome: string, location: string, type: string): Promise<Appointment> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         body: JSON.stringify({
             contact_id,
@@ -67,14 +73,14 @@ export async function UpdateAppointment(appointment_id: string, contact_id: stri
 
 export async function DeleteAppointment(appointment_id: string): Promise<void> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -91,14 +97,14 @@ export async function DeleteAppointment(appointment_id: string): Promise<void> {
 
 export async function ListTodaysAppointments(): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/today`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -115,14 +121,14 @@ export async function ListTodaysAppointments(): Promise<Appointment[]> {
 
 export async function ListUpcomingAppointments(): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/upcoming`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -139,14 +145,14 @@ export async function ListUpcomingAppointments(): Promise<Appointment[]> {
 
 export async function ListPastAppointments(): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/past`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -163,14 +169,14 @@ export async function ListPastAppointments(): Promise<Appointment[]> {
 
 export async function ListAllAppointments(): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -187,14 +193,14 @@ export async function ListAllAppointments(): Promise<Appointment[]> {
 
 export async function ListAppointmentsByContactID(contact_id: string): Promise<Appointment[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/appointments/contact/${contact_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 

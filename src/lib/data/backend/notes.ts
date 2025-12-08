@@ -3,6 +3,12 @@ import { ContactNote } from '../../definitions/backend/notes';
 import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
+
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 
 // ----------------------------------------------
@@ -11,14 +17,14 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetContactNotesByContactID(contact_id: string): Promise<ContactNote[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/notes/${contact_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 

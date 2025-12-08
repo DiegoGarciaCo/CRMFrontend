@@ -2,6 +2,12 @@ import { Goal } from '../../definitions/backend/goals';
 import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
+
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 
 // ----------------------------------------------
@@ -10,7 +16,7 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetGoalsByUserIDAndYear(year: number): Promise<Goal[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/goals?year=${year}`, {
@@ -18,7 +24,7 @@ export async function GetGoalsByUserIDAndYear(year: number): Promise<Goal[]> {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
     });
 
@@ -36,14 +42,14 @@ export async function GetGoalsByUserIDAndYear(year: number): Promise<Goal[]> {
 
 export async function UpdateGoal(goal_id: string, updatedFields: Partial<Goal>): Promise<Goal> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/goals/${goal_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         body: JSON.stringify(updatedFields),
     });

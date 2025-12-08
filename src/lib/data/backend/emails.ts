@@ -1,6 +1,12 @@
 import { Email } from '../../definitions/backend/emails';
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
+
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 // ----------------------------------------------
 // Get Emails by Contact ID

@@ -2,6 +2,12 @@ import { SmartList } from '../../definitions/backend/smartList';
 import { cookies } from 'next/headers';
 
 const BASE_URL = process.env.BASE_URL
+const NODE_ENV = process.env.NODE_ENV;
+
+let cookieName = "__Secure-crm.session_token";
+if (NODE_ENV !== 'production') {
+    cookieName = "crm.session_token";
+}
 
 // ----------------------------------------------
 // Get All Smart Lists
@@ -9,14 +15,14 @@ const BASE_URL = process.env.BASE_URL
 
 export async function GetAllSmartLists(): Promise<SmartList[]> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/smart-lists`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         cache: 'no-store',
     });
@@ -34,14 +40,14 @@ export async function GetAllSmartLists(): Promise<SmartList[]> {
 
 export async function GetSmartListByID(list_id: string): Promise<SmartList> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/smart-lists/${list_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         cache: 'no-store',
     });
@@ -56,14 +62,14 @@ export async function GetSmartListByID(list_id: string): Promise<SmartList> {
 
 export async function UpdateSmartList(list_id: string, name: string, description: string, filterCriteria: any): Promise<SmartList> {
     const cookieStore = await cookies();
-    const session = cookieStore.get("crm.session_token");
+    const session = cookieStore.get(cookieName);
     const encoded = encodeURIComponent(session?.value || '');
 
     const res = await fetch(`${BASE_URL}/smart-lists/name/${list_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Cookie: `crm.session_token=${encoded}`,
+            Cookie: `${cookieName}=${encoded}`,
         },
         body: JSON.stringify({
             name,
