@@ -25,6 +25,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN --mount=type=secret,id=BASE_URL,env=BASE_URL \
     --mount=type=secret,id=BETTER_AUTH_SECRET,env=BETTER_AUTH_SECRET \
     --mount=type=secret,id=BETTER_AUTH_URL,env=BETTER_AUTH_URL \
+    --mount=type=secret,id=NEXT_PUBLIC_BASE_URL,env=NEXT_PUBLIC_BASE_URL \
+    --mount=type=secret,id=NEXT_PUBLIC_BETTER_AUTH_URL,env=NEXT_PUBLIC_BETTER_AUTH_URL \
     --mount=type=secret,id=GOOGLE_CLIENT_ID,env=GOOGLE_CLIENT_ID \
     --mount=type=secret,id=GOOGLE_CLIENT_SECRET,env=GOOGLE_CLIENT_SECRET \
     --mount=type=secret,id=APPLE_CLIENT_ID,env=APPLE_CLIENT_ID \
