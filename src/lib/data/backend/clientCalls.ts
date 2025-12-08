@@ -48,6 +48,8 @@ export async function CreateAppointment(contact_id: string, title: string, sched
 // ----------------------------------------------
 
 export async function CreateContact(first_name: string, last_name: string, phone_numbers: CreateContactPhoneNumberInput[], emails: CreateContactEmailInput[], birthdate: string, source: string, status: string, address: string, city: string, state: string, zipCode: string, lender: string, price_range: string, timeframe: string): Promise<Contact> {
+    console.log("Creating Contact")
+    console.log("BASE_URL:", BASE_URL);
     const res = await fetch(`${BASE_URL}/contacts`, {
         method: 'POST',
         credentials: 'include',
@@ -73,6 +75,8 @@ export async function CreateContact(first_name: string, last_name: string, phone
     });
 
     if (!res.ok) {
+        console.log("Response status:", res.status);
+        console.log("Base URL:", BASE_URL);
         toast.error(`Error creating contact: ${res.statusText}`);
     }
 
