@@ -25,5 +25,5 @@ export const authClient = createAuthClient({
             window.location.href = "/auth/2fa"
         }
     })],
-    baseURL: process.env.BETTER_AUTH_URL,
+    baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
 })

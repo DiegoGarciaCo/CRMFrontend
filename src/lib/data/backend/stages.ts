@@ -1,7 +1,7 @@
 import { Stage } from '../../definitions/backend/stage';
 import { cookies } from 'next/headers';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 // ----------------------------------------------
 // Get All Stages

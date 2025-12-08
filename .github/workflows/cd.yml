@@ -30,6 +30,8 @@ jobs:
           APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID}}
           APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET}}
           APPLE_APP_BUNDLE_IDENTIFIER: ${{ secrets.APPLE_APP_BUNDLE_IDENTIFIER}}
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL}}
+          NEXT_PUBLIC_BETTER_AUTH_URL: ${{ secrets.NEXT_PUBLIC_BETTER_AUTH_URL}}
           DATABASE_URL: ${{ secrets.DATABASE_URL}}
           POSTMARK_SERVER_TOKEN: ${{ secrets.POSTMARK_SERVER_TOKEN}}
           POSTMARK_FROM_EMAIL: ${{ secrets.POSTMARK_FROM_EMAIL}}
@@ -56,6 +58,8 @@ jobs:
             "BASE_URL=${{ secrets.BASE_URL}}"
             "BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET}}"
             "BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL}}"
+            "NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL}}"
+            "NEXT_PUBLIC_BETTER_AUTH_URL=${{ secrets.NEXT_PUBLIC_BETTER_AUTH_URL}}"
             "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID}}"
             "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET}}"
             "APPLE_CLIENT_ID=${{ secrets.APPLE_CLIENT_ID}}"
@@ -101,8 +105,10 @@ jobs:
                   - NODE_ENV=${NODE_ENV}
                   - DATABASE_URL=${DATABASE_URL}
                   - BASE_URL=${BASE_URL}
+                  - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
                   - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
                   - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+                  - NEXT_PUBLIC_BETTER_AUTH_URL=${NEXT_PUBLIC_BETTER_AUTH_URL}
                   - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
                   - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
                   - APPLE_CLIENT_ID=${APPLE_CLIENT_ID}
@@ -128,6 +134,8 @@ jobs:
             export BASE_URL="${{ secrets.BASE_URL }}"
             export BETTER_AUTH_SECRET="${{ secrets.BETTER_AUTH_SECRET }}"
             export BETTER_AUTH_URL="${{ secrets.BETTER_AUTH_URL }}"
+            export NEXT_PUBLIC_BASE_URL="${{ secrets.NEXT_PUBLIC_BASE_URL }}"
+            export NEXT_PUBLIC_BETTER_AUTH_URL="${{ secrets.NEXT_PUBLIC_BETTER_AUTH
             export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
             export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
             export APPLE_CLIENT_ID="${{ secrets.APPLE_CLIENT_ID }}"

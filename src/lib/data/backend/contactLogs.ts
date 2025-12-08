@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import { ContactLog } from '../../definitions/backend/contactLogs';
 import { cookies } from 'next/headers';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 
 // ----------------------------------------------

@@ -1,6 +1,6 @@
 import { Email } from '../../definitions/backend/emails';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 // ----------------------------------------------
 // Get Emails by Contact ID

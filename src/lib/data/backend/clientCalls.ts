@@ -12,7 +12,7 @@ import { Tag } from "@/lib/definitions/backend/tag";
 import { Task } from "@/lib/definitions/backend/tasks";
 import { toast } from "sonner";
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 // ----------------------------------------------
 // Create Appointment

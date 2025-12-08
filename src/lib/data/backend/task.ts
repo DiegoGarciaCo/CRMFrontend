@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import { Task } from '../../definitions/backend/tasks';
 import { cookies } from 'next/headers';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 
 // ----------------------------------------------

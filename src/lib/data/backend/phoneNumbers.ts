@@ -1,6 +1,6 @@
 import { PhoneNumber } from '../../definitions/backend/phoneNumbers';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 // ----------------------------------------------
 // Get Phone Numbers by Contact ID

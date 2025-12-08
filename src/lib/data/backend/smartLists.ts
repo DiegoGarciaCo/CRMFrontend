@@ -1,7 +1,7 @@
 import { SmartList } from '../../definitions/backend/smartList';
 import { cookies } from 'next/headers';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.BASE_URL
 
 // ----------------------------------------------
 // Get All Smart Lists
