@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import Papa from 'papaparse';
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 interface ImportContactsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -266,7 +268,7 @@ export default function ImportContactsModal({ isOpen, onClose, onSuccess, userId
             });
 
             // Send to backend
-            const response = await fetch('http://localhost:8080/api/contacts/import', {
+            const response = await fetch(`${BASE_URL}/contacts/import`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(contacts),
