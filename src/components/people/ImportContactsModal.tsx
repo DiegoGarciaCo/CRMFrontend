@@ -270,6 +270,7 @@ export default function ImportContactsModal({ isOpen, onClose, onSuccess, userId
             // Send to backend
             const response = await fetch(`${BASE_URL}/contacts/import`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(contacts),
             });
