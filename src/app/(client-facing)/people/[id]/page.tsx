@@ -9,6 +9,7 @@ import { headers } from 'next/headers';
 import { GetDealsByContactID } from '@/lib/data/backend/deals';
 import { ListAppointmentsByContactID } from '@/lib/data/backend/appointments';
 import { GetTasksByContactID } from '@/lib/data/backend/task';
+import { Tag } from '@/lib/definitions/backend/tag';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,7 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
 
     const emails = JSON.parse(contact.Emails)
     const phoneNumbers = JSON.parse(contact.PhoneNumbers)
+
 
     return (
         <ContactDetailClient

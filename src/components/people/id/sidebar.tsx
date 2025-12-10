@@ -1,6 +1,5 @@
 'use client';
 
-import { TagLowercase } from '@/app/(client-facing)/people/[id]/ContactDetailClient';
 import { Badge } from '@/components/ui/badge';
 import { ContactWithDetails } from '@/lib/definitions/backend/contacts';
 import { Email } from '@/lib/definitions/backend/emails';
@@ -8,14 +7,15 @@ import { PhoneNumber } from '@/lib/definitions/backend/phoneNumbers';
 import { formatDate, formatPhoneNumber } from '@/lib/utils/formating';
 import { useRouter } from 'next/navigation';
 import TagsSection from '../tagSection';
+import { Tag } from '@/lib/definitions/backend/tag';
 
 
 interface SidebarProps {
     contact: ContactWithDetails;
     emails: Email[];
     phoneNumbers: PhoneNumber[];
-    tags: TagLowercase[];
-    allTags: TagLowercase[];
+    tags: Tag[];
+    allTags: Tag[];
 }
 
 

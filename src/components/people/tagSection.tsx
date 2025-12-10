@@ -19,22 +19,22 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { AddTagToContact, RemoveTagFromContact, CreateTag, DeleteTag } from "@/lib/data/backend/clientCalls";
-import { TagLowercase } from "@/app/(client-facing)/people/[id]/ContactDetailClient";
+import { Tag } from "@/lib/definitions/backend/tag";
 
 interface TagsSectionProps {
     contactId: string;
-    contactTags: TagLowercase[];
-    availableTags: TagLowercase[];
+    contactTags: Tag[];
+    availableTags: Tag[];
 }
 
 export default function TagsSection({ contactId, contactTags, availableTags }: TagsSectionProps) {
     const router = useRouter();
-    const [tags, setTags] = useState<TagLowercase[]>(contactTags);
+    const [tags, setTags] = useState<Tag[]>(contactTags);
     const [open, setOpen] = useState(false);
 
     // Modal state
     const [search, setSearch] = useState("");
-    const [filteredTags, setFilteredTags] = useState<TagLowercase[]>(availableTags);
+    const [filteredTags, setFilteredTags] = useState<Tag[]>(availableTags);
     const [showCreate, setShowCreate] = useState(false);
     const [newTagName, setNewTagName] = useState("");
     const [newTagDescription, setNewTagDescription] = useState("");
@@ -48,7 +48,7 @@ export default function TagsSection({ contactId, contactTags, availableTags }: T
         );
     }, [search, tags, availableTags]);
 
-    const handleAddTag = async (tag: TagLowercase) => {
+    const handleAddTag = async (tag: Tag) => {
         try {
             await AddTagToContact(contactId, tag.ID);
             setTags([...tags, tag]);

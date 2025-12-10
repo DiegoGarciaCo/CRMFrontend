@@ -15,22 +15,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { CreateContactLog, CreateContactNote } from '@/lib/data/backend/clientCalls';
-import { NullString, NullTime, NullUUID } from '@/lib/definitions/nullTypes';
 import Sidebar from '@/components/people/id/sidebar';
 import { formatDate } from '@/lib/utils/formating';
 import RightSidebar from '@/components/people/id/rightSidebar';
+import { Tag } from '@/lib/definitions/backend/tag';
 
-export interface TagLowercase {
-    id: string;
-    name: string;
-    ID: string;
-    Name: string;
-    Description: NullString;
-    UserID: NullUUID;
-    TeamID: NullUUID;
-    CreatedAt: NullTime;
-    UpdatedAt: NullTime;
-}
 
 interface ContactDetailClientProps {
     contact: ContactWithDetails;
@@ -38,8 +27,8 @@ interface ContactDetailClientProps {
     logs: ContactLog[];
     emails: Email[];
     phoneNumbers: PhoneNumber[];
-    tags: TagLowercase[];
-    allTags: TagLowercase[];
+    tags: Tag[];
+    allTags: Tag[];
     deals: Deal[];
     appointments: Appointment[];
     tasks: Task[];
