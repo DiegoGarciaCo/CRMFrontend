@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import {
-    Sheet,
-    SheetTrigger,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,17 +20,17 @@ import { toast } from "sonner";
 import type { Contact } from "@/lib/definitions/backend/contacts";
 import { CreateTask, SearchContacts } from "@/lib/data/backend/clientCalls";
 
-interface CreateTaskSheetProps {
-    ownerId: string; // for contact search
+interface CreateTaskModalProps {
+    ownerId: string;
 }
 
-export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
+export default function CreateTaskModal({ ownerId }: CreateTaskModalProps) {
     const [open, setOpen] = useState(false);
 
     // Form state
     const [contactSearch, setContactSearch] = useState("");
     const [contacts, setContacts] = useState<Contact[]>([]);
-    const [selectedContact, setSelectedContact] = useState<string>("");
+    const [selectedContact, setSelectedContact] = useState("");
 
     const [title, setTitle] = useState("");
     const [type, setType] = useState("");
@@ -38,9 +39,9 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
     const [priority, setPriority] = useState("");
     const [note, setNote] = useState("");
 
-    // Contact search
+    // Debounced Contact Search
     useEffect(() => {
-        const delayDebounce = setTimeout(async () => {
+        const delay = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
                     const results = await SearchContacts(contactSearch);
@@ -53,7 +54,7 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
             }
         }, 300);
 
-        return () => clearTimeout(delayDebounce);
+        return () => clearTimeout(delay);
     }, [contactSearch, ownerId]);
 
     const handleCreate = async () => {
@@ -69,6 +70,7 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
                 priority,
                 note
             );
+
             toast.success("Task created!");
             setOpen(false);
         } catch {
@@ -77,9 +79,8 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
     };
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
-            {/* Trigger button */}
-            <SheetTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg border border-zinc-200 p-4 text-left transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
                     <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
                         <svg
@@ -101,13 +102,15 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
                         <p className="text-xs text-zinc-500 dark:text-zinc-500">Assign a new task</p>
                     </div>
                 </button>
-            </SheetTrigger>
+            </DialogTrigger>
 
-            <SheetContent className="overflow-y-auto sm:max-w-lg">
-                <SheetHeader>
-                    <SheetTitle>Create Task</SheetTitle>
-                    <SheetDescription>Enter task details below.</SheetDescription>
-                </SheetHeader>
+            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Create Task</DialogTitle>
+                    <DialogDescription>
+                        Enter task details below.
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="mt-6 space-y-6">
 
@@ -119,14 +122,15 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
                             value={contactSearch}
                             onChange={(e) => setContactSearch(e.target.value)}
                         />
+
                         {contacts.length > 0 && (
                             <div className="rounded-md border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
                                 {contacts.map((c) => (
                                     <button
                                         key={c.ID}
                                         className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
-                                            ? "bg-zinc-100 dark:bg-zinc-800"
-                                            : ""
+                                                ? "bg-zinc-100 dark:bg-zinc-800"
+                                                : ""
                                             }`}
                                         onClick={() => {
                                             setSelectedContact(c.ID);
@@ -156,7 +160,11 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
                     {/* DATE */}
                     <div>
                         <Label>Date</Label>
-                        <Input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
+                        <Input
+                            type="datetime-local"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                        />
                     </div>
 
                     {/* STATUS */}
@@ -174,14 +182,18 @@ export default function CreateTaskSheet({ ownerId }: CreateTaskSheetProps) {
                     {/* NOTE */}
                     <div>
                         <Label>Note</Label>
-                        <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={4} />
+                        <Textarea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            rows={4}
+                        />
                     </div>
                 </div>
 
-                <SheetFooter className="mt-6">
+                <DialogFooter className="mt-6">
                     <Button onClick={handleCreate}>Create Task</Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -91,3 +91,8 @@ export interface ContactWithDetails {
     PhoneNumbers: string; // JSON stringified PhoneNumber[]
     Tags: string; // JSON stringified Tag[]
 }
+
+export interface ContactsBySourceRow {
+    Source: NullString;
+    ContactCount: number;
+}

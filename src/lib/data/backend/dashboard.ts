@@ -1,4 +1,4 @@
-import { Contact } from "../../definitions/backend/contacts";
+import { Contact, ContactsBySourceRow } from "../../definitions/backend/contacts";
 import { Appointment } from "../../definitions/backend/appointments";
 import { cookies } from "next/headers";
 
@@ -155,4 +155,28 @@ export async function GetContactsCount(): Promise<number> {
 
     const data = await res.json();
     return data.contacts_count;
+}
+
+// ----------------------------------------------
+// Contact count by source
+// ----------------------------------------------
+
+export async function GetContactCountBySource(): Promise<ContactsBySourceRow[]> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get(cookieName);
+    const encoded = encodeURIComponent(session?.value || '');
+
+    const res = await fetch(`${BASE_URL}/dashboard/contacts-by-source`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: `${cookieName}=${encoded}`,
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Error fetching contacts by source: ${res.statusText}`);
+    }
+
+    return res.json();
 }

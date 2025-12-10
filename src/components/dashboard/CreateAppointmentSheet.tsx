@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import {
-    Sheet,
-    SheetTrigger,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +18,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 import type { Contact } from "@/lib/definitions/backend/contacts";
-import { CreateAppointment, SearchContacts } from "@/lib/data/backend/clientCalls";
+import {
+    CreateAppointment,
+    SearchContacts,
+} from "@/lib/data/backend/clientCalls";
 
-export default function CreateAppointmentSheet({ ownerId }: { ownerId: string }) {
+export default function CreateAppointmentModal({ ownerId }: { ownerId: string }) {
     const [open, setOpen] = useState(false);
 
     // Form state
@@ -35,7 +38,7 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
     const [location, setLocation] = useState("");
     const [type, setType] = useState("");
 
-    // 🔍 Search contacts dynamically
+    // 🔍 Debounced contact search
     useEffect(() => {
         const delayDebounce = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
@@ -74,9 +77,9 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
     };
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
-            {/* This trigger will be used in your navbar component */}
-            <SheetTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            {/* Trigger button (unchanged) */}
+            <DialogTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg border border-zinc-200 p-4 text-left transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
                     <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
                         <svg
@@ -102,19 +105,18 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
                         </p>
                     </div>
                 </button>
-            </SheetTrigger>
+            </DialogTrigger>
 
-            {/* SHEET CONTENT */}
-            <SheetContent className="overflow-y-auto sm:max-w-lg">
-                <SheetHeader>
-                    <SheetTitle>Schedule Appointment</SheetTitle>
-                    <SheetDescription>
+            {/* MODAL CONTENT */}
+            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Schedule Appointment</DialogTitle>
+                    <DialogDescription>
                         Fill out the appointment details below.
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="mt-6 space-y-6">
-
                     {/* CONTACT SEARCH */}
                     <div className="space-y-2">
                         <Label>Select Contact</Label>
@@ -131,8 +133,8 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
                                     <button
                                         key={c.ID}
                                         className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
-                                            ? "bg-zinc-100 dark:bg-zinc-800"
-                                            : ""
+                                                ? "bg-zinc-100 dark:bg-zinc-800"
+                                                : ""
                                             }`}
                                         onClick={() => {
                                             setSelectedContact(c.ID);
@@ -192,10 +194,10 @@ export default function CreateAppointmentSheet({ ownerId }: { ownerId: string })
                     </div>
                 </div>
 
-                <SheetFooter className="mt-6">
+                <DialogFooter className="mt-6">
                     <Button onClick={handleCreate}>Schedule</Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

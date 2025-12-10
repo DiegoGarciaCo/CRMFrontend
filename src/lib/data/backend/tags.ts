@@ -36,23 +36,3 @@ export async function GetAllTags(): Promise<Tag[]> {
 }
 
 
-// ----------------------------------------------
-// Delete Tag
-// ----------------------------------------------
-
-export async function DeleteTag(tagID: string): Promise<void> {
-    const cookieStore = await cookies();
-    const session = cookieStore.get(cookieName);
-
-    const res = await fetch(`${BASE_URL}/tags/${tagID}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Cookie: `${cookieName}=${session?.value}`,
-        },
-    });
-
-    if (!res.ok) {
-        throw new Error(`Error deleting tag: ${res.statusText}`);
-    }
-}

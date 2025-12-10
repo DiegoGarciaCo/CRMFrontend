@@ -457,8 +457,8 @@ export async function CreateTag(name: string, description: string): Promise<Tag>
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            name,
-            description,
+            tag_name: name,
+            tag_description: description,
         }),
     });
 
@@ -467,4 +467,22 @@ export async function CreateTag(name: string, description: string): Promise<Tag>
     }
 
     return res.json();
+}
+
+// ----------------------------------------------
+// Delete Tag
+// ----------------------------------------------
+
+export async function DeleteTag(tagID: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/tags/${tagID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Error deleting tag: ${res.statusText}`);
+    }
 }

@@ -3,9 +3,12 @@ import { GetContactNotesByContactID } from '@/lib/data/backend/notes';
 import { GetContactLogByID } from '@/lib/data/backend/contactLogs';
 import { GetAllTags } from '@/lib/data/backend/tags';
 import ContactDetailClient from './ContactDetailClient';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { GetDealsByContactID } from '@/lib/data/backend/deals';
+import { ListAppointmentsByContactID } from '@/lib/data/backend/appointments';
+import { GetTasksByContactID } from '@/lib/data/backend/task';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +21,20 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id as string;
 
+    if (!userId) {
+        redirect('/auth/login');
+    }
+
+
     // Fetch all data in parallel
-    const [contactResult, notesResult, logsResult, tagsResult] = await Promise.allSettled([
+    const [contactResult, notesResult, logsResult, tagsResult, dealsResult, appointmentsResults, taskResults] = await Promise.allSettled([
         GetContactByID(id),
         GetContactNotesByContactID(id),
         GetContactLogByID(id),
         GetAllTags(),
+        GetDealsByContactID(id),
+        ListAppointmentsByContactID(id),
+        GetTasksByContactID(id),
     ]);
 
     if (contactResult.status === 'rejected') {
@@ -40,6 +51,9 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
     const logs = safe(logsResult);
     const tags = safe(tagsResult);
     const contactTags = JSON.parse(contact.Tags);
+    const deals = safe(dealsResult);
+    const appointments = safe(appointmentsResults);
+    const tasks = safe(taskResults);
 
     const emails = JSON.parse(contact.Emails)
     const phoneNumbers = JSON.parse(contact.PhoneNumbers)
@@ -53,7 +67,9 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
             phoneNumbers={phoneNumbers}
             tags={tags}
             allTags={contactTags}
-            userId={userId}
+            deals={deals}
+            appointments={appointments}
+            tasks={tasks}
         />
     );
 }

@@ -2,10 +2,10 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { User } from "lucide-react"; // your fallback icon
+import { User } from "lucide-react";
 import { toast } from "sonner";
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 export default function AvatarUpload({ session }: { session: any }) {
     const fileInputRef = useRef<HTMLInputElement>(null);

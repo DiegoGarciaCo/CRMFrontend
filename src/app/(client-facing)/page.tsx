@@ -2,7 +2,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import RecentContacts from '@/components/dashboard/RecentContacts';
 import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
 import TaskList from '@/components/dashboard/TaskList';
-import { GetDashboardContacts, GetAppointmentCount, GetTaskCount, GetNewContactsCount, GetContactsCount } from '@/lib/data/backend/dashboard';
+import { GetDashboardContacts, GetAppointmentCount, GetTaskCount, GetNewContactsCount, GetContactsCount, GetContactCountBySource } from '@/lib/data/backend/dashboard';
 import { ListUpcomingAppointments } from '@/lib/data/backend/appointments';
 import { GetTasksDueToday } from '@/lib/data/backend/task';
 import { auth } from '@/lib/auth';
@@ -12,6 +12,9 @@ import CreateContactSheet from '@/components/dashboard/CreateContactSheet';
 import CreateAppointmentSheet from '@/components/dashboard/CreateAppointmentSheet';
 import CreateTaskSheet from '@/components/dashboard/CreateTaskSheet';
 import CreateNoteSheet from '@/components/dashboard/CreateNoteSheet';
+import ContactCountsBySource from '@/components/dashboard/ContactCountsBySource';
+import RecentDealsTable from '@/components/goals/RecentDealsTable';
+import { GetDealsByAssignedToID } from '@/lib/data/backend/deals';
 
 // This is a server component that fetches data
 export default async function Dashboard() {
@@ -32,6 +35,8 @@ export default async function Dashboard() {
         upcomingAppointments,
         todaysTasks,
         totalContacts,
+        contactsBySourceCounts,
+        dealsResult,
     ] = await Promise.allSettled([
         GetDashboardContacts(),
         GetAppointmentCount(),
@@ -40,16 +45,25 @@ export default async function Dashboard() {
         ListUpcomingAppointments(),
         GetTasksDueToday(),
         GetContactsCount(),
+        GetContactCountBySource(),
+        GetDealsByAssignedToID(),
     ]);
 
+    const safe = (result: any) =>
+        result.status === "fulfilled" && Array.isArray(result.value)
+            ? result.value
+            : [];
+
     // Extract data or use fallbacks
-    const contacts = recentContacts.status === 'fulfilled' ? recentContacts.value : [];
+    const contacts = safe(recentContacts);
     const appointmentsCount = appointmentCount.status === 'fulfilled' ? appointmentCount.value : 0;
     const tasksCount = taskCount.status === 'fulfilled' ? taskCount.value : 0;
     const newContacts = newContactsCount.status === 'fulfilled' ? newContactsCount.value : 0;
     const contactsCount = totalContacts.status === 'fulfilled' ? totalContacts.value : 0;
-    const appointments = upcomingAppointments.status === 'fulfilled' ? upcomingAppointments.value : [];
-    const tasks = todaysTasks.status === 'fulfilled' ? todaysTasks.value : [];
+    const appointments = safe(upcomingAppointments);
+    const tasks = safe(todaysTasks);
+    const contactsCountsBySource = safe(contactsBySourceCounts);
+    const deals = safe(dealsResult);
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -109,16 +123,21 @@ export default async function Dashboard() {
 
                 {/* Main Grid */}
                 <div className="mt-8 grid gap-6 lg:grid-cols-2">
-                    {/* Recent Contacts */}
-                    <RecentContacts contacts={contacts} />
+                    {/* Tasks Section */}
+                    <TaskList tasks={tasks} />
 
                     {/* Upcoming Appointments */}
                     <UpcomingAppointments appointments={appointments} />
+
+                    {/* Recent Contacts */}
+                    <RecentContacts contacts={contacts} />
+
+                    {/* Sources Stats */}
+                    <ContactCountsBySource contactCounts={contactsCountsBySource} />
                 </div>
 
-                {/* Tasks Section */}
                 <div className="mt-6">
-                    <TaskList tasks={tasks} />
+                    <RecentDealsTable deals={deals} />
                 </div>
 
                 {/* Quick Actions */}
