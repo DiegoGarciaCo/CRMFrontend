@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetTrigger,
-    SheetFooter,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogTrigger,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -17,18 +17,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-
 import type { Contact } from "@/lib/definitions/backend/contacts";
 import type { Stage } from "@/lib/definitions/backend/stage";
 import { CreateDeal, SearchContacts } from "@/lib/data/backend/clientCalls";
+import { useRouter } from "next/navigation";
 
-export default function CreateDealSheet({ userId, stages }: { userId: string, stages: Stage[] }) {
+export default function CreateDealModal({ userId, stages }: { userId: string; stages: Stage[] }) {
     const [open, setOpen] = useState(false);
+    const router = useRouter();
 
     // Contact search
     const [contactSearch, setContactSearch] = useState("");
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     // Stage selection
     const [selectedStage, setSelectedStage] = useState<string>("");
@@ -53,15 +55,22 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
 
     const [description, setDescription] = useState("");
 
-
     // Contact search debounce
     useEffect(() => {
         const delay = setTimeout(async () => {
             if (contactSearch.trim().length > 1) {
                 try {
+                    setLoading(true);
                     const results = await SearchContacts(contactSearch);
-                    setContacts(results);
+                    if (results != null) {
+                        setContacts(results);
+                        setLoading(false);
+                    } else {
+                        setContacts([]);
+                        setLoading(false);
+                    }
                 } catch {
+                    setLoading(false);
                     toast.error("Error searching contacts.");
                 }
             } else setContacts([]);
@@ -73,8 +82,6 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
     const handleCreate = async () => {
         if (!selectedContact) return toast.error("Please select a contact");
         if (!selectedStage) return toast.error("Please select a stage");
-
-        console.log(selectedStage);
 
         try {
             await CreateDeal(
@@ -95,10 +102,11 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
                 state,
                 zip,
                 description,
-                selectedStage,
+                selectedStage
             );
 
             toast.success("Deal created!");
+            router.refresh();
             setOpen(false);
         } catch (err) {
             toast.error("Failed to create deal.");
@@ -107,21 +115,20 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
     };
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
                 <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                     + New Deal
                 </button>
-            </SheetTrigger>
+            </DialogTrigger>
 
-            <SheetContent className="overflow-y-auto sm:max-w-lg">
-                <SheetHeader>
-                    <SheetTitle>Create Deal</SheetTitle>
-                    <SheetDescription>Enter the deal details below.</SheetDescription>
-                </SheetHeader>
+            <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
+                <DialogHeader className="sticky top-0 bg-white dark:bg-zinc-950 z-10">
+                    <DialogTitle>Create Deal</DialogTitle>
+                    <DialogDescription>Enter the deal details below.</DialogDescription>
+                </DialogHeader>
 
-                <div className="mt-6 space-y-6">
-
+                <div className="mt-6 space-y-6 overflow-y-auto flex-1 pr-2">
                     {/* CONTACT SEARCH */}
                     <div className="space-y-2">
                         <Label>Select Contact</Label>
@@ -131,7 +138,7 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
                             onChange={(e) => setContactSearch(e.target.value)}
                         />
 
-                        {contacts.length > 0 && (
+                        {contacts.length > 0 ? (
                             <div className="rounded border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
                                 {contacts.map((c) => (
                                     <button
@@ -148,6 +155,15 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
                                     </button>
                                 ))}
                             </div>
+                        ) : (
+                            // Show "No contacts found" *only if* user typed something AND results came back empty
+                            contactSearch.length > 0 && !loading && (
+                                <div className="rounded border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
+                                    <p className="block w-full text-left p-2 rounded text-zinc-500">
+                                        No contacts found.
+                                    </p>
+                                </div>
+                            )
                         )}
                     </div>
 
@@ -247,13 +263,12 @@ export default function CreateDealSheet({ userId, stages }: { userId: string, st
                         <Label>Description</Label>
                         <Textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
                     </div>
-
                 </div>
 
-                <SheetFooter className="mt-6">
+                <DialogFooter className="sticky bottom-0 bg-white dark:bg-zinc-950 z-10 mt-4">
                     <Button onClick={handleCreate}>Create Deal</Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -307,32 +307,6 @@ export async function UpdateDeal(deal_id: string, contact_id: string, title: str
     return res.json();
 }
 
-// ----------------------------------------------
-// Get Stages by Client Type
-// ----------------------------------------------
-
-export async function GetStagesByClientType(client_type: string): Promise<Stage[]> {
-    console.log("Fetching stages for client type:", client_type);
-    if (client_type != 'buyer' && client_type != 'seller') {
-        toast.error(`Invalid client type: ${client_type}`);
-        return [];
-    }
-    const res = await fetch(`${BASE_URL}/stages/client-type?client=${client_type}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
-    });
-
-    if (!res.ok) {
-        console.log("Failed to fetch stages:", res.statusText);
-        throw new Error(`Error fetching stages: ${res.statusText}`);
-    }
-
-    return res.json();
-}
 
 // ----------------------------------------------
 // Create Stage
@@ -486,3 +460,47 @@ export async function DeleteTag(tagID: string): Promise<void> {
         throw new Error(`Error deleting tag: ${res.statusText}`);
     }
 }
+
+// ----------------------------------------------
+// Update Stage
+// ----------------------------------------------
+
+export async function UpdateStage(stageID: string, name: string, description: string, client_type: string, order_index: number): Promise<Stage> {
+    const res = await fetch(`${BASE_URL}/stages/${stageID}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            description,
+            client_type,
+            order_index,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating stage: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Delete Stage
+// ----------------------------------------------
+
+export async function DeleteStage(stageID: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/stages/${stageID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting stage: ${res.statusText}`);
+    }
+}   

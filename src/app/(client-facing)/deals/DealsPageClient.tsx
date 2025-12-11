@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
     DndContext,
     DragEndEvent,
@@ -16,21 +16,22 @@ import { Stage } from "@/lib/definitions/backend/stage";
 import { Deal } from "@/lib/definitions/backend/deals";
 import DealCard from "@/components/deals/DealCard";
 import StageColumn from "@/components/deals/StageColumn";
-import CreateDealSheet from "@/components/deals/CreateDealSheet";
-import { GetStagesByClientType, UpdateDeal } from "@/lib/data/backend/clientCalls";
+import CreateDealModal from "@/components/deals/CreateDealSheet";
+import { UpdateDeal } from "@/lib/data/backend/clientCalls";
+import { useRouter } from "next/navigation";
 
 interface DealsPageClientProps {
     deals: Deal[];
     userId: string;
+    clientType: "buyer" | "seller";
+    stages: Stage[];
 }
 
-export default function DealsPipelinePage({ deals: initialDeals, userId }: DealsPageClientProps) {
-    const [clientType, setClientType] = useState<"buyer" | "seller">("buyer");
-    const [stages, setStages] = useState<Stage[]>([]);
+export default function DealsPipelinePage({ deals: initialDeals, userId, clientType, stages }: DealsPageClientProps) {
     const [deals, setDeals] = useState<Deal[]>(initialDeals);
     const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
-    console.log("deals", deals);
+    const router = useRouter();
 
     // Configure sensors for drag and drop
     const sensors = useSensors(
@@ -41,19 +42,6 @@ export default function DealsPipelinePage({ deals: initialDeals, userId }: Deals
         })
     );
 
-    // Fetch stages when tab changes
-    useEffect(() => {
-        const fetchStages = async () => {
-            try {
-                const newStages = await GetStagesByClientType(clientType);
-                setStages(newStages ?? []);
-            } catch (err) {
-                console.error("Failed to load stages", err);
-            }
-        };
-
-        fetchStages();
-    }, [clientType, userId]);
 
     // Group deals by stage
     const dealsByStage = useMemo(() => {
@@ -160,7 +148,7 @@ export default function DealsPipelinePage({ deals: initialDeals, userId }: Deals
                             Drag and drop deals to move them between stages
                         </p>
                     </div>
-                    <CreateDealSheet userId={userId} stages={stages} />
+                    <CreateDealModal userId={userId} stages={stages} />
                 </div>
 
                 {/* Stats */}
@@ -183,7 +171,7 @@ export default function DealsPipelinePage({ deals: initialDeals, userId }: Deals
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={clientType} onValueChange={(v) => setClientType(v as "buyer" | "seller")}>
+                <Tabs value={clientType} onValueChange={(v) => router.push('/deals?client-type=' + v)}>
                     <TabsList className="grid w-48 grid-cols-2 mb-6">
                         <TabsTrigger value="buyer">Buyer</TabsTrigger>
                         <TabsTrigger value="seller">Seller</TabsTrigger>
@@ -201,6 +189,7 @@ export default function DealsPipelinePage({ deals: initialDeals, userId }: Deals
                                         key={stage.ID}
                                         stage={stage}
                                         deals={stageDeals}
+                                        stages={stages}
                                     />
                                 );
                             })}
@@ -216,7 +205,7 @@ export default function DealsPipelinePage({ deals: initialDeals, userId }: Deals
 
             {/* Drag Overlay */}
             <DragOverlay>
-                {activeDeal ? <DealCard deal={activeDeal} /> : null}
+                {activeDeal ? <DealCard deal={activeDeal} stages={stages} /> : null}
             </DragOverlay>
         </DndContext>
     );

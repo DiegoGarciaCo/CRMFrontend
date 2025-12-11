@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,11 +7,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-
-import { z } from "zod";
 import { toast } from "sonner";
-import { CreateStage } from "@/lib/data/backend/clientCalls";
+import { DeleteStage, UpdateStage } from "@/lib/data/backend/clientCalls";
+import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 const StageSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -22,59 +22,72 @@ const StageSchema = z.object({
 
 type StageFormValues = z.infer<typeof StageSchema>;
 
-export function AddStageModal() {
+interface EditStageModalProps {
+    stageID: string;
+    name: string;
+    description: string;
+    client_type: string;
+    order_index: number;
+    hasDeals?: boolean;
+}
+
+export function EditStageModal({ stageID, name, description, client_type, order_index, hasDeals }: EditStageModalProps) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     const form = useForm<StageFormValues>({
         resolver: zodResolver(StageSchema),
         defaultValues: {
-            name: "",
-            description: "",
-            client_type: "",
-            order_index: 0,
+            name,
+            description,
+            client_type,
+            order_index,
         },
     });
 
     async function onSubmit(values: StageFormValues) {
         try {
-            await CreateStage(
-                values.name,
-                values.description ?? "",
-                values.client_type,
-                values.order_index,
-            );
-
-            toast.success("Stage created!");
-
-            form.reset();
-            router.refresh();
+            await UpdateStage(stageID, values.name, values.description ?? "", values.client_type, values.order_index);
+            toast.success("Stage updated!");
+            form.reset(values);
             setOpen(false);
+            router.refresh(); // refresh parent page to reflect changes
         } catch (err) {
-            toast.error("Failed to create stage.");
+            toast.error("Failed to update stage.");
+            console.error(err);
+        }
+    }
+
+    async function handleDelete() {
+        try {
+            if (hasDeals) {
+                toast.error("Cannot delete stage with existing deals.");
+                return;
+            }
+            await DeleteStage(stageID);
+            toast.success("Stage deleted!");
+            setOpen(false);
+            router.refresh(); // refresh parent page to reflect changes
+        } catch (err) {
+            toast.error("Failed to delete stage.");
+            console.error(err);
         }
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add Stage
-                </button>
+                <Button variant="outline" size="sm">
+                    <Pencil className="h-4 w-4" />
+                </Button>
             </DialogTrigger>
-
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create Stage</DialogTitle>
+                    <DialogTitle>Edit Stage</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
-                        {/* Name */}
                         <FormField
                             control={form.control}
                             name="name"
@@ -82,14 +95,12 @@ export function AddStageModal() {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Stage Name" {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
-                        {/* Description */}
                         <FormField
                             control={form.control}
                             name="description"
@@ -97,14 +108,12 @@ export function AddStageModal() {
                                 <FormItem>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Optional description" {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
-                        {/* Client type */}
                         <FormField
                             control={form.control}
                             name="client_type"
@@ -112,14 +121,12 @@ export function AddStageModal() {
                                 <FormItem>
                                     <FormLabel>Client Type</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g. Buyer, Seller" {...field} />
+                                        <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
-                        {/* Order Index */}
                         <FormField
                             control={form.control}
                             name="order_index"
@@ -137,10 +144,14 @@ export function AddStageModal() {
                                 </FormItem>
                             )}
                         />
-
-                        <Button type="submit" className="w-full">
-                            Create Stage
-                        </Button>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button type="submit" className="w-full">
+                                Save Changes
+                            </Button>
+                            <Button type="button" variant="destructive" className="w-full" onClick={handleDelete}>
+                                Delete Stage
+                            </Button>
+                        </div>
                     </form>
                 </Form>
             </DialogContent>
