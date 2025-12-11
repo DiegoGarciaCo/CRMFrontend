@@ -10,6 +10,8 @@ import { LoadingSwap } from '../ui/loading-swap';
 import { Button } from '../ui/button';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
+import { STRIPE_PLANS } from '@/lib/stripe';
+import { useRouter } from 'next/navigation';
 
 const RegisterSchema = z.object({
     name: z.string().min(2).max(20),
@@ -18,10 +20,10 @@ const RegisterSchema = z.object({
 });
 
 type RegisterForm = z.infer<typeof RegisterSchema>;
-
+type tab = 'login' | 'register' | 'email-verification' | 'forgot-password';
 
 export default function RegisterTab(
-    { openEmailVerificationTab }: { openEmailVerificationTab: (email: string) => void }
+    { openEmailVerificationTab, setSelectedTab, plan }: { openEmailVerificationTab: (email: string) => void, setSelectedTab: (selectedTab: tab) => void, plan: string | null }
 ) {
 
     const form = useForm<RegisterForm>({
@@ -32,19 +34,72 @@ export default function RegisterTab(
             password: '',
         },
     });
+    const router = useRouter();
+
+    if (plan == null) {
+        router.replace("/pricing");
+        return null;
+    }
+
+
+    const stripePlan = STRIPE_PLANS.find(p => p.name.toLowerCase() === plan.toLowerCase());
+
+    if (stripePlan == null || stripePlan == undefined) {
+        router.replace("/pricing");
+        return null;
+    }
 
     const { isSubmitting } = form.formState
 
     async function handleSubmit(data: RegisterForm) {
-        const res = await authClient.signUp.email({ ...data, callbackURL: "/auth/login" },
-            {
-                onError: (error) => {
-                    toast.error(error.error.message || "Registration failed");
-                }
-            });
+        if (!stripePlan) {
+            toast.error("Invalid plan selected");
+            return;
+        }
 
-        if (res.error == null && res.data.user.emailVerified === false) {
-            openEmailVerificationTab(data.email);
+        try {
+            // 1. Create the user account
+            const res = await authClient.signUp.email(
+                {
+                    ...data,
+                    callbackURL: "/auth/login"
+                },
+                {
+                    onError: (error) => {
+                        toast.error(error.error.message || "Registration failed");
+                    }
+                }
+            );
+
+            // If registration failed, stop here
+            if (res.error) {
+                return;
+            }
+
+            const userId = res.data.user.id;
+
+            // 2. User created successfully - redirect to checkout
+            toast.success('Account created! Redirecting to checkout...');
+
+            const { error } = await authClient.subscription.upgrade({
+                plan: stripePlan.name,
+                successUrl: "/",
+                cancelUrl: "/pricing",
+            })
+
+            // 3. If checkout failed, delete the user
+
+            if (error) {
+                toast.error('Failed to create checkout session. Please try again.');
+                // TODO: Delete the user account here if needed
+            }
+
+
+
+        } catch (error) {
+            console.error('Registration/Checkout error:', error);
+            toast.error('Something went wrong. Please try again.');
+            // TODO: Delete the user account here if needed
         }
     }
 
@@ -92,6 +147,18 @@ export default function RegisterTab(
                         </FormItem>
                     )}
                 />
+                <div className="flex justify-between items-center">
+                    <div />
+                    <Button
+                        onClick={() => setSelectedTab('login')}
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        className="text-sm font-normal underline cursor-pointer p-0"
+                    >
+                        Already have an account? Sign In
+                    </Button>
+                </div>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                     <LoadingSwap isLoading={isSubmitting}>

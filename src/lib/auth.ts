@@ -1,8 +1,8 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
-import { admin, apiKey, createAuthMiddleware, organization, twoFactor } from "better-auth/plugins";
+import { admin, apiKey, organization, twoFactor } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { sendDeleteAccountVerificationEmail, sendEmailVerificationEmail, sendOrganizationInviteEmail, sendPasswordResetEmail, sendWelcomeEmail } from "./data/emails/sendEmails";
+import { sendDeleteAccountVerificationEmail, sendEmailVerificationEmail, sendOrganizationInviteEmail, sendPasswordResetEmail } from "./data/emails/sendEmails";
 import { passkey } from "@better-auth/passkey";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
@@ -102,18 +102,4 @@ export const auth = betterAuth({
         }),
         apiKey(),
     ],
-    hooks: {
-        after: createAuthMiddleware(async ctx => {
-            if (ctx.path.startsWith("/sign-up")) {
-                const user = ctx.context.newSession?.user ?? {
-                    name: ctx.body.name,
-                    email: ctx.body.email,
-                }
-
-                if (user != null) {
-                    await sendWelcomeEmail(user);
-                }
-            }
-        }),
-    },
 });

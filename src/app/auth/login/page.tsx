@@ -1,6 +1,6 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
+import { Tabs, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../../components/ui/card';
 import RegisterTab from '@/components/auth/register-tab';
 import LoginTab from '@/components/auth/login-tab';
@@ -8,7 +8,7 @@ import { Separator } from '../../../components/ui/separator';
 import SocialAuthButtons from '@/components/auth/socialAuthButtons';
 import { useEffect, useState } from 'react';
 import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { EmailVerification } from '@/components/auth/emailVerification';
 import { ForgotPassword } from '@/components/auth/forgotPassword';
 
@@ -17,7 +17,11 @@ type Tab = 'login' | 'register' | 'email-verification' | 'forgot-password';
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
-    const [selectedTab, setSelectedTab] = useState<Tab>('login');
+    const params = useSearchParams();
+    const registerParam = params.get('register');
+    const initialTab: Tab = registerParam === 'true' ? 'register' : 'login';
+    const planParam = params.get('plan');
+    const [selectedTab, setSelectedTab] = useState<Tab>(initialTab);
 
     useEffect(() => {
         authClient.getSession().then((session) => {
@@ -32,17 +36,10 @@ export default function LoginPage() {
         setSelectedTab('email-verification');
     }
 
-
     return (
         <main className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="container w-1/2">
                 <Tabs value={selectedTab} onValueChange={t => setSelectedTab(t as Tab)} className="max-auto w-full my-6 px-4">
-                    {(selectedTab === "login" || selectedTab === "register") && (
-                        <TabsList>
-                            <TabsTrigger value="login">Login</TabsTrigger>
-                            <TabsTrigger value="register">Register</TabsTrigger>
-                        </TabsList>
-                    )}
                     <TabsContent value="login">
                         <Card>
                             <CardHeader className="text-2xl font-bold">
@@ -73,7 +70,7 @@ export default function LoginPage() {
                                 <CardTitle>Register</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <RegisterTab openEmailVerificationTab={openEmailVerificationTab} />
+                                <RegisterTab openEmailVerificationTab={openEmailVerificationTab} setSelectedTab={setSelectedTab} plan={planParam} />
                             </CardContent>
 
                             <div className="flex items-center">

@@ -24,7 +24,7 @@ export function PasskeyButton() {
     return (
         <BetterAuthActionButton
             variant="outline"
-            className="w-full"
+            className="w-full cursor-pointer"
             action={() =>
                 authClient.signIn.passkey(undefined, {
                     onSuccess() {

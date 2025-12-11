@@ -8,9 +8,11 @@ export default function SocialAuthButtons() {
     return SUPPORTED_OAUTH_PROVIDERS.map((provider) => {
         const Icon = SUPPORTED_OAUTH_PROVIDER_DETAILS[provider].Icon;
         return (
-            <BetterAuthActionButton key={provider} variant="outline" action={() => {
-                return authClient.signIn.social({ provider, callbackURL: "/" });
-            }}>
+            <BetterAuthActionButton
+                className="cursor-pointer"
+                key={provider} variant="outline" action={() => {
+                    return authClient.signIn.social({ provider, callbackURL: "/" });
+                }}>
                 <Icon />
                 {SUPPORTED_OAUTH_PROVIDER_DETAILS[provider].name}
             </BetterAuthActionButton>

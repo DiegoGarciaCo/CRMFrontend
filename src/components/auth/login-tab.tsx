@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { PasskeyButton } from './passkeyButton';
+import { useRouter } from 'next/navigation';
 
 const LoginSchema = z.object({
     email: z.email().min(1),
@@ -21,6 +22,7 @@ type LoginForm = z.infer<typeof LoginSchema>;
 
 
 export default function LoginTab({ openEmailVerificationTab, openForgotPassword }: { openEmailVerificationTab: (email: string) => void, openForgotPassword: () => void }) {
+    const router = useRouter();
     const form = useForm<LoginForm>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
@@ -77,7 +79,7 @@ export default function LoginTab({ openEmailVerificationTab, openForgotPassword 
                                         type="button"
                                         variant="link"
                                         size="sm"
-                                        className="text-sm font-normal underline"
+                                        className="text-sm font-normal underline cursor-pointer"
                                     >
                                         Forgot Password?
                                     </Button>
@@ -87,12 +89,26 @@ export default function LoginTab({ openEmailVerificationTab, openForgotPassword 
                                         autoComplete="current-password webauthn"
                                         {...field} />
                                 </FormControl>
+                                <div className="flex justify-between items-center">
+                                    <div />
+                                    <Button
+                                        className="text-sm font-normal underline cursor-pointer"
+                                        variant="link"
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => {
+                                            router.push("/pricing");
+                                        }}
+                                    >
+                                        Don't have an account? Sign up
+                                    </Button>
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    <Button type="submit" disabled={isSubmitting} className="w-full">
+                    <Button type="submit" disabled={isSubmitting} className="w-full cursor-pointer">
                         <LoadingSwap isLoading={isSubmitting}>
                             Login
                         </LoadingSwap>
