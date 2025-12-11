@@ -3,6 +3,7 @@
 import { Goal } from '@/lib/definitions/backend/goals';
 import { Deal } from '@/lib/definitions/backend/deals';
 import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import GoalProgressCard from '@/components/goals/GoalProgressCard';
 import TransactionsProgressCard from '@/components/goals/TransactionsProgressCard';
 import GoalInsightsPanel from '@/components/goals/GoalInsightsPanel';
@@ -12,15 +13,23 @@ import { CreateGoal } from '@/lib/data/backend/clientCalls';
 interface GoalsPageClientProps {
     goal: Goal | undefined;
     deals: Deal[];
-    userId: string;
+    selectedYear: number;
+    currentYear: number;
 }
 
-export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
+export default function GoalsPageClient({
+    goal,
+    deals,
+    selectedYear,
+    currentYear
+}: GoalsPageClientProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const currentGoal = goal?.ID ? goal : null;
     const [showForm, setShowForm] = useState(false);
 
     const [form, setForm] = useState({
-        year: new Date().getFullYear(),
+        year: selectedYear,
         month: 1,
         income_goal: "",
         transaction_goal: "",
@@ -34,17 +43,39 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-
-
-        await CreateGoal(form.year, form.month, form.income_goal, form.transaction_goal, form.estimated_average_sale_price, form.estimated_average_commission_rate);
-
-        // Optionally refresh page or state here
+        await CreateGoal(
+            form.year,
+            form.month,
+            form.income_goal,
+            form.transaction_goal,
+            form.estimated_average_sale_price,
+            form.estimated_average_commission_rate
+        );
         location.reload();
     }
 
+    // Navigation functions
+    const navigateToYear = (year: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('year', year.toString());
+        const queryString = params.toString();
+        router.push(queryString ? `?${queryString}` : '');
+    };
+
+    const goToPreviousYear = () => {
+        navigateToYear(selectedYear - 1);
+    };
+
+    const goToNextYear = () => {
+        navigateToYear(selectedYear + 1);
+    };
+
+    // Determine if we can navigate to next year (up to current year + 5)
+    const canGoNext = selectedYear < currentYear + 5;
+    const canGoPrevious = selectedYear > 2024;
+
     // Calculate metrics from deals
     const metrics = useMemo(() => {
-        // Separate closed and pipeline deals
         const closedDeals = deals.filter(deal => deal.ClosedDate.Valid);
         const pipelineDeals = deals.filter(deal => !deal.ClosedDate.Valid);
 
@@ -92,9 +123,8 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
         };
     }, [deals, currentGoal]);
 
-    // Calculate time-based metrics
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; // 1-12
+    const currentMonth = currentDate.getMonth() + 1;
     const totalMonths = 12;
 
     const incomeGoal = currentGoal?.IncomeGoal?.Valid
@@ -113,7 +143,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
         }).format(amount);
     };
 
-    // Recent deals (last 10)
     const recentDeals = useMemo(() => {
         return [...deals]
             .sort((a, b) => {
@@ -124,15 +153,54 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
             .slice(0, 10);
     }, [deals]);
 
+    // Year indicator badge
+    const YearBadge = () => (
+        <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${selectedYear === currentYear
+            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+            : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
+            }`}>
+            {selectedYear === currentYear ? 'Current Year' : selectedYear}
+        </div>
+    );
+
     if (!currentGoal && !showForm) {
         return (
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {/* Year Navigation */}
+                <div className="mb-6 flex items-center justify-between">
+                    <button
+                        onClick={goToPreviousYear}
+                        disabled={!canGoPrevious}
+                        className="rounded-lg p-2 text-zinc-600 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed dark:text-zinc-400 dark:hover:bg-zinc-800"
+                        aria-label="Previous year"
+                    >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    <YearBadge />
+
+                    <button
+                        onClick={goToNextYear}
+                        disabled={!canGoNext}
+                        className="rounded-lg p-2 text-zinc-600 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed dark:text-zinc-400 dark:hover:bg-zinc-800"
+                        aria-label="Next year"
+                    >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
                 <div className="rounded-2xl border border-zinc-200 bg-white p-12 text-center shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
                     <svg className="mx-auto h-16 w-16 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697..." />
                     </svg>
 
-                    <h3 className="mt-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">No Goals Set</h3>
+                    <h3 className="mt-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                        No Goals Set for {selectedYear}
+                    </h3>
                     <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                         Set your annual production goal to start tracking your progress
                     </p>
@@ -148,15 +216,15 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
         );
     }
 
-    // Render form if showForm = true
     if (showForm) {
         return (
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-                    <h2 className="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Set Your Goal</h2>
+                    <h2 className="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+                        Set Your Goal for {selectedYear}
+                    </h2>
 
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                        {/* Year */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Year</label>
                             <input
@@ -169,7 +237,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                             />
                         </div>
 
-                        {/* Month */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Month</label>
                             <input
@@ -184,7 +251,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                             />
                         </div>
 
-                        {/* Income Goal */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Income Goal ($)</label>
                             <input
@@ -197,7 +263,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                             />
                         </div>
 
-                        {/* Transaction Goal */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Transaction Goal (#)</label>
                             <input
@@ -210,7 +275,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                             />
                         </div>
 
-                        {/* Estimated Sale Price */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Estimated Average Sale Price ($)</label>
                             <input
@@ -223,7 +287,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                             />
                         </div>
 
-                        {/* Estimated Commission Rate */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Estimated Commission Rate (%)</label>
                             <input
@@ -250,6 +313,35 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            {/* Year Navigation */}
+            <div className="mb-6 flex items-center justify-between">
+                <button
+                    onClick={goToPreviousYear}
+                    disabled={!canGoPrevious}
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    aria-label="Previous year"
+                >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="hidden sm:inline">{selectedYear - 1}</span>
+                </button>
+
+                <YearBadge />
+
+                <button
+                    onClick={goToNextYear}
+                    disabled={!canGoNext}
+                    className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    aria-label="Next year"
+                >
+                    <span className="hidden sm:inline">{selectedYear + 1}</span>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
             {/* Header */}
             <div className="mb-8">
                 <div className="flex items-center gap-3">
@@ -261,7 +353,7 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                     <div>
                         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">Production Goals</h1>
                         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                            Track your progress and stay on target for {currentDate.getFullYear()}
+                            Track your progress and stay on target for {selectedYear}
                         </p>
                     </div>
                 </div>
@@ -278,7 +370,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
 
             {/* Two Column Layout */}
             <div className="mb-6 grid gap-6 lg:grid-cols-2">
-                {/* Transactions Progress */}
                 <TransactionsProgressCard
                     transactionGoal={transactionGoal}
                     closedTransactions={metrics.closedTransactions}
@@ -287,7 +378,6 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
                     averageCommission={metrics.averageCommission}
                 />
 
-                {/* Insights Panel */}
                 <GoalInsightsPanel
                     incomeGoal={incomeGoal}
                     closedVolume={metrics.closedCommissionPaid}
@@ -420,4 +510,3 @@ export default function GoalsPageClient({ goal, deals }: GoalsPageClientProps) {
         </div>
     );
 }
-
