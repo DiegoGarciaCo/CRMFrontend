@@ -1,4 +1,4 @@
-import { NullString, NullTime, NullInt } from "../nullTypes";
+import { NullString, NullTime } from "../nullTypes";
 
 // --------------------------------------------------------------
 //    Contact Log Interface
@@ -17,8 +17,8 @@ export interface Deal {
     AppraisalDate: NullTime;
     FinalWalkthroughDate: NullTime;
     PossessionDate: NullTime;
-    Commission: NullInt; // sql.NullInt32
-    CommissionSplit: NullInt;
+    Commission: NullString;
+    CommissionSplit: NullString;
     PropertyAddress: NullString;
     PropertyCity: NullString;
     PropertyState: NullString;

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
-import { UpdateDeal } from "@/lib/data/backend/clientCalls";
+import { DeleteDeal, UpdateDeal } from "@/lib/data/backend/clientCalls";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { Deal } from "@/lib/definitions/backend/deals";
@@ -49,6 +49,8 @@ interface EditDealModalProps {
     stages: { id: string; name: string }[];
 }
 
+
+
 export function EditDealModal({ deal, stages }: EditDealModalProps) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
@@ -65,8 +67,8 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
             appraisal_date: deal.AppraisalDate.Valid ? deal.AppraisalDate.Time : '',
             final_walkthrough_date: deal.FinalWalkthroughDate.Valid ? deal.FinalWalkthroughDate.Time : '',
             possession_date: deal.PossessionDate.Valid ? deal.PossessionDate.Time : '',
-            commission: deal.Commission.Valid ? deal.Commission.Int32 : 0,
-            commission_split: deal.CommissionSplit.Valid ? deal.CommissionSplit.Int32 : 0,
+            commission: deal.Commission.Valid ? Number(deal.Commission.String) : 0,
+            commission_split: deal.CommissionSplit.Valid ? Number(deal.CommissionSplit.String) : 0,
             property_address: deal.PropertyAddress.Valid ? deal.PropertyAddress.String : '',
             property_city: deal.PropertyCity.Valid ? deal.PropertyCity.String : '',
             property_state: deal.PropertyState.Valid ? deal.PropertyState.String : '',
@@ -104,6 +106,18 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
             router.refresh();
         } catch (err) {
             toast.error("Failed to update deal.");
+            console.error(err);
+        }
+    }
+
+    async function handleDelete() {
+        try {
+            await DeleteDeal(deal.ID)
+            toast.success("Deal deleted!");
+            setOpen(false);
+            router.refresh();
+        } catch (err) {
+            toast.error("Failed to delete Deal.");
             console.error(err);
         }
     }
@@ -299,7 +313,10 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
                         />
 
                         <DialogFooter className="mt-4">
-                            <Button type="submit" className="w-full">Save Changes</Button>
+                            <div className="grid grid-cols-2 gap-2 flex-1">
+                                <Button type="submit" className="w-full">Save Changes</Button>
+                                <Button type="button" variant="destructive" className="w-full" onClick={handleDelete}>Delete</Button>
+                            </div>
                         </DialogFooter>
                     </form>
                 </Form>

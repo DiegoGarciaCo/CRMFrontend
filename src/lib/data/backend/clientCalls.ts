@@ -503,4 +503,52 @@ export async function DeleteStage(stageID: string): Promise<void> {
     if (!res.ok) {
         toast.error(`Error deleting stage: ${res.statusText}`);
     }
-}   
+}
+
+// ----------------------------------------------
+// Update Goal
+// ----------------------------------------------
+
+export async function UpdateGoal(goalID: string, year: number, month: number, income_goal: string, transaction_goal: string, estimated_average_sale_price: string, estimated_average_commission_rate: string): Promise<Goal> {
+    const res = await fetch(`${BASE_URL}/goals/${goalID}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            year,
+            month,
+            income_goal,
+            transaction_goal,
+            estimated_average_sale_price,
+            estimated_average_commission_rate
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating goal: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Delete Deal
+// ----------------------------------------------
+
+export async function DeleteDeal(deal_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/deals/${deal_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting deal: ${res.statusText}`);
+    }
+
+    return;
+}

@@ -35,29 +35,6 @@ export async function GetDealByID(deal_id: string): Promise<Deal> {
 }
 
 
-// ----------------------------------------------
-// Delete Deal
-// ----------------------------------------------
-
-export async function DeleteDeal(deal_id: string): Promise<void> {
-    const cookieStore = await cookies();
-    const session = cookieStore.get(cookieName);
-    const encoded = encodeURIComponent(session?.value || '');
-
-    const res = await fetch(`${BASE_URL}/deals/${deal_id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Cookie: `${cookieName}=${encoded}`,
-        },
-    });
-
-    if (!res.ok) {
-        throw new Error(`Error deleting deal: ${res.statusText}`);
-    }
-
-    return;
-}
 
 // ----------------------------------------------
 // List Deals by Assigned To ID

@@ -27,8 +27,7 @@ interface DealsPageClientProps {
     stages: Stage[];
 }
 
-export default function DealsPipelinePage({ deals: initialDeals, userId, clientType, stages }: DealsPageClientProps) {
-    const [deals, setDeals] = useState<Deal[]>(initialDeals);
+export default function DealsPipelinePage({ deals, userId, clientType, stages }: DealsPageClientProps) {
     const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const router = useRouter();
@@ -56,11 +55,9 @@ export default function DealsPipelinePage({ deals: initialDeals, userId, clientT
             }
         });
 
-        console.log("dealsByStage", grouped);
         return grouped;
     }, [deals, stages]);
 
-    console.log("dealsByStage", dealsByStage);
     // Handle drag start
     const handleDragStart = (event: DragStartEvent) => {
         const deal = deals.find(d => d.ID === event.active.id);
@@ -84,15 +81,6 @@ export default function DealsPipelinePage({ deals: initialDeals, userId, clientT
         // If dropped on same stage, do nothing
         if (deal.StageID === newStageId) return;
 
-        // Optimistically update UI
-        setDeals(prevDeals =>
-            prevDeals.map(d =>
-                d.ID === dealId
-                    ? { ...d, StageID: newStageId }
-                    : d
-            )
-        );
-
         // Update backend
         setIsUpdating(true);
         try {
@@ -108,8 +96,8 @@ export default function DealsPipelinePage({ deals: initialDeals, userId, clientT
                 deal.AppraisalDate.Valid ? deal.AppraisalDate.Time : '',
                 deal.FinalWalkthroughDate.Valid ? deal.FinalWalkthroughDate.Time : '',
                 deal.PossessionDate.Valid ? deal.PossessionDate.Time : '',
-                deal.Commission.Valid ? deal.Commission.Int32 : 0,
-                deal.CommissionSplit.Valid ? deal.CommissionSplit.Int32 : 0,
+                deal.Commission.Valid ? Number(deal.Commission.String) : 0,
+                deal.CommissionSplit.Valid ? Number(deal.CommissionSplit.String) : 0,
                 deal.PropertyAddress.Valid ? deal.PropertyAddress.String : '',
                 deal.PropertyCity.Valid ? deal.PropertyCity.String : '',
                 deal.PropertyState.Valid ? deal.PropertyState.String : '',
@@ -119,12 +107,6 @@ export default function DealsPipelinePage({ deals: initialDeals, userId, clientT
             );
         } catch (error) {
             console.error('Failed to update deal:', error);
-            // Revert on error
-            setDeals(prevDeals =>
-                prevDeals.map(d =>
-                    d.ID === dealId ? deal : d
-                )
-            );
         } finally {
             setIsUpdating(false);
         }

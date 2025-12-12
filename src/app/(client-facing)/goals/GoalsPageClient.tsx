@@ -9,6 +9,7 @@ import TransactionsProgressCard from '@/components/goals/TransactionsProgressCar
 import GoalInsightsPanel from '@/components/goals/GoalInsightsPanel';
 import RecentDealsTable from '@/components/goals/RecentDealsTable';
 import { CreateGoal } from '@/lib/data/backend/clientCalls';
+import { EditGoalModal } from '@/components/goals/EditGoalModal';
 
 interface GoalsPageClientProps {
     goal: Goal | undefined;
@@ -83,14 +84,14 @@ export default function GoalsPageClient({
         const pipelineVolume = pipelineDeals.reduce((sum, deal) => sum + deal.Price, 0);
 
         const closedCommissionPaid = closedDeals.reduce((sum, deal) =>
-            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
+            sum + (deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0), 0
         );
         const pipelineCommissionPending = pipelineDeals.reduce((sum, deal) =>
-            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
+            sum + (deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0), 0
         );
 
         const totalCommission = closedDeals.reduce((sum, deal) =>
-            sum + (deal.Commission.Valid ? (deal.Commission.Int32 / 100) * deal.Price : 0), 0
+            sum + (deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0), 0
         );
 
         const closedTransactions = closedDeals.length;
@@ -342,8 +343,9 @@ export default function GoalsPageClient({
                 </button>
             </div>
 
+
             {/* Header */}
-            <div className="mb-8">
+            <div className="mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg">
                         <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -357,6 +359,20 @@ export default function GoalsPageClient({
                         </p>
                     </div>
                 </div>
+
+                {currentGoal && (
+                    <EditGoalModal
+                        goalID={currentGoal.ID}
+                        initialValues={{
+                            year: currentGoal.Year,
+                            month: currentGoal.Month,
+                            income_goal: currentGoal.IncomeGoal?.Valid ? currentGoal.IncomeGoal.String : "",
+                            transaction_goal: currentGoal.TransactionGoal?.Valid ? currentGoal.TransactionGoal.Int32.toString() : "",
+                            estimated_average_sale_price: currentGoal.EstimatedAverageSalePrice?.Valid ? currentGoal.EstimatedAverageSalePrice.String : "",
+                            estimated_average_commission_rate: currentGoal.EstimatedAverageCommissionRate?.Valid ? currentGoal.EstimatedAverageCommissionRate.String : "",
+                        }}
+                    />
+                )}
             </div>
 
             {/* Main Progress Card */}

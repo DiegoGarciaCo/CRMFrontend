@@ -91,9 +91,9 @@ export default function RecentDealsTable({ deals }: RecentDealsTableProps) {
                                         <div className="font-semibold text-zinc-900 dark:text-zinc-50">{formatCurrency(deal.Price)}</div>
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-right">
-                                        {deal.Commission.Valid && deal.Commission.Int32 > 0 ? (
+                                        {deal.Commission.Valid && Number(deal.Commission.String) > 0 ? (
                                             <div className="font-semibold text-green-600 dark:text-green-400">
-                                                {formatCurrency((deal.Commission.Int32 / 100) * deal.Price)}
+                                                {formatCurrency(deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0)}
                                             </div>
                                         ) : (
                                             <div className="text-sm text-zinc-500 dark:text-zinc-500">—</div>

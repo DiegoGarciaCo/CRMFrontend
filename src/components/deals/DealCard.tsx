@@ -41,6 +41,8 @@ export default function DealCard({ deal, stages }: DealCardProps) {
             year: "numeric",
         });
 
+    const commissionAmount = deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0;
+
     return (
         <div
             ref={setNodeRef}
@@ -78,12 +80,10 @@ export default function DealCard({ deal, stages }: DealCardProps) {
                 </p>
             )}
 
-            {deal.Commission?.Valid && deal.Commission.Int32 > 0 && (
+            {deal.Commission?.Valid && Number(deal.Commission.String) > 0 && (
                 <p className="mt-2 text-xs font-medium text-green-600 dark:text-green-400">
                     Commission:{" "}
-                    {formatCurrency(
-                        (deal.Commission.Int32 / 100) * deal.Price
-                    )}
+                    {formatCurrency(commissionAmount)}
                 </p>
             )}
         </div>
