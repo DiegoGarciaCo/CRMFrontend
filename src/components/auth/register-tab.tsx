@@ -52,7 +52,17 @@ export default function RegisterTab(
     const { isSubmitting } = form.formState
 
     async function handleSubmit(data: RegisterForm) {
-        if (!stripePlan) {
+        const res = await authClient.signUp.email({ ...data, callbackURL: "/auth/login" },
+            {
+                onError: (error) => {
+                    toast.error(error.error.message || "Registration failed");
+                }
+            });
+
+        if (res.error == null && res.data.user.emailVerified === false) {
+            openEmailVerificationTab(data.email);
+        }
+        {/* if (!stripePlan) {
             toast.error("Invalid plan selected");
             return;
         }
@@ -101,6 +111,7 @@ export default function RegisterTab(
             toast.error('Something went wrong. Please try again.');
             // TODO: Delete the user account here if needed
         }
+    */}
     }
 
     return (
