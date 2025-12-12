@@ -6,7 +6,7 @@ import RegisterTab from '@/components/auth/register-tab';
 import LoginTab from '@/components/auth/login-tab';
 import { Separator } from '../../../components/ui/separator';
 import SocialAuthButtons from '@/components/auth/socialAuthButtons';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EmailVerification } from '@/components/auth/emailVerification';
@@ -14,7 +14,7 @@ import { ForgotPassword } from '@/components/auth/forgotPassword';
 
 type Tab = 'login' | 'register' | 'email-verification' | 'forgot-password';
 
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const params = useSearchParams();
@@ -112,5 +112,25 @@ export default function LoginPage() {
                 </Tabs>
             </div>
         </main>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="container w-1/2">
+                    <Card className="max-auto w-full my-6 mx-4">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-center">
+                                Loading...
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </main>
+        }>
+            <LoginPageContent />
+        </Suspense>
     );
 }

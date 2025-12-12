@@ -6,6 +6,9 @@ export const STRIPE_PLANS = [
         description: "Perfect for individual creators getting started.",
         href: "/auth/login?register=true&plan=Individual",
         priceMonthly: 39,
+        limits: {
+            projects: 5,
+        },
         features: [
             "5 products",
             "Up to 1,000 subscribers",
@@ -20,6 +23,9 @@ export const STRIPE_PLANS = [
         priceId: process.env.STRIPE_TEAM_PRICE_ID!,
         description: "Ideal for teams and businesses looking to grow.",
         href: "/auth/login?register=true&plan=Team",
+        limits: {
+            projects: 50,
+        },
         priceMonthly: 29,
         features: [
             "Unlimited products",
