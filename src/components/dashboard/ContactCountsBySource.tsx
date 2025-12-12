@@ -1,55 +1,64 @@
 'use client';
 
+import { Bar } from 'react-chartjs-2';
 import {
-    Table,
-    TableHeader,
-    TableRow,
-    TableHead,
-    TableBody,
-    TableCell,
-} from "@/components/ui/table";
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 import { ContactsBySourceRow } from "@/lib/definitions/backend/contacts";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface ContactCountsBySourceProps {
     contactCounts: ContactsBySourceRow[];
 }
 
-export default function ContactCountsBySource({ contactCounts }: ContactCountsBySourceProps) {
+export default function ContactCountsBySourceChart({ contactCounts }: ContactCountsBySourceProps) {
+    // Prepare data for chart.js
+    const labels = contactCounts.map(row => (row.Source.Valid ? row.Source.String : '—'));
+    const dataValues = contactCounts.map(row => row.ContactCount);
+
+    const data = {
+        labels,
+        datasets: [
+            {
+                label: 'Contacts by Source',
+                data: dataValues,
+                backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind blue-500
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+        },
+        scales: {
+            x: {
+                ticks: { autoSkip: false },
+            },
+            y: {
+                beginAtZero: true,
+            },
+        },
+        datasets: {
+            bar: {
+                maxBarThickness: 50, // max width in pixels
+            },
+        },
+    };
+
     return (
         <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                Contacts by Source
-            </h2>
-
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Source</TableHead>
-                        <TableHead className="text-right">Contact Count</TableHead>
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                    {contactCounts.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={2} className="text-center py-8 text-zinc-500 dark:text-zinc-400">
-                                No data available
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        contactCounts.map((row, index) => (
-                            <TableRow key={index} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                                <TableCell>
-                                    {row.Source.Valid ? row.Source.String : '—'}
-                                </TableCell>
-                                <TableCell className="text-right font-medium">
-                                    {row.ContactCount}
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
+            <Bar data={data} options={options} />
         </div>
     );
 }
