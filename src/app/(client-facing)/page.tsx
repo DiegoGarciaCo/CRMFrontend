@@ -145,8 +145,8 @@ export default async function Dashboard() {
                     <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Quick Actions</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <CreateContactSheet />
-                        <CreateAppointmentSheet ownerId={userId} />
-                        <CreateTaskSheet ownerId={userId} />
+                        <CreateAppointmentSheet ownerId={userId} variant="action" />
+                        <CreateTaskSheet variant="action" />
                         <CreateNoteSheet ownerId={userId} />
                     </div>
                 </div>

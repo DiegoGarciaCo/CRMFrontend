@@ -1,5 +1,6 @@
 'use client';
 
+import CreateAppointmentModal from '@/components/dashboard/CreateAppointmentSheet';
 import { Appointment } from '@/lib/definitions/backend/appointments';
 import { useState, useMemo } from 'react';
 
@@ -7,6 +8,7 @@ interface AppointmentsPageClientProps {
     allAppointments: Appointment[];
     upcomingAppointments: Appointment[];
     todayAppointments: Appointment[];
+    ownerId: string;
 }
 
 type ViewMode = 'day' | 'week' | 'month';
@@ -15,6 +17,7 @@ export default function AppointmentsPageClient({
     allAppointments,
     upcomingAppointments,
     todayAppointments,
+    ownerId,
 }: AppointmentsPageClientProps) {
     const [viewMode, setViewMode] = useState<ViewMode>('week');
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -85,9 +88,7 @@ export default function AppointmentsPageClient({
                         Manage your property showings and meetings
                     </p>
                 </div>
-                <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
-                    + New Appointment
-                </button>
+                <CreateAppointmentModal ownerId={ownerId} variant="button" />
             </div>
 
             {/* Stats Cards */}
@@ -177,8 +178,8 @@ export default function AppointmentsPageClient({
                     <button
                         onClick={() => setViewMode('day')}
                         className={`rounded-lg px-3 py-1 text-sm font-medium ${viewMode === 'day'
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                            : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
                             }`}
                     >
                         Day
@@ -186,8 +187,8 @@ export default function AppointmentsPageClient({
                     <button
                         onClick={() => setViewMode('week')}
                         className={`rounded-lg px-3 py-1 text-sm font-medium ${viewMode === 'week'
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                            : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
                             }`}
                     >
                         Week
@@ -195,8 +196,8 @@ export default function AppointmentsPageClient({
                     <button
                         onClick={() => setViewMode('month')}
                         className={`rounded-lg px-3 py-1 text-sm font-medium ${viewMode === 'month'
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                            : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
                             }`}
                     >
                         Month
@@ -217,8 +218,8 @@ export default function AppointmentsPageClient({
                                     {day.toLocaleDateString('en-US', { weekday: 'short' })}
                                 </div>
                                 <div className={`mt-1 text-lg font-semibold ${day.toDateString() === new Date().toDateString()
-                                        ? 'text-blue-600 dark:text-blue-400'
-                                        : 'text-zinc-900 dark:text-zinc-50'
+                                    ? 'text-blue-600 dark:text-blue-400'
+                                    : 'text-zinc-900 dark:text-zinc-50'
                                     }`}>
                                     {day.getDate()}
                                 </div>

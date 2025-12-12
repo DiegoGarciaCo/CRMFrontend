@@ -133,8 +133,8 @@ export default function CreateNoteModal({ ownerId }: CreateNoteSheetProps) {
                                     <button
                                         key={c.ID}
                                         className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
-                                                ? "bg-zinc-100 dark:bg-zinc-800"
-                                                : ""
+                                            ? "bg-zinc-100 dark:bg-zinc-800"
+                                            : ""
                                             }`}
                                         onClick={() => {
                                             setSelectedContact(c.ID);
@@ -161,6 +161,7 @@ export default function CreateNoteModal({ ownerId }: CreateNoteSheetProps) {
                             <div>
                                 <Label>Note</Label>
                                 <Textarea
+                                    className="mt-2"
                                     value={note}
                                     onChange={(e) => setNote(e.target.value)}
                                     rows={4}
@@ -173,6 +174,7 @@ export default function CreateNoteModal({ ownerId }: CreateNoteSheetProps) {
                             <div>
                                 <Label>Contact Method</Label>
                                 <Input
+                                    className="mt-2"
                                     placeholder="Call, Email, etc."
                                     value={contactMethod}
                                     onChange={(e) => setContactMethod(e.target.value)}
@@ -181,6 +183,7 @@ export default function CreateNoteModal({ ownerId }: CreateNoteSheetProps) {
                             <div>
                                 <Label>Note</Label>
                                 <Textarea
+                                    className="mt-2"
                                     value={note}
                                     onChange={(e) => setNote(e.target.value)}
                                     rows={4}

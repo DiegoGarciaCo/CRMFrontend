@@ -103,38 +103,38 @@ export default function CreateContactForm({
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label>First Name</Label>
-                    <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    <Input className="mt-2" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 </div>
                 <div>
                     <Label>Last Name</Label>
-                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    <Input className="mt-2" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                 </div>
             </div>
 
             <div>
                 <Label>Birthdate</Label>
-                <Input type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} />
+                <Input className="mt-2" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} />
             </div>
 
             <div>
                 <Label>Address</Label>
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} />
+                <Input className="mt-2" value={address} onChange={(e) => setAddress(e.target.value)} />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
                 <div>
                     <Label>City</Label>
-                    <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                    <Input className="mt-2" value={city} onChange={(e) => setCity(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>State</Label>
-                    <Input value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
+                    <Input className="mt-2" value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>Zip Code</Label>
-                    <Input value={zipCode} onChange={(e) => setZipCode(e.target.value)} />
+                    <Input className="mt-2" value={zipCode} onChange={(e) => setZipCode(e.target.value)} />
                 </div>
             </div>
 
@@ -144,11 +144,13 @@ export default function CreateContactForm({
                     {phoneNumbers.map((pn, i) => (
                         <div key={i} className="flex gap-3">
                             <Input
+                                className="mt-2"
                                 placeholder="Number"
                                 value={pn.number}
                                 onChange={(e) => updatePhoneNumber(i, "number", e.target.value)}
                             />
                             <Input
+
                                 placeholder="Type"
                                 className="w-32"
                                 value={pn.type}
@@ -168,6 +170,7 @@ export default function CreateContactForm({
                     {emails.map((em, i) => (
                         <div key={i} className="flex gap-3">
                             <Input
+                                className="mt-2"
                                 placeholder="Email"
                                 value={em.email}
                                 onChange={(e) => updateEmail(i, "email", e.target.value)}
@@ -190,27 +193,27 @@ export default function CreateContactForm({
             <div className="space-y-4">
                 <div>
                     <Label>Source</Label>
-                    <Input value={source} onChange={(e) => setSource(e.target.value)} />
+                    <Input className="mt-2" value={source} onChange={(e) => setSource(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>Status</Label>
-                    <Input value={status} onChange={(e) => setStatus(e.target.value)} />
+                    <Input className="mt-2" value={status} onChange={(e) => setStatus(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>Lender</Label>
-                    <Input value={lender} onChange={(e) => setLender(e.target.value)} />
+                    <Input className="mt-2" value={lender} onChange={(e) => setLender(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>Price Range</Label>
-                    <Input value={priceRange} onChange={(e) => setPriceRange(e.target.value)} />
+                    <Input className="mt-2" value={priceRange} onChange={(e) => setPriceRange(e.target.value)} />
                 </div>
 
                 <div>
                     <Label>Timeframe</Label>
-                    <Input value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
+                    <Input className="mt-2" value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
                 </div>
             </div>
 

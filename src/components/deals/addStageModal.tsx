@@ -12,6 +12,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { CreateStage } from "@/lib/data/backend/clientCalls";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const StageSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -54,6 +55,11 @@ export function AddStageModal() {
             toast.error("Failed to create stage.");
         }
     }
+
+    const clientTypeOptions = [
+        { label: "Buyer", value: "buyer" },
+        { label: "Seller", value: "seller" },
+    ];
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -111,9 +117,20 @@ export function AddStageModal() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Client Type</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. Buyer, Seller" {...field} />
-                                    </FormControl>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select client type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {clientTypeOptions.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

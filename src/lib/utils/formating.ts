@@ -25,3 +25,8 @@ export const formatDate = (dateString: string) => {
         minute: '2-digit',
     });
 };
+
+export function CombineDateTime(date: string, time: string) {
+    if (!date || !time) return ""; // or null
+    return `${date}T${time}`;
+}
