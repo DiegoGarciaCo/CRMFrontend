@@ -552,3 +552,73 @@ export async function DeleteDeal(deal_id: string): Promise<void> {
 
     return;
 }
+
+// ----------------------------------------------
+// Delete Email
+// ----------------------------------------------
+
+export async function DeleteEmail(emailID: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/emails/${emailID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting email: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Update Email
+// ----------------------------------------------
+
+export async function UpdateEmail(emailID: string, email: string, type: string, isPrimary: boolean): Promise<void> {
+    const res = await fetch(`${BASE_URL}/emails/${emailID}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email,
+            type,
+            is_primary: isPrimary,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating email: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Create Email
+// ----------------------------------------------
+
+export async function CreateEmail(contactID: string, email: string, type: string, isPrimary: boolean): Promise<void> {
+    const res = await fetch(`${BASE_URL}/emails/contact/${contactID}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email,
+            type,
+            is_primary: isPrimary,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error creating email: ${res.statusText}`);
+    }
+
+    return;
+}

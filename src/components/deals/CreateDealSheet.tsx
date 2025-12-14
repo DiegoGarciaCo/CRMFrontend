@@ -22,7 +22,7 @@ import type { Stage } from "@/lib/definitions/backend/stage";
 import { CreateDeal, SearchContacts } from "@/lib/data/backend/clientCalls";
 import { useRouter } from "next/navigation";
 
-export default function CreateDealModal({ userId, stages }: { userId: string; stages: Stage[] }) {
+export default function CreateDealModal({ stages, variant }: { stages: Stage[]; variant: "button" | "action" | "plus" }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -77,7 +77,7 @@ export default function CreateDealModal({ userId, stages }: { userId: string; st
         }, 350);
 
         return () => clearTimeout(delay);
-    }, [contactSearch, userId]);
+    }, [contactSearch]);
 
     const handleCreate = async () => {
         if (!selectedContact) return toast.error("Please select a contact");
@@ -117,9 +117,17 @@ export default function CreateDealModal({ userId, stages }: { userId: string; st
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-                    + New Deal
-                </button>
+                {variant === "button" ? (
+
+                    <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        + New Deal
+                    </button>
+                ) : (
+
+                    <button className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                    </button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">

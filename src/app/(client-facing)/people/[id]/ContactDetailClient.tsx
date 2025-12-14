@@ -19,6 +19,8 @@ import Sidebar from '@/components/people/id/sidebar';
 import { formatDate } from '@/lib/utils/formating';
 import RightSidebar from '@/components/people/id/rightSidebar';
 import { Tag } from '@/lib/definitions/backend/tag';
+import { Stage } from '@/lib/definitions/backend/stage';
+import { useRouter } from 'next/navigation';
 
 
 interface ContactDetailClientProps {
@@ -32,16 +34,19 @@ interface ContactDetailClientProps {
     deals: Deal[];
     appointments: Appointment[];
     tasks: Task[];
+    stages: Stage[];
 }
 
 export default function ContactDetailClient(props: ContactDetailClientProps) {
-    const { contact, notes: initialNotes, logs: initialLogs, emails, phoneNumbers, tags: initialTags, allTags } = props;
+    const { contact, notes: initialNotes, logs: initialLogs, emails, phoneNumbers, tags: initialTags, allTags, stages } = props;
     const [notes, setNotes] = useState(initialNotes);
     const [logs, setLogs] = useState(initialLogs);
     const [newNote, setNewNote] = useState('');
     const [newLog, setNewLog] = useState({ method: 'Call', note: '' });
     const [isAddingNote, setIsAddingNote] = useState(false);
     const [isAddingLog, setIsAddingLog] = useState(false);
+
+    const router = useRouter();
 
 
     const handleAddNote = async () => {
@@ -52,6 +57,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
             setNotes([note, ...notes]);
             setNewNote('');
             toast.success('Note added successfully');
+            router.refresh();
         } catch (error) {
             toast.error('Failed to add note');
         } finally {
@@ -67,6 +73,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
             setLogs([log, ...logs]);
             setNewLog({ method: 'Call', note: '' });
             toast.success('Contact log added successfully');
+            router.refresh();
         } catch (error) {
             toast.error('Failed to add contact log');
         } finally {
@@ -114,7 +121,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
                                     <div className="space-y-3">
                                         {notes.map(note => (
                                             <div key={note.ID} className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-600 dark:bg-yellow-950/20">
-                                                <p className="text-sm text-zinc-900 dark:text-zinc-100">{note.Note}</p>
+                                                <p className="text-sm text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap">{note.Note}</p>
                                                 <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{note.CreatedAt.Valid && formatDate(note.CreatedAt.Time)}</div>
                                             </div>
                                         ))}
@@ -150,7 +157,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
                                         {logs.map(log => (
                                             <div key={log.ID} className="rounded-lg border-l-4 border-green-400 bg-green-50 p-4 dark:border-green-600 dark:bg-green-950/20">
                                                 <Badge className="mb-2">{log.ContactMethod}</Badge>
-                                                {log.Note.Valid && <p className="text-sm text-zinc-900 dark:text-zinc-100">{log.Note.String}</p>}
+                                                {log.Note.Valid && <p className="text-sm text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap">{log.Note.String}</p>}
                                                 <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{log.CreatedAt.Valid && formatDate(log.CreatedAt.Time)}</div>
                                             </div>
                                         ))}
@@ -167,6 +174,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
                 deals={props.deals}
                 appointments={props.appointments}
                 tasks={props.tasks}
+                stages={stages}
             />
         </div>
     );

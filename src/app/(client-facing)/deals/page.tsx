@@ -52,7 +52,7 @@ export default async function DealsPage({
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-            <DealsPageClient deals={deals} userId={userId} clientType={clientType} stages={stages} />
+            <DealsPageClient deals={deals} clientType={clientType} stages={stages} />
         </div>
     );
 }

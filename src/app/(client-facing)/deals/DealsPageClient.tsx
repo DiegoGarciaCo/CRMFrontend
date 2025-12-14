@@ -22,12 +22,11 @@ import { useRouter } from "next/navigation";
 
 interface DealsPageClientProps {
     deals: Deal[];
-    userId: string;
     clientType: "buyer" | "seller";
     stages: Stage[];
 }
 
-export default function DealsPipelinePage({ deals, userId, clientType, stages }: DealsPageClientProps) {
+export default function DealsPipelinePage({ deals, clientType, stages }: DealsPageClientProps) {
     const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const router = useRouter();
@@ -130,7 +129,7 @@ export default function DealsPipelinePage({ deals, userId, clientType, stages }:
                             Drag and drop deals to move them between stages
                         </p>
                     </div>
-                    <CreateDealModal userId={userId} stages={stages} />
+                    <CreateDealModal stages={stages} variant="button" />
                 </div>
 
                 {/* Stats */}

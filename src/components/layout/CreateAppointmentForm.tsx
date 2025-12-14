@@ -15,11 +15,7 @@ import {
 import { CombineDateTime } from "@/lib/utils/formating";
 import { useRouter } from "next/navigation";
 
-export function CreateAppointmentForm({
-    ownerId,
-}: {
-    ownerId: string;
-}) {
+export function CreateAppointmentForm() {
     // ---- State ----
     const [contactSearch, setContactSearch] = useState("");
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -73,7 +69,7 @@ export function CreateAppointmentForm({
         }, 300);
 
         return () => clearTimeout(delayDebounce);
-    }, [contactSearch, ownerId]);
+    }, [contactSearch]);
 
     // ---- Submit ----
     const handleCreate = async () => {

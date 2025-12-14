@@ -14,7 +14,7 @@ import CreateTaskForm from "../layout/CreateTaskForm";
 
 
 
-export default function CreateTaskModal({ variant }: { variant: "button" | "action" }) {
+export default function CreateTaskModal({ variant }: { variant: "button" | "action" | "plus" }) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -44,10 +44,14 @@ export default function CreateTaskModal({ variant }: { variant: "button" | "acti
                             <p className="text-xs text-zinc-500 dark:text-zinc-500">Assign a new task</p>
                         </div>
                     </button>
-                ) : (
+                ) : variant === "button" ? (
 
                     <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                         + New Task
+                    </button>
+                ) : (
+                    <button className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     </button>
                 )}
             </DialogTrigger>
