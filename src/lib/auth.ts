@@ -40,12 +40,6 @@ export const auth = betterAuth({
                 await sendDeleteAccountVerificationEmail({ user, url });
             }
         },
-        additionalFields: {
-            trialAllowed: {
-                type: "boolean",
-                default: true,
-            },
-        },
     },
     account: {
         modelName: "accounts",
