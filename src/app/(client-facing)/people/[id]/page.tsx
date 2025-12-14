@@ -70,9 +70,6 @@ export default async function ContactDetailPage({ params }: ContactPageProps) {
         }
     });
 
-    console.log("Contact Tags:", contactTags);
-    console.log("All Tags:", tags);
-
 
     return (
         <ContactDetailClient

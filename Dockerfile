@@ -60,6 +60,4 @@ USER ghost
 EXPOSE 3010
 ENV PORT=3010
 ENV HOSTNAME="0.0.0.0"
-RUN apk add --no-cache tini
-ENTRYPOINT ["tini", "--"]
 CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3010"]

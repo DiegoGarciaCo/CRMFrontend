@@ -65,6 +65,7 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
         if (emailId) {
             // UPDATE
             await UpdateEmail(emailId, emailDraft.email_address, emailDraft.type, false)
+            setEditingEmailId(null)
         } else {
             // CREATE
             await CreateEmail(contact.ID, emailDraft.email_address, emailDraft.type, false)
@@ -284,8 +285,21 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                             <p className="text-sm text-zinc-500">{phone.type}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm"><Pencil /></Button>
-                                            <Button variant="destructive" size="sm">X</Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => startEditPhone(phone)}
+                                            ><Pencil /></Button>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={async () => {
+                                                    await fetch(`/api/phones/${phone.id}`, {
+                                                        method: 'DELETE',
+                                                    })
+                                                    router.refresh()
+                                                }}
+                                            >X</Button>
                                         </div>
                                     </div>
                                 ))}
