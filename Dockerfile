@@ -20,9 +20,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV SWC_DISABLE_WASM=1
-ENV NEXT_DISABLE_FILE_TRACE=1
-ENV NEXT_PRIVATE_DISABLE_SWCPACK=1
 
 # Use BuildKit secret mounts to pass env variables at build-time
 RUN --mount=type=secret,id=BASE_URL,env=BASE_URL \
@@ -60,4 +57,4 @@ USER ghost
 EXPOSE 3010
 ENV PORT=3010
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3010"]
+CMD ["node", "server.js"]
