@@ -37,7 +37,6 @@ export default async function AppointmentsPage() {
                 allAppointments={allAppointments}
                 upcomingAppointments={upcomingAppointments}
                 todayAppointments={todayAppointments}
-                ownerId={userId}
             />
         </div>
     );

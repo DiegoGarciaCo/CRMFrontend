@@ -8,7 +8,6 @@ interface AppointmentsPageClientProps {
     allAppointments: Appointment[];
     upcomingAppointments: Appointment[];
     todayAppointments: Appointment[];
-    ownerId: string;
 }
 
 type ViewMode = 'day' | 'week' | 'month';
@@ -17,7 +16,6 @@ export default function AppointmentsPageClient({
     allAppointments,
     upcomingAppointments,
     todayAppointments,
-    ownerId,
 }: AppointmentsPageClientProps) {
     const [viewMode, setViewMode] = useState<ViewMode>('week');
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -88,7 +86,7 @@ export default function AppointmentsPageClient({
                         Manage your property showings and meetings
                     </p>
                 </div>
-                <CreateAppointmentModal ownerId={ownerId} variant="button" />
+                <CreateAppointmentModal variant="button" />
             </div>
 
             {/* Stats Cards */}
