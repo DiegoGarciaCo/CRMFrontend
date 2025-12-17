@@ -184,7 +184,7 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
                     <TableBody>
                         {paginatedContacts.map((contact) => {
                             // Compute primary phone once
-                            const primaryPhone = JSON.parse(contact.PhoneNumbers as string).find(
+                            const primaryPhone = JSON.parse(contact.PhoneNumbers as unknown as string).find(
                                 (pn: any) => pn.is_primary
                             )?.phone_number || 'N/A';
 
