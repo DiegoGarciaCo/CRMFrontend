@@ -4,6 +4,7 @@ import { Contact } from "@/lib/definitions/backend/contacts";
 import { Deal } from "@/lib/definitions/backend/deals";
 import { CreateContactEmailInput } from "@/lib/definitions/backend/emails";
 import { Goal } from "@/lib/definitions/backend/goals";
+import { MentionData } from "@/lib/definitions/backend/mentions";
 import { ContactNote } from "@/lib/definitions/backend/notes";
 import { CreateContactPhoneNumberInput } from "@/lib/definitions/backend/phoneNumbers";
 import { SmartList } from "@/lib/definitions/backend/smartList";
@@ -621,4 +622,199 @@ export async function CreateEmail(contactID: string, email: string, type: string
     }
 
     return;
+}
+
+// ----------------------------------------------
+// Delete Phone Number
+// ----------------------------------------------
+
+export async function DeletePhoneNumber(phoneNumberID: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/phone-numbers/${phoneNumberID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (!res.ok) {
+        toast.error(`Error deleting phone number: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Update Phone Number
+// ----------------------------------------------
+
+export async function UpdatePhoneNumber(phoneNumberID: string, phone_number: string, type: string, isPrimary: boolean): Promise<void> {
+    const res = await fetch(`${BASE_URL}/phone-numbers/${phoneNumberID}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            phone_number,
+            type,
+            is_primary: isPrimary,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating phone number: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Create Phone Number
+// ----------------------------------------------
+
+export async function CreatePhoneNumber(contactID: string, phone_number: string, type: string, isPrimary: boolean): Promise<void> {
+    const res = await fetch(`${BASE_URL}/phone-numbers/contact/${contactID}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            phone_number,
+            type,
+            is_primary: isPrimary,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error creating phone number: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Update Contact
+// ----------------------------------------------
+
+export async function UpdateContact(contactID: string, first_name: string, last_name: string, birthdate: string, source: string, status: string, address: string, city: string, state: string, zip_code: string, lender: string, price_range: string, timeframe: string): Promise<Contact> {
+    const res = await fetch(`${BASE_URL}/contacts/${contactID}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            first_name,
+            last_name,
+            birthdate,
+            source,
+            status,
+            address,
+            city,
+            state,
+            zip_code,
+            lender,
+            price_range,
+            timeframe,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating contact: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Get Organization Members
+// ----------------------------------------------
+
+export async function GetOrganizationMembers(orgID: string): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/members/organization/${orgID}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error fetching organization members: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Add Collaborator to Contact
+// ----------------------------------------------
+
+export async function AddCollaboratorToContact(contact_id: string, user_id: string, role: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/collaborators`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contact_id,
+            user_id,
+            role,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error adding collaborator to contact: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Remove Collaborator from Contact
+// ----------------------------------------------
+
+export async function RemoveCollaboratorFromContact(contactID: string, collaboratorID: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/collaborators/${collaboratorID}/contact/${contactID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error removing collaborator from contact: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Mentions
+// ----------------------------------------------
+
+export async function SendMentionNotifications(
+    contactId: string,
+    mentions: MentionData[],
+    noteContent: string
+): Promise<void> {
+    const response = await fetch('/api/notifications/mentions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contactId,
+            mentions,
+            noteContent
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send mention notifications');
+    }
 }

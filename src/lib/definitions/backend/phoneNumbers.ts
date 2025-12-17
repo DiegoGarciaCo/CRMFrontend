@@ -19,3 +19,13 @@ export interface CreateContactPhoneNumberInput {
     type: string;
     is_primary: boolean;
 }
+
+export interface ContactsWithPhoneNumbers {
+    id: string; // uuid.UUID
+    contact_id: string;
+    phone_number: string;
+    type: string;
+    is_primary: boolean;
+    created_at: string;
+    updated_at: string;
+}

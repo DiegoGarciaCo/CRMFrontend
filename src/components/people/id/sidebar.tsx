@@ -11,6 +11,7 @@ import { Tag } from '@/lib/definitions/backend/tag';
 import DetailsManagementModal from './DetailsManagementModal';
 import CreateAppointmentModal from '@/components/dashboard/CreateAppointmentSheet';
 import { toast } from 'sonner';
+import { Collaborator } from '@/lib/definitions/backend/collaborators';
 
 
 interface SidebarProps {
@@ -24,6 +25,8 @@ interface SidebarProps {
 
 export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTags, allTags }: SidebarProps) {
     const router = useRouter();
+
+    const collaborators = JSON.parse(contact.Collaborators) as Collaborator[];
 
 
     return (
@@ -43,9 +46,12 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
 
                 {/* Contact Header */}
                 <div className="mb-6">
-                    <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                        {contact.FirstName[0]}
-                        {contact.LastName[0]}
+                    <div className="flex justify-between items-center">
+                        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                            {contact.FirstName[0]}
+                            {contact.LastName[0]}
+                        </div>
+                        <DetailsManagementModal contact={contact} variant="details" />
                     </div>
                     <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                         {contact.FirstName} {contact.LastName}
@@ -98,7 +104,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                     <DetailsManagementModal contact={contact} variant="email" emails={emails} />
                                 </div>
 
-                                {(emails ?? []).length > 0 && (
+                                {(emails ?? []).length > 0 ? (
                                     <div className="mt-1 space-y-1">
                                         {emails.map((email) => (
                                             <div key={email.id} className="flex items-center gap-2">
@@ -112,6 +118,8 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                             </div>
                                         ))}
                                     </div>
+                                ) : (
+                                    <p className="text-sm mt-1">No Emails</p>
                                 )}
                             </div>
 
@@ -126,7 +134,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                     <DetailsManagementModal contact={contact} variant="phone" phones={phoneNumbers} />
                                 </div>
 
-                                {(phoneNumbers ?? []).length > 0 && (
+                                {(phoneNumbers ?? []).length > 0 ? (
                                     <div className="mt-1 space-y-1">
                                         {phoneNumbers.map((phone) => (
                                             <div key={phone.id} className="flex items-center gap-2">
@@ -148,13 +156,14 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                             </div>
                                         ))}
                                     </div>
+                                ) : (
+                                    <p className="text-sm mt-1">No Phone Numbers</p>
                                 )}
                             </div>
 
                             <div>
                                 <div className="flex items-center justify-between">
                                     <div className="text-xs text-zinc-500 dark:text-zinc-500">Address</div>
-                                    <DetailsManagementModal contact={contact} variant="details" />
                                 </div>
                                 {contact.Address.Valid && (
                                     <div className="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100 capitalize">
@@ -169,7 +178,6 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                             <div>
                                 <div className="flex items-center justify-between">
                                     <div className="text-xs text-zinc-500 dark:text-zinc-500">Birthdate</div>
-                                    <DetailsManagementModal contact={contact} variant="details" />
                                 </div>
                                 {contact.Birthdate.Valid && contact.Birthdate.Time && (
                                     <div className="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -192,7 +200,6 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                             <div>
                                 <div className="flex items-center justify-between">
                                     <div className="text-xs text-zinc-500 dark:text-zinc-500">Status</div>
-                                    <DetailsManagementModal contact={contact} variant="details" />
                                 </div>
                                 {contact.Status.Valid && (
                                     <div className="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -238,6 +245,29 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                     {contact.Lender.Valid ? contact.Lender.String : "No Lender Assigned"}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                        Collaborators
+                    </h3>
+                    <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/50">
+                        <div className="flex justify-between items-center">
+                            <div className="text-xs text-zinc-500 dark:text-zinc-500">
+                                {collaborators.length === 0 ? "No Collaborators" : (
+                                    <div className="mt-1 space-y-1">
+                                        {collaborators.map((collaborator) => (
+                                            <div key={collaborator.id} className="flex items-center gap-2">
+                                                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                                    {collaborator.name}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Add Collaborators Button */}
+                            <DetailsManagementModal contact={contact} variant="collaborators" collaborators={collaborators} />
                         </div>
                     </div>
 

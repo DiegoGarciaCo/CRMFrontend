@@ -213,7 +213,19 @@ export default function CreateContactForm({
 
                 <div>
                     <Label>Timeframe</Label>
-                    <Input className="mt-2" value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
+                    <select
+                        value={timeframe}
+                        onChange={(e) =>
+                            setTimeframe(e.target.value)
+                        }
+                        className="w-full rounded-md border px-2 py-2 text-sm mt-2"
+                    >
+                        <option value="">None</option>
+                        <option value="Immediate">Immediate</option>
+                        <option value="1–3 Months">1–3 Months</option>
+                        <option value="3–6 Months">3–6 Months</option>
+                        <option value="6+ Months">6+ Months</option>
+                    </select>
                 </div>
             </div>
 

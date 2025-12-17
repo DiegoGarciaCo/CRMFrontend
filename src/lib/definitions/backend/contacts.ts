@@ -1,4 +1,5 @@
 import { NullString, NullTime, NullUUID } from "../nullTypes";
+import { ContactsWithPhoneNumbers } from "./phoneNumbers";
 
 // ------------------------------
 // Client Interface
@@ -27,6 +28,8 @@ export interface Contact {
     CreatedAt: NullTime;       // sql.NullTime
     UpdatedAt: NullTime;       // sql.NullTime
     LastContactedAt: NullTime; // sql.NullTime
+    PhoneNumbers: ContactsWithPhoneNumbers[];
+    TotalCount: number;
 }
 
 // ------------------------------
@@ -90,6 +93,7 @@ export interface ContactWithDetails {
     Emails: string; // JSON stringified Email[]
     PhoneNumbers: string; // JSON stringified PhoneNumber[]
     Tags: string; // JSON stringified Tag[]
+    Collaborators: string; // JSON stringified Collaborator[]
 }
 
 export interface ContactsBySourceRow {

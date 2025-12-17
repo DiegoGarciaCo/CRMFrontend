@@ -79,7 +79,7 @@ export default function PeoplePageClient({ userId, initialContacts, smartLists, 
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen w-full">
             <SmartListSidebar
                 smartLists={smartLists}
                 activeListId={activeListId}

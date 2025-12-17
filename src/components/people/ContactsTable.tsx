@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { formatPhoneNumber } from '@/lib/utils/formating';
 
 interface ContactsTableProps {
     contacts: Contact[];
@@ -21,11 +24,16 @@ interface ContactsTableProps {
 type SortField = 'name' | 'status' | 'source' | 'created';
 type SortDirection = 'asc' | 'desc';
 
+const PAGE_SIZE = 50;
+
 export default function ContactsTableNew({ contacts }: ContactsTableProps) {
     const router = useRouter();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState<SortField>('created');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -36,202 +44,208 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
         }
     };
 
+    /** FILTER + SORT */
     const filteredAndSortedContacts = useMemo(() => {
-        const contactsArray = Array.isArray(contacts) ? contacts : [];
-        const filtered = contactsArray.filter((contact) => {
-            const searchLower = searchTerm.toLowerCase();
-            const fullName = `${contact.FirstName} ${contact.LastName}`.toLowerCase();
-            const status = contact.Status.Valid ? contact.Status.String.toLowerCase() : '';
-            const source = contact.Source.Valid ? contact.Source.String.toLowerCase() : '';
+        const searchLower = searchTerm.toLowerCase();
 
-            return fullName.includes(searchLower) || status.includes(searchLower) || source.includes(searchLower);
-        });
+        if (!contacts) return [];
 
-        filtered.sort((a, b) => {
-            let aVal: any, bVal: any;
+        return [...contacts]
+            .filter((contact) => {
+                const fullName = `${contact.FirstName} ${contact.LastName}`.toLowerCase();
+                const status = contact.Status.Valid ? contact.Status.String.toLowerCase() : '';
+                const source = contact.Source.Valid ? contact.Source.String.toLowerCase() : '';
+                return (
+                    fullName.includes(searchLower) ||
+                    status.includes(searchLower) ||
+                    source.includes(searchLower)
+                );
+            })
+            .sort((a, b) => {
+                let aVal: any, bVal: any;
 
-            switch (sortField) {
-                case 'name':
-                    aVal = `${a.FirstName} ${a.LastName}`;
-                    bVal = `${b.FirstName} ${b.LastName}`;
-                    break;
-                case 'status':
-                    aVal = a.Status.Valid ? a.Status.String : '';
-                    bVal = b.Status.Valid ? b.Status.String : '';
-                    break;
-                case 'source':
-                    aVal = a.Source.Valid ? a.Source.String : '';
-                    bVal = b.Source.Valid ? b.Source.String : '';
-                    break;
-                case 'created':
-                    aVal = a.CreatedAt.Valid ? new Date(a.CreatedAt.Time).getTime() : 0;
-                    bVal = b.CreatedAt.Valid ? new Date(b.CreatedAt.Time).getTime() : 0;
-                    break;
-                default:
-                    return 0;
-            }
+                switch (sortField) {
+                    case 'name':
+                        aVal = `${a.FirstName} ${a.LastName}`;
+                        bVal = `${b.FirstName} ${b.LastName}`;
+                        break;
+                    case 'status':
+                        aVal = a.Status.Valid ? a.Status.String : '';
+                        bVal = b.Status.Valid ? b.Status.String : '';
+                        break;
+                    case 'source':
+                        aVal = a.Source.Valid ? a.Source.String : '';
+                        bVal = b.Source.Valid ? b.Source.String : '';
+                        break;
+                    case 'created':
+                        aVal = a.CreatedAt.Valid ? new Date(a.CreatedAt.Time).getTime() : 0;
+                        bVal = b.CreatedAt.Valid ? new Date(b.CreatedAt.Time).getTime() : 0;
+                        break;
+                }
 
-            if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-            if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-            return 0;
-        });
-
-        return filtered;
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
     }, [contacts, searchTerm, sortField, sortDirection]);
+
+    /** PAGINATION */
+    const totalPages = contacts ? Math.ceil(filteredAndSortedContacts.length / PAGE_SIZE) : 1;
+
+    const paginatedContacts = useMemo(() => {
+        const start = (currentPage - 1) * PAGE_SIZE;
+        return filteredAndSortedContacts.slice(start, start + PAGE_SIZE);
+    }, [filteredAndSortedContacts, currentPage]);
+
+    /** SELECTION */
+    const toggleSelect = (id: string) => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+
+    const allSelectedOnPage =
+        paginatedContacts.length > 0 &&
+        paginatedContacts.every((c) => selectedIds.has(c.ID));
+
+    const toggleSelectAllOnPage = () => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (allSelectedOnPage) {
+                paginatedContacts.forEach((c) => next.delete(c.ID));
+            } else {
+                paginatedContacts.forEach((c) => next.add(c.ID));
+            }
+            return next;
+        });
+    };
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case 'new':
-                return 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400';
+                return 'bg-blue-100 text-blue-700';
             case 'active':
-                return 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400';
+                return 'bg-green-100 text-green-700';
             case 'qualified':
-                return 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400';
-            case 'negotiating':
-                return 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400';
-            case 'closed':
-                return 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400';
+                return 'bg-purple-100 text-purple-700';
             default:
-                return 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400';
+                return 'bg-zinc-100 text-zinc-700';
         }
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+    const formatDate = (date: string) =>
+        new Date(date).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
-            year: 'numeric'
+            year: 'numeric',
         });
-    };
-
-    const SortIcon = ({ field }: { field: SortField }) => {
-        if (sortField !== field) return null;
-        return (
-            <svg
-                className={`ml-2 inline h-4 w-4 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-        );
-    };
 
     return (
         <div className="flex flex-col gap-4 w-full">
-            {/* Search Bar */}
-            <div className="flex items-center gap-3">
-                <div className="relative flex-1">
-                    <svg
-                        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                    </svg>
-                    <Input
-                        type="text"
-                        placeholder="Search contacts..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {filteredAndSortedContacts.length} contacts
+            {/* SEARCH */}
+            <div className="flex items-center justify-between">
+                <Input
+                    placeholder="Search contacts..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    className="max-w-sm"
+                />
+                <div className="text-sm text-zinc-500">
+                    {selectedIds.size} selected
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            {/* TABLE */}
+            <div className="rounded-lg border">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead
-                                className="cursor-pointer select-none"
-                                onClick={() => handleSort('name')}
-                            >
-                                Name <SortIcon field="name" />
+                            <TableHead className="w-10">
+                                <Checkbox
+                                    checked={allSelectedOnPage}
+                                    onCheckedChange={toggleSelectAllOnPage}
+                                />
                             </TableHead>
-                            <TableHead>Contact Info</TableHead>
-                            <TableHead
-                                className="cursor-pointer select-none"
-                                onClick={() => handleSort('status')}
-                            >
-                                Status <SortIcon field="status" />
+                            <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
+                                Name
                             </TableHead>
-                            <TableHead
-                                className="cursor-pointer select-none"
-                                onClick={() => handleSort('source')}
-                            >
-                                Source <SortIcon field="source" />
-                            </TableHead>
-                            <TableHead>Price Range</TableHead>
-                            <TableHead
-                                className="cursor-pointer select-none"
-                                onClick={() => handleSort('created')}
-                            >
-                                Created <SortIcon field="created" />
-                            </TableHead>
+                            <TableHead>Phone Number</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Source</TableHead>
+                            <TableHead>Created</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredAndSortedContacts.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">
-                                    No contacts found
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredAndSortedContacts.map((contact) => (
+                        {paginatedContacts.map((contact) => {
+                            // Compute primary phone once
+                            const primaryPhone = JSON.parse(contact.PhoneNumbers as string).find(
+                                (pn: any) => pn.is_primary
+                            )?.phone_number || 'N/A';
+
+                            return (
                                 <TableRow
                                     key={contact.ID}
                                     className="cursor-pointer"
                                     onClick={() => router.push(`/people/${contact.ID}`)}
                                 >
-                                    <TableCell className="font-medium">
+                                    <TableCell onClick={(e) => e.stopPropagation()}>
+                                        <Checkbox
+                                            checked={selectedIds.has(contact.ID)}
+                                            onCheckedChange={() => toggleSelect(contact.ID)}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="font-medium capitalize">
                                         {contact.FirstName} {contact.LastName}
                                     </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-col gap-0.5 text-sm text-zinc-600 dark:text-zinc-400">
-                                            {contact.City.Valid && contact.City.String && (
-                                                <span>
-                                                    {contact.City.String}
-                                                    {contact.State.Valid && `, ${contact.State.String}`}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
+                                    <TableCell>{formatPhoneNumber(primaryPhone)}</TableCell>
+                                    <TableCell className="capitalize">
                                         {contact.Status.Valid && (
-                                            <Badge variant="secondary" className={getStatusColor(contact.Status.String)}>
+                                            <Badge className={getStatusColor(contact.Status.String)}>
                                                 {contact.Status.String}
                                             </Badge>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">
+                                    <TableCell className="capitalize">
                                         {contact.Source.Valid ? contact.Source.String : 'N/A'}
                                     </TableCell>
-                                    <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">
-                                        {contact.PriceRange.Valid ? contact.PriceRange.String : 'N/A'}
-                                    </TableCell>
-                                    <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">
-                                        {contact.CreatedAt.Valid ? formatDate(contact.CreatedAt.Time) : 'N/A'}
+                                    <TableCell>
+                                        {contact.CreatedAt.Valid
+                                            ? formatDate(contact.CreatedAt.Time)
+                                            : 'N/A'}
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
+                            );
+                        })}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* PAGINATION CONTROLS */}
+            <div className="flex items-center justify-between">
+                <Button
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                    Previous
+                </Button>
+                <span className="text-sm text-zinc-500">
+                    Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                    Next
+                </Button>
             </div>
         </div>
     );
 }
-
