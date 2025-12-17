@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateContactLog, CreateContactNote } from "@/lib/data/backend/clientCalls";
+import { CreateContactLog, CreateContactNote, CreateNotification } from "@/lib/data/backend/clientCalls";
 import { ContactLog } from "@/lib/definitions/backend/contactLogs";
 import { ContactWithDetails } from "@/lib/definitions/backend/contacts";
 import { ContactNote } from "@/lib/definitions/backend/notes";
@@ -18,8 +18,9 @@ import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import { Editor, EditorContent, useEditor } from '@tiptap/react'
 import { Placeholder } from '@tiptap/extensions'
-import suggestion from "./suggestion"
 import { MentionData } from "@/lib/definitions/backend/mentions";
+import { createSuggestion } from "./suggestion";
+import { authClient } from "@/lib/auth-client";
 
 
 interface logNoteCreationProps {
@@ -75,6 +76,7 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
     const [newLog, setNewLog] = useState({ method: 'Call', note: '' });
     const [isAddingNote, setIsAddingNote] = useState(false);
     const [isAddingLog, setIsAddingLog] = useState(false);
+    const { data } = authClient.useListOrganizations()
 
     const router = useRouter();
 
@@ -91,7 +93,7 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
                 HTMLAttributes: {
                     class: 'mention',
                 },
-                suggestion,
+                suggestion: createSuggestion(data?.map(org => org.id) ?? []),
                 renderText({ node }) {
                     return `${node.attrs.label ?? node.attrs.id}`
                 },
@@ -105,7 +107,6 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
             }),
         ],
         immediatelyRender: false,
-
     });
 
     useEffect(() => {
@@ -128,7 +129,24 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
         if (!newNote.trim()) return;
         setIsAddingNote(true);
         try {
+            const mentions = extractMentions(editor);
+
             await CreateContactNote(contact.ID, newNote);
+
+            if (mentions.length > 0) {
+                try {
+                    for (const mention of mentions) {
+                        await CreateNotification(
+                            mention.id,
+                            "mention",
+                            `You were mentioned in a note for contact ${contact.FirstName} ${contact.LastName}.`,
+                            contact.ID
+                        );
+                    }
+                } catch (notificationError) {
+                    console.error('Failed to create notifications for mentions:', notificationError);
+                }
+            }
             toast.success('Note added successfully');
             router.refresh();
         } catch (error) {

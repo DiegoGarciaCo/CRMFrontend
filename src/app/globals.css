@@ -178,11 +178,11 @@
 
   /* Shape */
   border-radius: 0.5rem;       /* Smooth rounded corners */
-  padding: 0.2rem 0.5rem;      /* Comfortable horizontal + vertical padding */
   
   /* Typography */
   font-weight: 500;             /* Medium weight for emphasis */
   font-size: 0.875rem;          /* Slightly smaller text than default */
+  line-height: 1.25rem;         /* Tight line height for compactness */
   
   /* Layout & effects */
   box-decoration-break: clone;  /* Ensures multi-line mentions keep styling */
@@ -196,6 +196,7 @@
 .mention:hover {
   background-color: #e0f7fa;    /* Slightly darker cyan on hover */
   cursor: pointer;
+  padding: 0.2rem 0.5rem;      /* Comfortable horizontal + vertical padding */
 }
 
 .mention::after {

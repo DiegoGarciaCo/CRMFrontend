@@ -1,3 +1,5 @@
+import { NullString } from "../nullTypes";
+
 export interface MentionData {
     id: string;
     label: string;
@@ -8,7 +10,9 @@ export interface Notification {
     UserID: string;
     Type: string;
     Message: string;
-    ContactID: string;
+    ContactID: NullString;
+    AppointmentID: NullString;
+    TaskID: NullString;
     Read: boolean;
     CreatedAt: Date;
 }

@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { UserMenuButton } from './userMenuButton';
 import ContactSearchInput from './ContactSearchInput';
 import NavCreateContactSheet from './NavCreateContactSheet';
+import NotificationsDropdown from './NotificationsBell';
+import NotificationsWrapper from './notificationsWrapper';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
@@ -66,10 +68,7 @@ export default function Navbar({ userId }: { userId: string }) {
                         <ContactSearchInput ownerID={userId} />
 
                         {/* Notifications */}
-                        <button className="relative rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50">
-                            <BellIcon className="h-5 w-5" />
-                            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500"></span>
-                        </button>
+                        <NotificationsWrapper />
 
                         {/* Add Button */}
                         <NavCreateContactSheet />

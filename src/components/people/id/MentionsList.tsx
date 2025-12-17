@@ -54,7 +54,7 @@ const MentionsList = forwardRef<MentionsListRef, MentionsListProps>((props, ref)
                     </button>
                 ))
             ) : (
-                <div className="item">No result</div>
+                <div className="item p-1">No results</div>
             )}
         </div>
     )

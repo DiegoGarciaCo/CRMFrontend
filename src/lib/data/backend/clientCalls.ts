@@ -731,13 +731,16 @@ export async function UpdateContact(contactID: string, first_name: string, last_
 // Get Organization Members
 // ----------------------------------------------
 
-export async function GetOrganizationMembers(orgID: string): Promise<any[]> {
-    const res = await fetch(`${BASE_URL}/members/organization/${orgID}`, {
-        method: 'GET',
+export async function GetOrganizationMembers(orgIDs: string[]): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/members/organizations`, {
+        method: 'POST',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+            org_ids: orgIDs,
+        }),
     });
 
     if (!res.ok) {
@@ -817,4 +820,112 @@ export async function SendMentionNotifications(
         const error = await response.json();
         throw new Error(error.message || 'Failed to send mention notifications');
     }
+}
+
+// ----------------------------------------------
+// Create Notification
+// ----------------------------------------------
+
+export async function CreateNotification(user_id: string, type: string, message: string, contact_id?: string, appointment_id?: string, task_id?: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/notifications`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            user_id,
+            message,
+            type,
+            contact_id,
+            appointment_id,
+            task_id,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error creating notification: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Get Notifications for User
+// ----------------------------------------------
+
+export async function GetNotificationsForUser(): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/notifications`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error fetching notifications for user: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Mark Notification as Read
+// ----------------------------------------------
+
+export async function MarkNotificationAsRead(notification_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/notifications/mark-as-read/${notification_id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error marking notification as read: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Mark All Notifications as Read
+// ----------------------------------------------
+
+export async function MarkAllNotificationsAsRead(): Promise<void> {
+    const res = await fetch(`${BASE_URL}/notifications/read-all`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error marking all notifications as read: ${res.statusText}`);
+    }
+
+    return;
+}
+
+// ----------------------------------------------
+// Delete Notification
+// ----------------------------------------------
+
+export async function DeleteNotification(notification_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/notifications/${notification_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting notification: ${res.statusText}`);
+    }
+
+    return;
 }

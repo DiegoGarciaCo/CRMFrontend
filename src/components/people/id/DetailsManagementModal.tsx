@@ -93,7 +93,8 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
             const fetchCollaborators = async () => {
                 if (selectedOrganization) {
                     try {
-                        const members = await GetOrganizationMembers(selectedOrganization)
+                        if (!organizations) return setOrganizationCollaborators([])
+                        const members = await GetOrganizationMembers(organizations.map(org => org.id))
                         setOrganizationCollaborators(members)
                     } catch (error) {
                         console.log('Error fetching organization members:', error)
