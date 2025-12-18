@@ -18,7 +18,7 @@ const navigation = [
     { name: 'Goals', href: '/goals', icon: TrophyIcon },
 ];
 
-export default function Navbar({ userId, notifications }: { userId: string, notifications?: Notification[] }) {
+export default function Navbar({ userId }: { userId: string, notifications?: Notification[] }) {
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -68,7 +68,6 @@ export default function Navbar({ userId, notifications }: { userId: string, noti
                         <ContactSearchInput ownerID={userId} />
 
                         {/* Notifications */}
-                        <NotificationsWrapper notifications={notifications} />
 
                         {/* Add Button */}
                         <NavCreateContactSheet />
