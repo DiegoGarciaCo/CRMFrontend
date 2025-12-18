@@ -831,25 +831,6 @@ export async function CreateNotification(user_id: string, type: string, message:
     return;
 }
 
-// ----------------------------------------------
-// Get Notifications for User
-// ----------------------------------------------
-
-export async function GetNotificationsForUser(): Promise<any[]> {
-    const res = await fetch(`${BASE_URL}/notifications`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!res.ok) {
-        toast.error(`Error fetching notifications for user: ${res.statusText}`);
-    }
-
-    return res.json();
-}
 
 // ----------------------------------------------
 // Mark Notification as Read
