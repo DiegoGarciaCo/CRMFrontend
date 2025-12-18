@@ -15,18 +15,33 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { formatPhoneNumber } from '@/lib/utils/formating';
+import { ContactsPagination } from './pagination';
+import { Trash2 } from 'lucide-react';
 
 interface ContactsTableProps {
     contacts: Contact[];
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+    onDeleteContacts?: (contactIds: string[]) => Promise<void>;
 }
 
 type SortField = 'name' | 'status' | 'source' | 'created';
 type SortDirection = 'asc' | 'desc';
 
-const PAGE_SIZE = 50;
 
-export default function ContactsTableNew({ contacts }: ContactsTableProps) {
+export default function ContactsTableNew({ contacts, onDeleteContacts }: ContactsTableProps) {
     const router = useRouter();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +49,10 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const PAGE_SIZE = 50;
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -106,7 +125,6 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
         });
     };
 
-
     const allSelectedOnPage =
         paginatedContacts.length > 0 &&
         paginatedContacts.every((c) => selectedIds.has(c.ID));
@@ -121,6 +139,29 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
             }
             return next;
         });
+    };
+
+    /** DELETE FUNCTIONALITY */
+    const handleDeleteClick = () => {
+        if (selectedIds.size > 0) {
+            setShowDeleteDialog(true);
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!onDeleteContacts || selectedIds.size === 0) return;
+
+        setIsDeleting(true);
+        try {
+            await onDeleteContacts(Array.from(selectedIds));
+            setSelectedIds(new Set()); // Clear selection after successful delete
+            setShowDeleteDialog(false);
+        } catch (error) {
+            console.error('Error deleting contacts:', error);
+            // You might want to show an error toast here
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -145,8 +186,8 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
 
     return (
         <div className="flex flex-col gap-4 w-full">
-            {/* SEARCH */}
-            <div className="flex items-center justify-between">
+            {/* SEARCH AND ACTIONS */}
+            <div className="flex items-center justify-between gap-4">
                 <Input
                     placeholder="Search contacts..."
                     value={searchTerm}
@@ -156,8 +197,21 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
                     }}
                     className="max-w-sm"
                 />
-                <div className="text-sm text-zinc-500">
-                    {selectedIds.size} selected
+                <div className="flex items-center gap-3">
+                    {selectedIds.size > 0 && (
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDeleteClick}
+                            className="gap-2"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete {selectedIds.size} {selectedIds.size === 1 ? 'contact' : 'contacts'}
+                        </Button>
+                    )}
+                    <div className="text-sm text-zinc-500">
+                        {selectedIds.size} selected
+                    </div>
                 </div>
             </div>
 
@@ -184,10 +238,13 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
                     <TableBody>
                         {paginatedContacts.map((contact) => {
                             // Compute primary phone once
-                            const primaryPhone = JSON.parse(contact.PhoneNumbers as unknown as string).find(
-                                (pn: any) => pn.is_primary
-                            )?.phone_number || 'N/A';
-
+                            const phoneNumbers = typeof contact.PhoneNumbers === 'string'
+                                ? JSON.parse(contact.PhoneNumbers)
+                                : contact.PhoneNumbers;
+                            const primaryPhone =
+                                Array.isArray(phoneNumbers)
+                                    ? phoneNumbers.find((pn: any) => pn.is_primary)?.phone_number ?? 'N/A'
+                                    : 'N/A';
                             return (
                                 <TableRow
                                     key={contact.ID}
@@ -227,25 +284,34 @@ export default function ContactsTableNew({ contacts }: ContactsTableProps) {
             </div>
 
             {/* PAGINATION CONTROLS */}
-            <div className="flex items-center justify-between">
-                <Button
-                    variant="outline"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                >
-                    Previous
-                </Button>
-                <span className="text-sm text-zinc-500">
-                    Page {currentPage} of {totalPages}
-                </span>
-                <Button
-                    variant="outline"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                >
-                    Next
-                </Button>
-            </div>
+            <ContactsPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
+
+            {/* DELETE CONFIRMATION DIALOG */}
+            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Contacts</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete {selectedIds.size} {selectedIds.size === 1 ? 'contact' : 'contacts'}?
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmDelete}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isDeleting ? 'Deleting...' : 'Delete'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

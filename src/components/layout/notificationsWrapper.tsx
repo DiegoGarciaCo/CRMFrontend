@@ -68,7 +68,7 @@ export default function NotificationsWrapper({ initialNotifications = [] }: Noti
     };
 
     return (
-        <div>
+        <div className="z-50">
             <NotificationsDropdown
                 notifications={notifications}
                 onMarkAsRead={handleMarkAsRead}

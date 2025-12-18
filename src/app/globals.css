@@ -196,7 +196,6 @@
 .mention:hover {
   background-color: #e0f7fa;    /* Slightly darker cyan on hover */
   cursor: pointer;
-  padding: 0.2rem 0.5rem;      /* Comfortable horizontal + vertical padding */
 }
 
 .mention::after {

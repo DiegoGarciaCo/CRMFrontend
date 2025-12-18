@@ -17,7 +17,6 @@ interface SmartListFilterModalProps {
     smartListId: string;
     smartListName: string;
     currentFilter?: any;
-    onFilterUpdate: () => void;
     tags: Tag[];
 }
 
@@ -43,7 +42,6 @@ export default function SmartListFilterModal({
     onClose,
     smartListId,
     smartListName,
-    onFilterUpdate,
     tags,
 }: SmartListFilterModalProps) {
     const [filters, setFilters] = useState<Array<{ field: string; operator: string; value: string }>>([
@@ -82,7 +80,6 @@ export default function SmartListFilterModal({
 
             await SetSmartListFilterCriteria(smartListId, filterCriteria);
             toast.success('Filter criteria updated successfully');
-            onFilterUpdate();
             onClose();
         } catch (error) {
             console.error('Failed to update filter:', error);

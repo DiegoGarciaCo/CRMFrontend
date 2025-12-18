@@ -225,25 +225,6 @@ export async function CreateSmartList(name: string, description: string): Promis
     return res.json();
 }
 
-// ----------------------------------------------
-// Get Contacts by Smart List ID
-// ----------------------------------------------
-
-export async function GetContactsBySmartListID(list_id: string): Promise<Contact[]> {
-    const res = await fetch(`${BASE_URL}/contacts/smart-list/${list_id}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!res.ok) {
-        toast.error(`Error fetching contacts by smart list ID: ${res.statusText}`);
-    }
-
-    return res.json();
-}
 
 // ----------------------------------------------
 // Set Smart List Criteria

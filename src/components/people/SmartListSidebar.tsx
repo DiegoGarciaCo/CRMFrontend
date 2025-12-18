@@ -11,7 +11,6 @@ interface SmartListSidebarProps {
     activeListId: string | null;
     onListClick: (listId: string | null) => void;
     totalContacts: number;
-    onFilterUpdate: () => void;
     Tags: Tag[];
 }
 
@@ -20,7 +19,6 @@ export default function SmartListSidebarNew({
     activeListId,
     onListClick,
     totalContacts,
-    onFilterUpdate,
     Tags,
 }: SmartListSidebarProps) {
     const [filterModalOpen, setFilterModalOpen] = useState(false);
@@ -107,10 +105,6 @@ export default function SmartListSidebarNew({
                     onClose={() => setFilterModalOpen(false)}
                     smartListId={selectedList.ID}
                     smartListName={selectedList.Name}
-                    onFilterUpdate={() => {
-                        onFilterUpdate();
-                        setFilterModalOpen(false);
-                    }}
                     tags={Tags}
                 />
             )}

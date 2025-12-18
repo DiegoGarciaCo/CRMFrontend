@@ -19,7 +19,7 @@ export default function NotificationsDropdown({
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const unreadCount = notifications.filter(n => !n.Read).length;
+    const unreadCount = notifications ? notifications.filter(n => !n.Read).length : 0;
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -59,6 +59,10 @@ export default function NotificationsDropdown({
                 return '🔔';
         }
     };
+
+    if (!notifications) {
+
+    }
 
     return (
         <div className="relative" ref={dropdownRef}>

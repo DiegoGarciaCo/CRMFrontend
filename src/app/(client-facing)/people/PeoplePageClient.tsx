@@ -2,73 +2,43 @@
 
 import { Contact } from '@/lib/definitions/backend/contacts';
 import { SmartList } from '@/lib/definitions/backend/smartList';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SmartListSidebar from '@/components/people/SmartListSidebar';
 import ContactsTable from '@/components/people/ContactsTable';
 import { Button } from '@/components/ui/button';
 import ImportContactsModal from '@/components/people/ImportContactsModal';
 import { Tag } from '@/lib/definitions/backend/tag';
-import { GetContactsBySmartListID } from '@/lib/data/backend/clientCalls';
 
 interface PeoplePageClientProps {
     userId: string;
-    initialContacts: Contact[];
+    contacts: Contact[];
     smartLists: SmartList[];
     tags: Tag[];
+    activeListId: string | null;
+    limit?: string;
+    offset?: string;
 }
 
-export default function PeoplePageClient({ userId, initialContacts, smartLists, tags }: PeoplePageClientProps) {
+export default function PeoplePageClient({ userId, contacts, smartLists, tags, activeListId, limit, offset }: PeoplePageClientProps) {
     const router = useRouter();
-    const [activeListId, setActiveListId] = useState<string | null>(null);
-    const [contacts, setContacts] = useState<Contact[]>(initialContacts);
     const [isLoading, setIsLoading] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-    // Fetch filtered contacts when active list changes
-    useEffect(() => {
-        const fetchFilteredContacts = async () => {
-            if (!activeListId) {
-                // Show all contacts when no list is active
-                setContacts(initialContacts);
-                return;
-            }
-
-            setIsLoading(true);
-            try {
-                const filteredContacts = await GetContactsBySmartListID(activeListId);
-                setContacts(filteredContacts);
-            } catch (error) {
-                console.error('Error fetching filtered contacts:', error);
-                // Fallback to showing all contacts on error
-                setContacts(initialContacts);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchFilteredContacts();
-    }, [activeListId, initialContacts]);
-
     const handleListClick = (listId: string | null) => {
-        setActiveListId(listId);
+        router.push(listId ? `/people/?list=${listId}` : '/people');
     };
 
-    const handleFilterUpdate = () => {
-        // Refresh the page data to get updated smart list filters
-        router.refresh();
+    const handlePageChange = (newPage: number) => {
+        // Update URL with new page
+        router.push(`?limit=${limit}&offset=${(newPage - 1) * Number(limit)}`);
+    }
 
-        // If a list is active, refetch its contacts
-        if (activeListId) {
-            GetContactsBySmartListID(activeListId)
-                .then((filteredContacts) => {
-                    setContacts(filteredContacts);
-                })
-                .catch((error) => {
-                    console.error('Error refetching contacts after filter update:', error);
-                });
-        }
-    };
+    const totalPages = contacts[0]?.TotalCount / Number(limit) || 1;
+    const o = Number(offset);
+    const l = Number(limit) || 20;
+
+    const page = Number.isFinite(o) ? Math.floor(o / l) + 1 : 1;
 
     const activeList = smartLists.find((list) => list.ID === activeListId);
 
@@ -84,8 +54,7 @@ export default function PeoplePageClient({ userId, initialContacts, smartLists, 
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
-                totalContacts={initialContacts.length}
-                onFilterUpdate={handleFilterUpdate}
+                totalContacts={contacts.length}
                 Tags={tags}
             />
 
@@ -124,7 +93,12 @@ export default function PeoplePageClient({ userId, initialContacts, smartLists, 
                         </div>
                     ) : (
                         /* Contacts Table */
-                        <ContactsTable contacts={contacts} />
+                        <ContactsTable
+                            contacts={contacts}
+                            currentPage={page}
+                            totalPages={totalPages ? Math.ceil(totalPages) : 1}
+                            onPageChange={handlePageChange}
+                        />
                     )}
                 </div>
             </div>
