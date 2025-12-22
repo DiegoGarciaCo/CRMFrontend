@@ -31,10 +31,11 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
 
     const handlePageChange = (newPage: number) => {
         // Update URL with new page
-        router.push(`?limit=${limit}&offset=${(newPage - 1) * Number(limit)}`);
+        router.push(`?limit=${limit || 25}&offset=${(newPage - 1) * Number(limit || 25)}`);
     }
 
-    const totalPages = contacts[0]?.TotalCount / Number(limit) || 1;
+    const totalContacts = contacts[0]?.TotalCount || 0;
+    const totalPages = totalContacts / Number(limit || 25) || 1;
     const o = Number(offset);
     const l = Number(limit) || 20;
 
@@ -49,17 +50,17 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     };
 
     return (
-        <div className="flex h-screen w-full">
+        <div className="flex h-full w-full">
             <SmartListSidebar
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
-                totalContacts={contacts.length}
+                totalContacts={totalContacts}
                 Tags={tags}
             />
 
-            <div className="flex-1 overflow-auto">
-                <div className="p-6">
+            <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
+                <div className="flex-shrink-0 p-6 border-b border-zinc-200 dark:border-zinc-800">
                     {/* Header */}
                     <div className="mb-6 flex items-center justify-between">
                         <div>
@@ -83,6 +84,10 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                         </Button>
                     </div>
 
+                </div>
+
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto p-6">
                     {/* Loading State */}
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">

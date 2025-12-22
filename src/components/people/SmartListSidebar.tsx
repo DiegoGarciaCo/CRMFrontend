@@ -32,7 +32,7 @@ export default function SmartListSidebarNew({
 
     return (
         <>
-            <div className="w-64 flex-shrink-0 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="w-68 flex-shrink-0 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 max-h-screen">
                 <div className="p-4">
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
                         Smart Lists

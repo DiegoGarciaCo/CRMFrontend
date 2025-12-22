@@ -137,7 +137,7 @@ export async function CreateTask(contact_id: string, title: string, type: string
 // Create Deal
 // ----------------------------------------------
 
-export async function CreateDeal(contact_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
+export async function CreateDeal(contact_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, closed_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
     const res = await fetch(`${BASE_URL}/deals`, {
         method: 'POST',
         credentials: 'include',
@@ -155,6 +155,7 @@ export async function CreateDeal(contact_id: string, title: string, price: numbe
             appraisal_date,
             final_walkthrough_date,
             possession_date,
+            closed_date,
             commission,
             commission_split,
             property_address,
@@ -165,6 +166,7 @@ export async function CreateDeal(contact_id: string, title: string, price: numbe
             stage_id,
         }),
     });
+
 
     if (!res.ok) {
         toast.error(`Error creating deal: ${res.statusText}`);
@@ -253,7 +255,7 @@ export async function SetSmartListFilterCriteria(smart_list_id: string, filter_c
 // Update Deal
 // ----------------------------------------------
 
-export async function UpdateDeal(deal_id: string, contact_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
+export async function UpdateDeal(deal_id: string, contact_id: string, title: string, price: number, closing_date: string, earnest_money_due_date: string, mutual_acceptance_date: string, inspection_date: string, appraisal_date: string, final_walkthrough_date: string, possession_date: string, closed_date: string, commission: number, commission_split: number, property_address: string, property_city: string, property_state: string, property_zip: string, description: string, stage_id: string): Promise<Deal> {
     const res = await fetch(`${BASE_URL}/deals/${deal_id}`, {
         method: 'PUT',
         credentials: 'include',
@@ -271,6 +273,7 @@ export async function UpdateDeal(deal_id: string, contact_id: string, title: str
             appraisal_date,
             final_walkthrough_date,
             possession_date,
+            closed_date,
             commission,
             commission_split,
             property_address,
@@ -890,4 +893,24 @@ export async function DeleteNotification(notification_id: string): Promise<void>
     }
 
     return;
+}
+
+// ----------------------------------------------
+// Get Notifications for User
+// ----------------------------------------------
+
+export async function GetNotificationsForUser(): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/notifications`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error fetching notifications for user: ${res.statusText}`);
+    }
+
+    return res.json();
 }

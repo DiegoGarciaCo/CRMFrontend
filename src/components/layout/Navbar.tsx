@@ -68,6 +68,7 @@ export default function Navbar({ userId }: { userId: string, notifications?: Not
                         <ContactSearchInput ownerID={userId} />
 
                         {/* Notifications */}
+                        <NotificationsWrapper />
 
                         {/* Add Button */}
                         <NavCreateContactSheet />

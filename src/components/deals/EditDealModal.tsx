@@ -32,6 +32,7 @@ const DealSchema = z.object({
     appraisal_date: z.string().optional(),
     final_walkthrough_date: z.string().optional(),
     possession_date: z.string().optional(),
+    closed_date: z.string().optional(),
     commission: z.number().optional(),
     commission_split: z.number().optional(),
     property_address: z.string().optional(),
@@ -67,6 +68,7 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
             appraisal_date: deal.AppraisalDate.Valid ? deal.AppraisalDate.Time : '',
             final_walkthrough_date: deal.FinalWalkthroughDate.Valid ? deal.FinalWalkthroughDate.Time : '',
             possession_date: deal.PossessionDate.Valid ? deal.PossessionDate.Time : '',
+            closed_date: deal.ClosedDate.Valid ? deal.ClosedDate.Time : '',
             commission: deal.Commission.Valid ? Number(deal.Commission.String) : 0,
             commission_split: deal.CommissionSplit.Valid ? Number(deal.CommissionSplit.String) : 0,
             property_address: deal.PropertyAddress.Valid ? deal.PropertyAddress.String : '',
@@ -92,6 +94,7 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
                 values.appraisal_date ?? '',
                 values.final_walkthrough_date ?? '',
                 values.possession_date ?? '',
+                values.closed_date ?? '',
                 values.commission ?? 0,
                 values.commission_split ?? 0,
                 values.property_address ?? '',
@@ -177,6 +180,7 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
                             { label: "Appraisal Date", name: "appraisal_date" },
                             { label: "Final Walkthrough", name: "final_walkthrough_date" },
                             { label: "Possession Date", name: "possession_date" },
+                            { label: "Closed Date", name: "closed_date" },
                         ].map(d => (
                             <FormField
                                 key={d.name}

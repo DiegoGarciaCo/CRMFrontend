@@ -77,7 +77,14 @@ export default function GoalsPageClient({
 
     // Calculate metrics from deals
     const metrics = useMemo(() => {
-        const closedDeals = deals.filter(deal => deal.ClosedDate.Valid);
+        // deals closed this year 
+        const closedDeals = deals.filter(deal => {
+            if (deal.ClosedDate.Valid) {
+                const closedYear = new Date(deal.ClosedDate.Time).getFullYear();
+                return closedYear === selectedYear;
+            }
+            return false;
+        });;
         const pipelineDeals = deals.filter(deal => !deal.ClosedDate.Valid);
 
         const closedVolume = closedDeals.reduce((sum, deal) => sum + deal.Price, 0);

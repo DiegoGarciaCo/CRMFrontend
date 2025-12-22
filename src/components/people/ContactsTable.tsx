@@ -1,7 +1,7 @@
 'use client';
 
 import { Contact } from '@/lib/definitions/backend/contacts';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Table,
@@ -41,18 +41,15 @@ type SortField = 'name' | 'status' | 'source' | 'created';
 type SortDirection = 'asc' | 'desc';
 
 
-export default function ContactsTableNew({ contacts, onDeleteContacts }: ContactsTableProps) {
+export default function ContactsTableNew({ contacts, onDeleteContacts, totalPages, onPageChange, currentPage }: ContactsTableProps) {
     const router = useRouter();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState<SortField>('created');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-    const [currentPage, setCurrentPage] = useState(1);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-
-    const PAGE_SIZE = 50;
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -63,58 +60,6 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
         }
     };
 
-    /** FILTER + SORT */
-    const filteredAndSortedContacts = useMemo(() => {
-        const searchLower = searchTerm.toLowerCase();
-
-        if (!contacts) return [];
-
-        return [...contacts]
-            .filter((contact) => {
-                const fullName = `${contact.FirstName} ${contact.LastName}`.toLowerCase();
-                const status = contact.Status.Valid ? contact.Status.String.toLowerCase() : '';
-                const source = contact.Source.Valid ? contact.Source.String.toLowerCase() : '';
-                return (
-                    fullName.includes(searchLower) ||
-                    status.includes(searchLower) ||
-                    source.includes(searchLower)
-                );
-            })
-            .sort((a, b) => {
-                let aVal: any, bVal: any;
-
-                switch (sortField) {
-                    case 'name':
-                        aVal = `${a.FirstName} ${a.LastName}`;
-                        bVal = `${b.FirstName} ${b.LastName}`;
-                        break;
-                    case 'status':
-                        aVal = a.Status.Valid ? a.Status.String : '';
-                        bVal = b.Status.Valid ? b.Status.String : '';
-                        break;
-                    case 'source':
-                        aVal = a.Source.Valid ? a.Source.String : '';
-                        bVal = b.Source.Valid ? b.Source.String : '';
-                        break;
-                    case 'created':
-                        aVal = a.CreatedAt.Valid ? new Date(a.CreatedAt.Time).getTime() : 0;
-                        bVal = b.CreatedAt.Valid ? new Date(b.CreatedAt.Time).getTime() : 0;
-                        break;
-                }
-
-                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-                return 0;
-            });
-    }, [contacts, searchTerm, sortField, sortDirection]);
-
-    /** PAGINATION */
-    const totalPages = contacts ? Math.ceil(filteredAndSortedContacts.length / PAGE_SIZE) : 1;
-
-    const paginatedContacts = useMemo(() => {
-        const start = (currentPage - 1) * PAGE_SIZE;
-        return filteredAndSortedContacts.slice(start, start + PAGE_SIZE);
-    }, [filteredAndSortedContacts, currentPage]);
 
     /** SELECTION */
     const toggleSelect = (id: string) => {
@@ -126,16 +71,16 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
     };
 
     const allSelectedOnPage =
-        paginatedContacts.length > 0 &&
-        paginatedContacts.every((c) => selectedIds.has(c.ID));
+        contacts.length > 0 &&
+        contacts.every((c) => selectedIds.has(c.ID));
 
     const toggleSelectAllOnPage = () => {
         setSelectedIds((prev) => {
             const next = new Set(prev);
             if (allSelectedOnPage) {
-                paginatedContacts.forEach((c) => next.delete(c.ID));
+                contacts.forEach((c) => next.delete(c.ID));
             } else {
-                paginatedContacts.forEach((c) => next.add(c.ID));
+                contacts.forEach((c) => next.add(c.ID));
             }
             return next;
         });
@@ -185,15 +130,14 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
         });
 
     return (
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full h-full max-h-screen">
             {/* SEARCH AND ACTIONS */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 flex-shrink-0">
                 <Input
                     placeholder="Search contacts..."
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
-                        setCurrentPage(1);
                     }}
                     className="max-w-sm"
                 />
@@ -216,11 +160,11 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
             </div>
 
             {/* TABLE */}
-            <div className="rounded-lg border">
+            <div className="rounded-lg border flex-1 overflow-auto">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-zinc-100 dark:bg-zinc-800">
                         <TableRow>
-                            <TableHead className="w-10">
+                            <TableHead className="w-10 bg-zinc-50 dark:bg-zinc-900">
                                 <Checkbox
                                     checked={allSelectedOnPage}
                                     onCheckedChange={toggleSelectAllOnPage}
@@ -236,7 +180,7 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {paginatedContacts.map((contact) => {
+                        {contacts.map((contact) => {
                             // Compute primary phone once
                             const phoneNumbers = typeof contact.PhoneNumbers === 'string'
                                 ? JSON.parse(contact.PhoneNumbers)
@@ -248,7 +192,7 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
                             return (
                                 <TableRow
                                     key={contact.ID}
-                                    className="cursor-pointer"
+                                    className="cursor-pointer bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                                     onClick={() => router.push(`/people/${contact.ID}`)}
                                 >
                                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -284,11 +228,13 @@ export default function ContactsTableNew({ contacts, onDeleteContacts }: Contact
             </div>
 
             {/* PAGINATION CONTROLS */}
-            <ContactsPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={(page) => setCurrentPage(page)}
-            />
+            <div className="flex-shrink-0">
+                <ContactsPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            </div>
 
             {/* DELETE CONFIRMATION DIALOG */}
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

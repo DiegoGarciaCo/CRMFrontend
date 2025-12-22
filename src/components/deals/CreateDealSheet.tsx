@@ -45,6 +45,7 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
     const [appraisalDate, setAppraisalDate] = useState("");
     const [walkthroughDate, setWalkthroughDate] = useState("");
     const [possessionDate, setPossessionDate] = useState("");
+    const [closedDate, setClosedDate] = useState("");
     const [commission, setCommission] = useState("");
     const [commissionSplit, setCommissionSplit] = useState("");
 
@@ -95,6 +96,7 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
                 appraisalDate,
                 walkthroughDate,
                 possessionDate,
+                closedDate,
                 Number(commission),
                 Number(commissionSplit),
                 address,
@@ -232,6 +234,10 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
                         <div>
                             <Label>Possession</Label>
                             <Input type="datetime-local" value={possessionDate} onChange={(e) => setPossessionDate(e.target.value)} />
+                        </div>
+                        <div>
+                            <Label>Closed</Label>
+                            <Input type="datetime-local" value={closedDate} onChange={(e) => setClosedDate(e.target.value)} />
                         </div>
                     </div>
 

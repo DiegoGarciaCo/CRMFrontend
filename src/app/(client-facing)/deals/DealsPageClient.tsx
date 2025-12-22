@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     DndContext,
     DragEndEvent,
@@ -28,42 +28,46 @@ interface DealsPageClientProps {
 
 export default function DealsPipelinePage({ deals, clientType, stages }: DealsPageClientProps) {
     const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
-    const [isUpdating, setIsUpdating] = useState(false);
+    const [localDeals, setLocalDeals] = useState<Deal[]>(deals);
     const router = useRouter();
+
+    // Sync local deals with props when they change
+    useEffect(() => {
+        setLocalDeals(deals);
+    }, [deals]);
 
     // Configure sensors for drag and drop
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8, // 8px movement required before drag starts
+                distance: 8,
             },
         })
     );
 
-
-    // Group deals by stage
+    // Group deals by stage using local deals
     const dealsByStage = useMemo(() => {
         const grouped: { [stageId: string]: Deal[] } = {};
         stages.forEach(stage => {
             grouped[stage.ID] = [];
         });
 
-        deals.forEach(deal => {
+        localDeals.forEach(deal => {
             if (deal.StageID && grouped[deal.StageID]) {
                 grouped[deal.StageID].push(deal);
             }
         });
 
         return grouped;
-    }, [deals, stages]);
+    }, [localDeals, stages]);
 
     // Handle drag start
     const handleDragStart = (event: DragStartEvent) => {
-        const deal = deals.find(d => d.ID === event.active.id);
+        const deal = localDeals.find(d => d.ID === event.active.id);
         setActiveDeal(deal || null);
     };
 
-    // Handle drag end
+    // Handle drag end with optimistic update
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveDeal(null);
@@ -74,14 +78,22 @@ export default function DealsPipelinePage({ deals, clientType, stages }: DealsPa
         const newStageId = over.id as string;
 
         // Find the deal being moved
-        const deal = deals.find(d => d.ID === dealId);
+        const deal = localDeals.find(d => d.ID === dealId);
         if (!deal) return;
 
         // If dropped on same stage, do nothing
         if (deal.StageID === newStageId) return;
 
-        // Update backend
-        setIsUpdating(true);
+        // Optimistically update the UI immediately
+        setLocalDeals(prev =>
+            prev.map(d =>
+                d.ID === dealId
+                    ? { ...d, StageID: newStageId }
+                    : d
+            )
+        );
+
+        // Update backend in the background
         try {
             await UpdateDeal(
                 dealId,
@@ -104,19 +116,21 @@ export default function DealsPipelinePage({ deals, clientType, stages }: DealsPa
                 deal.Description.Valid ? deal.Description.String : '',
                 newStageId
             );
+
+            // Refresh to sync with server state (but UI already updated)
+            router.refresh();
         } catch (error) {
             console.error('Failed to update deal:', error);
-        } finally {
-            setIsUpdating(false);
+            // On error, revert to original deals
+            setLocalDeals(deals);
         }
     };
 
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(amount);
 
-
-    const totalDeals = deals.length;
-    const totalValue = deals.reduce((sum, deal) => sum + deal.Price, 0);
+    const totalDeals = localDeals.length;
+    const totalValue = localDeals.reduce((sum, deal) => sum + deal.Price, 0);
 
     return (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -140,15 +154,6 @@ export default function DealsPipelinePage({ deals, clientType, stages }: DealsPa
                     <div className="text-zinc-600 dark:text-zinc-400">
                         Total Value: <span className="font-semibold text-zinc-900 dark:text-zinc-50">{formatCurrency(totalValue)}</span>
                     </div>
-                    {isUpdating && (
-                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>Updating...</span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Tabs */}
@@ -163,7 +168,6 @@ export default function DealsPipelinePage({ deals, clientType, stages }: DealsPa
                         <div className="flex gap-4 overflow-x-auto pb-4">
                             {stages.map(stage => {
                                 const stageDeals = dealsByStage[stage.ID] ?? [];
-                                console.log(`Stage ${stage.Name} has deals:`, stageDeals);
 
                                 return (
                                     <StageColumn

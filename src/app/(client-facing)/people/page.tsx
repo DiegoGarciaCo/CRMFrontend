@@ -84,9 +84,11 @@ export default async function PeoplePage({
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950 w-full">
+        <div className="h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
             <PeoplePageClient
                 userId={userId}
+                limit={contactLimit}
+                offset={contactOffset}
                 activeListId={listID || null}
                 contacts={contacts}
                 smartLists={smartLists}
