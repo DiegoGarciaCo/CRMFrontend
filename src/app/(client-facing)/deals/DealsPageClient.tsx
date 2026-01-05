@@ -107,6 +107,7 @@ export default function DealsPipelinePage({ deals, clientType, stages }: DealsPa
                 deal.AppraisalDate.Valid ? deal.AppraisalDate.Time : '',
                 deal.FinalWalkthroughDate.Valid ? deal.FinalWalkthroughDate.Time : '',
                 deal.PossessionDate.Valid ? deal.PossessionDate.Time : '',
+                deal.ClosedDate.Valid ? deal.ClosedDate.Time : '',
                 deal.Commission.Valid ? Number(deal.Commission.String) : 0,
                 deal.CommissionSplit.Valid ? Number(deal.CommissionSplit.String) : 0,
                 deal.PropertyAddress.Valid ? deal.PropertyAddress.String : '',

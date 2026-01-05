@@ -263,6 +263,7 @@ export async function UpdateDeal(deal_id: string, contact_id: string, title: str
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+            deal_id,
             contact_id,
             title,
             price,
