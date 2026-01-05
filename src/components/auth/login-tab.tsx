@@ -40,7 +40,7 @@ export default function LoginTab({ openEmailVerificationTab, openForgotPassword 
                     if (error.error.code === 'EMAIL_NOT_VERIFIED') {
                         openEmailVerificationTab(data.email);
                     }
-                    toast.error(error.error.message || "Registration failed");
+                    toast.error(error.error.message || "Login failed");
                 }
             });
     }

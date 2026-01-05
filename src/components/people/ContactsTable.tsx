@@ -2,7 +2,7 @@
 
 import { Contact } from '@/lib/definitions/backend/contacts';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
     Table,
     TableBody,
@@ -28,6 +28,7 @@ import {
 import { formatPhoneNumber } from '@/lib/utils/formating';
 import { ContactsPagination } from './pagination';
 import { Trash2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface ContactsTableProps {
     contacts: Contact[];
@@ -43,6 +44,8 @@ type SortDirection = 'asc' | 'desc';
 
 export default function ContactsTableNew({ contacts, onDeleteContacts, totalPages, onPageChange, currentPage }: ContactsTableProps) {
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState<SortField>('created');
@@ -59,6 +62,18 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
             setSortDirection('asc');
         }
     };
+    const LIMIT_OPTIONS = ['10', '25', '50', '100']
+
+    const currentLimit = searchParams.get('limit') ?? '25'
+
+    const handleLimitChange = (value: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+
+        params.set('limit', value)
+        params.set('offset', '0') // reset pagination when limit changes
+
+        router.push(`${pathname}?${params.toString()}`)
+    }
 
 
     /** SELECTION */
@@ -154,7 +169,23 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
                         </Button>
                     )}
                     <div className="text-sm text-zinc-500">
-                        {selectedIds.size} selected
+                        <div className="text-sm text-zinc-500 flex items-center gap-2">
+                            <span>Per page</span>
+
+                            <Select value={currentLimit} onValueChange={handleLimitChange}>
+                                <SelectTrigger className="w-[90px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+
+                                <SelectContent>
+                                    {LIMIT_OPTIONS.map((limit) => (
+                                        <SelectItem key={limit} value={limit}>
+                                            {limit}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
             </div>
