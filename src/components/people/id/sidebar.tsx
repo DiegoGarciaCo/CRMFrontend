@@ -26,7 +26,8 @@ interface SidebarProps {
 export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTags, allTags }: SidebarProps) {
     const router = useRouter();
 
-    const collaborators = JSON.parse(contact.Collaborators) as Collaborator[];
+    const contactCollaborators = JSON.parse(contact.Collaborators) as Collaborator[];
+    console.log('Collaborators:', contactCollaborators);
 
 
     return (
@@ -254,9 +255,9 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                     <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/50">
                         <div className="flex justify-between items-center">
                             <div className="text-xs text-zinc-500 dark:text-zinc-500">
-                                {collaborators.length === 0 ? "No Collaborators" : (
+                                {contactCollaborators.length === 0 ? "No Collaborators" : (
                                     <div className="mt-1 space-y-1">
-                                        {collaborators.map((collaborator) => (
+                                        {contactCollaborators.map((collaborator) => (
                                             <div key={collaborator.id} className="flex items-center gap-2">
                                                 <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                                                     {collaborator.name}
@@ -267,7 +268,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                 )}
                             </div>
                             {/* Add Collaborators Button */}
-                            <DetailsManagementModal contact={contact} variant="collaborators" collaborators={collaborators} />
+                            <DetailsManagementModal contact={contact} variant="collaborators" collaborators={contactCollaborators} />
                         </div>
                     </div>
 

@@ -87,25 +87,6 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
     const { data } = authClient.useListOrganizations()
     const organizations = data?.map(org => ({ id: org.id, name: org.name }))
 
-    // Get List of Collaborators
-    useEffect(() => {
-        if (variant === 'collaborators') {
-            const fetchCollaborators = async () => {
-                if (selectedOrganization) {
-                    try {
-                        if (!organizations) return setOrganizationCollaborators([])
-                        const members = await GetOrganizationMembers(organizations.map(org => org.id))
-                        setOrganizationCollaborators(members)
-                    } catch (error) {
-                        console.log('Error fetching organization members:', error)
-                    }
-                } else {
-                    setOrganizationCollaborators([])
-                }
-            }
-            fetchCollaborators()
-        }
-    }, [variant, selectedOrganization])
 
 
     // Add Collaborator 
@@ -223,6 +204,29 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
         cancelPhoneEdit()
         router.refresh()
     }
+
+
+    // Get List of Collaborators
+    useEffect(() => {
+        if (variant === 'collaborators') {
+            const fetchCollaborators = async () => {
+                if (selectedOrganization) {
+                    try {
+                        if (!organizations) return setOrganizationCollaborators([])
+                        const members = await GetOrganizationMembers(organizations.map(org => org.id))
+                        setOrganizationCollaborators(members)
+                        console.log('Fetched organization members:', members)
+                    } catch (error) {
+                        console.log('Error fetching organization members:', error)
+                    }
+                } else {
+                    setOrganizationCollaborators([])
+                }
+            }
+            console.log('selectedOrganization changed:', selectedOrganization)
+            fetchCollaborators()
+        }
+    }, [variant, selectedOrganization])
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -798,8 +802,8 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                             className="w-full rounded-md border px-2 py-2 text-sm"
                                         >
                                             {organizationCollaborators.map((member) => (
-                                                <option key={member.id} value={member.id}>
-                                                    {member.name}
+                                                <option key={member.UserId} value={member.UserId}>
+                                                    {member.Name}
                                                 </option>
                                             ))}
                                         </select>
@@ -821,6 +825,7 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                             }
                                             className="ml-4 rounded-md border px-2 py-2 text-sm"
                                         >
+                                            <option value="">No Organization</option>
                                             {organizations?.map((org) => (
                                                 <option key={org.id} value={org.id}>
                                                     {org.name}

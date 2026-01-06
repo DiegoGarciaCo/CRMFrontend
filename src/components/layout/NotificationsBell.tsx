@@ -38,8 +38,12 @@ export default function NotificationsDropdown({
         };
     }, [isOpen]);
 
-    const formatTimeAgo = (date: Date) => {
-        const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    const formatTimeAgo = (date: Date | string) => {
+        const d = date instanceof Date ? date : new Date(date);
+
+        const seconds = Math.floor(
+            (Date.now() - d.getTime()) / 1000
+        );
 
         if (seconds < 60) return 'just now';
         if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
@@ -116,7 +120,7 @@ export default function NotificationsDropdown({
                                                     {notification.Message}
                                                 </p>
                                                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                                    {formatTimeAgo(notification.CreatedAt)}
+                                                    {formatTimeAgo(notification.CreatedAt.Time)}
                                                 </p>
                                             </div>
                                             <div className="flex gap-1">

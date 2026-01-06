@@ -387,7 +387,7 @@ export default function GoalsPageClient({
                 <GoalProgressCard
                     incomeGoal={incomeGoal}
                     closedVolume={metrics.closedCommissionPaid}
-                    pipelineVolume={metrics.pipelineCommissionPending}
+                    pipelineVolume={currentYear === selectedYear ? metrics.pipelineCommissionPending : 0}
                 />
             </div>
 
@@ -396,7 +396,7 @@ export default function GoalsPageClient({
                 <TransactionsProgressCard
                     transactionGoal={transactionGoal}
                     closedTransactions={metrics.closedTransactions}
-                    pipelineTransactions={metrics.pipelineTransactions}
+                    pipelineTransactions={currentYear === selectedYear ? metrics.pipelineTransactions : 0}
                     averageSalePrice={metrics.averageSalePrice}
                     averageCommission={metrics.averageCommission}
                 />
@@ -404,7 +404,7 @@ export default function GoalsPageClient({
                 <GoalInsightsPanel
                     incomeGoal={incomeGoal}
                     closedVolume={metrics.closedCommissionPaid}
-                    pipelineVolume={metrics.pipelineCommissionPending}
+                    pipelineVolume={currentYear === selectedYear ? metrics.pipelineCommissionPending : 0}
                     monthsPassed={currentMonth}
                     totalMonths={totalMonths}
                     averageSalePrice={metrics.averageSalePrice}
@@ -431,7 +431,7 @@ export default function GoalsPageClient({
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Volume Under Contract</p>
-                            <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{formatCurrency(metrics.pipelineVolume)}</p>
+                            <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{formatCurrency(currentYear === selectedYear ? metrics.pipelineVolume : 0)}</p>
                         </div>
                         <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/30">
                             <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -487,7 +487,7 @@ export default function GoalsPageClient({
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">In Pipeline</p>
-                            <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{metrics.pipelineTransactions}</p>
+                            <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{currentYear === selectedYear ? metrics.pipelineTransactions : 0}</p>
                         </div>
                         <div className="rounded-lg bg-cyan-100 p-3 dark:bg-cyan-900/30">
                             <svg className="h-6 w-6 text-cyan-600 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -502,7 +502,7 @@ export default function GoalsPageClient({
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Projected Total Volume</p>
                             <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                                {formatCurrency(metrics.closedVolume + metrics.pipelineVolume)}
+                                {formatCurrency(metrics.closedVolume + (currentYear === selectedYear ? metrics.pipelineVolume : 0))}
                             </p>
                         </div>
                         <div className="rounded-lg bg-indigo-100 p-3 dark:bg-indigo-900/30">

@@ -1,4 +1,4 @@
-import { NullString } from "../nullTypes";
+import { NullString, NullTime } from "../nullTypes";
 
 export interface MentionData {
     id: string;
@@ -14,5 +14,5 @@ export interface Notification {
     AppointmentID: NullString;
     TaskID: NullString;
     Read: boolean;
-    CreatedAt: Date;
+    CreatedAt: NullTime;
 }
