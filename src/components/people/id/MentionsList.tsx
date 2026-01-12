@@ -2,8 +2,8 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
 
 // Define the shape of your props
 interface MentionsListProps {
-    items: string[]
-    command: (item: { id: string }) => void
+    items: { ID: string; UserId: string; Name: string; Role: string }[]
+    command: (item: { id: string, label: string }) => void
 }
 
 // Define the shape of your ref
@@ -17,7 +17,7 @@ const MentionsList = forwardRef<MentionsListRef, MentionsListProps>((props, ref)
 
     const selectItem = (index: number) => {
         const item = props.items[index]
-        if (item) props.command({ id: item })
+        if (item) props.command({ id: item.UserId, label: item.Name })
     }
 
     useEffect(() => setSelectedIndex(0), [props.items])
@@ -45,12 +45,12 @@ const MentionsList = forwardRef<MentionsListRef, MentionsListProps>((props, ref)
             {props.items.length ? (
                 props.items.map((item, index) => (
                     <button
-                        key={index}
+                        key={item.ID}
                         className={index === selectedIndex ? 'is-selected' : ''}
                         onMouseDown={e => e.preventDefault()} // Prevent editor blur
                         onClick={() => selectItem(index)}
                     >
-                        {item}
+                        {item.Name}
                     </button>
                 ))
             ) : (

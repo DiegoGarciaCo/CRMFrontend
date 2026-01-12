@@ -717,6 +717,14 @@ export async function UpdateContact(contactID: string, first_name: string, last_
 // ----------------------------------------------
 
 export async function GetOrganizationMembers(orgIDs: string[]): Promise<any[]> {
+    console.log('[GetOrganizationMembers] called')
+    console.log(
+        '[GetOrganizationMembers] orgIDs at call time:',
+        JSON.stringify(orgIDs),
+        'length:',
+        orgIDs.length
+    )
+
     const res = await fetch(`${BASE_URL}/members/organizations`, {
         method: 'POST',
         credentials: 'include',
@@ -915,3 +923,26 @@ export async function GetNotificationsForUser(): Promise<any[]> {
 
     return res.json();
 }
+
+// ----------------------------------------------
+// Delete Contacts
+// ----------------------------------------------
+
+export async function DeleteContacts(contactIds: string[]): Promise<void> {
+    const res = await fetch(`${BASE_URL}/contacts/bulk-delete`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contact_ids: contactIds,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting contacts: ${res.statusText}`);
+    }
+
+    return;
+}       

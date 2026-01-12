@@ -19,7 +19,7 @@ export default function NotificationsDropdown({
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const unreadCount = notifications ? notifications?.filter(n => !n.Read).length : 0;
+    const unreadCount = notifications ? notifications?.filter(n => !n.Read.Bool).length : 0;
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -73,7 +73,7 @@ export default function NotificationsDropdown({
             >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                    <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                    <span className="absolute right-1 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}

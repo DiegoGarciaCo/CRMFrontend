@@ -9,7 +9,7 @@ interface SuggestionProps {
     range: { from: number; to: number }
     query: string
     clientRect?: (() => DOMRect | null) | null
-    command: (item: { id: string }) => void
+    command: (item: { id: string, label: string }) => void
 }
 
 // Helper to position the dropdown
@@ -34,8 +34,9 @@ const updatePosition = (editor: Editor, element: HTMLElement) => {
 export const createSuggestion = (orgID: string[]) => ({
     items: async ({ query }: { query: string; editor: Editor }) => {
         const people = await GetOrganizationMembers(orgID)
+        console.log('Fetched people for mentions:', people)
         return people
-            .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+            .filter(item => item.Name.toLowerCase().startsWith(query.toLowerCase()))
             .slice(0, 5)
     },
     render: () => {

@@ -10,7 +10,7 @@ import { ContactWithDetails } from "@/lib/definitions/backend/contacts";
 import { ContactNote } from "@/lib/definitions/backend/notes";
 import { formatDate } from "@/lib/utils/formating";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import Document from '@tiptap/extension-document'
 import Mention from '@tiptap/extension-mention'
@@ -77,37 +77,48 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
     const [isAddingNote, setIsAddingNote] = useState(false);
     const [isAddingLog, setIsAddingLog] = useState(false);
     const { data } = authClient.useListOrganizations()
+    const [editor, setEditor] = useState<Editor | null>(null);
 
     const router = useRouter();
 
-    // Tiptap editor setup for mentions
-    const editor = useEditor({
-        extensions: [
-            Document,
-            Paragraph,
-            Placeholder.configure({
-                placeholder: 'Write your note here...',
-            }),
-            Text,
-            Mention.configure({
-                HTMLAttributes: {
-                    class: 'mention',
-                },
-                suggestion: createSuggestion(data?.map(org => org.id) ?? []),
-                renderText({ node }) {
-                    return `${node.attrs.label ?? node.attrs.id}`
-                },
-                renderHTML({ node }) {
-                    return [
-                        'span',
-                        { class: 'mention' },
-                        node.attrs.label ?? node.attrs.id  // No @ character
-                    ];
-                },
-            }),
-        ],
-        immediatelyRender: false,
-    });
+    const orgIDs = useMemo(() => data?.map(org => org.id) ?? [], [data]);
+
+    useEffect(() => {
+        if (orgIDs.length === 0) return;
+
+        // Tiptap editor setup for mentions
+        const e = new Editor({
+            extensions: [
+                Document,
+                Paragraph,
+                Placeholder.configure({
+                    placeholder: 'Write your note here...',
+                }),
+                Text,
+                Mention.configure({
+                    HTMLAttributes: {
+                        class: 'mention',
+                    },
+                    suggestion: createSuggestion(orgIDs),
+                    renderText({ node }) {
+                        return `${node.attrs.label ?? node.attrs.id}`
+                    },
+                    renderHTML({ node }) {
+                        return [
+                            'span',
+                            { class: 'mention' },
+                            node.attrs.label ?? node.attrs.id  // No @ character
+                        ];
+                    },
+                }),
+            ],
+        });
+        setEditor(e);
+
+        return () => {
+            e.destroy();
+        };
+    }, [orgIDs]);
 
     useEffect(() => {
         if (!editor) return

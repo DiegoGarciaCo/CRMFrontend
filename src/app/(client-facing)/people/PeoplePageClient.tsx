@@ -9,6 +9,7 @@ import ContactsTable from '@/components/people/ContactsTable';
 import { Button } from '@/components/ui/button';
 import ImportContactsModal from '@/components/people/ImportContactsModal';
 import { Tag } from '@/lib/definitions/backend/tag';
+import { DeleteContacts } from '@/lib/data/backend/clientCalls';
 
 interface PeoplePageClientProps {
     userId: string;
@@ -48,6 +49,13 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
         router.refresh();
         setIsImportModalOpen(false);
     };
+
+    const onDeleteContacts = async (contactIds: string[]) => {
+        // Implement contact deletion logic here
+        await DeleteContacts(contactIds);
+        // After deletion, refresh the contacts list
+        router.refresh();
+    }
 
     return (
         <div className="flex h-full w-full">
@@ -103,6 +111,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                             currentPage={page}
                             totalPages={totalPages ? Math.ceil(totalPages) : 1}
                             onPageChange={handlePageChange}
+                            onDeleteContacts={onDeleteContacts}
                         />
                     )}
                 </div>
