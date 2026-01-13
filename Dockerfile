@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
+
 
 # Install dependencies
 FROM base AS deps
-RUN apk add --no-cache \
-    openssl \
-    zlib \
-    libgcc \
-    && ln -s /usr/lib/libssl.so.1.1 /usr/lib/libssl.so
+RUN apt-get update && apt-get install -y \
+        openssl \
+        ca-certificates \
+        && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN npm ci
