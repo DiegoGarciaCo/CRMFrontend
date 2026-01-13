@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 FROM node:20-slim AS base
 
-
 # Install dependencies
 FROM base AS deps
 RUN apt-get update && apt-get install -y \
         openssl \
         ca-certificates \
         && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN npm ci
@@ -15,7 +15,6 @@ RUN npm ci
 # Builder stage
 FROM base AS builder
 WORKDIR /app
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -47,14 +46,20 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Create writable directory for better-auth or other libs that need /etc/lrt
+RUN mkdir -p /tmp/lrt && chmod 777 /tmp/lrt
+
 COPY --from=builder /app/public ./public
 
 RUN useradd -r -u 1001 -g root ghost
+
 COPY --from=builder --chown=ghost:ghost /app/.next/standalone ./
 COPY --from=builder --chown=ghost:ghost /app/.next/static ./.next/static
 
 USER ghost
+
 EXPOSE 3010
 ENV PORT=3010
 ENV HOSTNAME="0.0.0.0"
+
 CMD ["node", "server.js"]

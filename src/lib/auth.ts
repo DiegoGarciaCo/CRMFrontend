@@ -11,11 +11,25 @@ import { STRIPE_PLANS } from "./stripe";
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-11-17.clover",
 })
+//
+// Configure pool for Neon's auto-suspend behavior
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 1, // Reduce pool size for free tier
+    idleTimeoutMillis: 60000, // Close idle connections after 1 min
+    connectionTimeoutMillis: 30000, // 30 second timeout for wakeup
+    query_timeout: 30000, // 30 second query timeout
+    // Allow time for Neon to wake up
+    application_name: 'crm-app',
+});
+
+// Add error handler
+pool.on('error', (err) => {
+    console.error('Unexpected database pool error', err);
+});
 
 export const auth = betterAuth({
-    database: new Pool({
-        connectionString: process.env.DATABASE_URL,
-    }),
+    database: pool,
     advanced: {
         database: {
             generateId: false,
