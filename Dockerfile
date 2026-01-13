@@ -49,7 +49,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=builder /app/public ./public
 
-RUN adduser -D ghost
+RUN useradd -r -u 1001 -g root ghost
 COPY --from=builder --chown=ghost:ghost /app/.next/standalone ./
 COPY --from=builder --chown=ghost:ghost /app/.next/static ./.next/static
 
