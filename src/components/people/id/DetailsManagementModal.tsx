@@ -61,7 +61,7 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
         lender: contact.Lender.Valid ? contact.Lender.String : '',
     })
     const [isDetailsSaving, setIsDetailsSaving] = useState(false)
-    const [isEditingDetails, setIsEditingDetails] = useState(false)
+    const [isEditingDetails, setIsEditingDetails] = useState(true)
 
     const initialDetailsDraft = {
         firstName: contact.FirstName,

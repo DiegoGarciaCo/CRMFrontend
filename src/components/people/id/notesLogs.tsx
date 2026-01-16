@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateContactLog, CreateContactNote, CreateNotification } from "@/lib/data/backend/clientCalls";
+import { CreateContactLog, CreateContactNote, CreateNotification, GetAllContacts } from "@/lib/data/backend/clientCalls";
 import { ContactLog } from "@/lib/definitions/backend/contactLogs";
 import { ContactWithDetails } from "@/lib/definitions/backend/contacts";
 import { ContactNote } from "@/lib/definitions/backend/notes";
@@ -21,6 +21,8 @@ import { Placeholder } from '@tiptap/extensions'
 import { MentionData } from "@/lib/definitions/backend/mentions";
 import { createSuggestion } from "./suggestion";
 import { authClient } from "@/lib/auth-client";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useContactsNav } from "@/lib/hooks/UseContactsNav";
 
 
 interface logNoteCreationProps {
@@ -82,6 +84,21 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
     const router = useRouter();
 
     const orgIDs = useMemo(() => data?.map(org => org.id) ?? [], [data]);
+
+    // contacts from zustand store
+    const contacts = useContactsNav((state) => state.contactIds);
+    const setContactIds = useContactsNav((state) => state.setContactIds);
+    const currentIndex = useContactsNav((state) => state.currentIndex);
+    const setCurrentIndex = useContactsNav((state) => state.setCurrentIndex);
+    const offset = useContactsNav((state) => state.offset);
+    const setOffset = useContactsNav((state) => state.setOffset);
+    const limit = useContactsNav((state) => state.limit);
+    const totalPages = useContactsNav((state) => state.totalPages);
+
+    // current page
+    const o = Number(offset);
+    const l = Number(limit) || 20;
+    const page = Number.isFinite(o) ? Math.floor(o / l) + 1 : 1;
 
     useEffect(() => {
         if (orgIDs.length === 0) return;
@@ -184,15 +201,89 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
         }
     };
 
+    // Helper to fetch next/previous contacts
+    const fetchNextContacts = async () => {
+        const stringLimit = limit.toString();
+        const stringOffset = (offset + limit).toString();
+        const res = await GetAllContacts(stringLimit, stringOffset);
+        return res
+    };
+
+    const fetchPreviousContacts = async () => {
+        const stringLimit = limit.toString();
+        const stringOffset = Math.max(0, offset - limit).toString();
+        const res = await GetAllContacts(stringLimit, stringOffset);
+
+        return res
+    }
+
+
+    const handleNextContact = async () => {
+        // Check if we are at the end of the current contacts list
+        if (currentIndex === contacts.length - 1) {
+            // Check if there are more contacts to load
+            if (page < totalPages) {
+                // fetch next page of contacts from backend
+                const newContacts = await fetchNextContacts();
+                setContactIds(newContacts.map((contact, i) => ({ index: i, id: contact.ID })));
+                setOffset(offset + limit);
+                setCurrentIndex(0);
+                // Navigate to the first contact of the new page
+                router.push(`/people/${newContacts[0].ID}`);
+            }
+            return; // Do nothing if at the end and no more contacts to load
+        }
+        // Logic to navigate to the next contact
+        setCurrentIndex(currentIndex + 1);
+        router.push(`/people/${contacts[currentIndex + 1].id}`);
+    }
+
+    const handlePreviousContact = async () => {
+        // Check if we are at the start of the current contacts list
+        if (currentIndex === 0) {
+            // Check if there are previous contacts to load
+            if (page > 1) {
+                // fetch previous page of contacts from backend
+                const newContacts = await fetchPreviousContacts();
+                setContactIds(newContacts.map((contact, i) => ({ index: i, id: contact.ID })));
+                setOffset(Math.max(0, offset - limit));
+                setCurrentIndex(newContacts.length - 1);
+                // Navigate to the last contact of the new page
+                router.push(`/people/${newContacts[newContacts.length - 1].ID}`);
+            }
+            return; // Do nothing if at the start and no previous contacts to load
+        }
+        // Logic to navigate to the previous contact
+        setCurrentIndex(currentIndex - 1);
+        router.push(`/people/${contacts[currentIndex - 1].id}`);
+    }
+
     return (
 
         <div className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-4xl p-6">
+            <div className="mx-auto max-w-4xl p-6 pt-4">
+                <div className="flex justify-between items-center text-sm text-zinc-600 dark:text-zinc-400 mb-2">
+                    <button
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded ${currentIndex === 0 && offset === 0
+                            ? "opacity-50 cursor-not-allowed" // visually disabled
+                            : "cursor-pointer hover:text-zinc-950"
+                            }`}
+                        onClick={handlePreviousContact}
+                        disabled={currentIndex === 0 && offset === 0}
+                    >
+                        <ArrowLeft className="inline" /> Back
+                    </button>
+                    <button className={`inline-flex items-center gap-1 px-2 py-1 rounded ${currentIndex >= contacts.length - 1 && page >= totalPages
+                        ? "opacity-50 cursor-not-allowed" // visually disabled
+                        : "cursor-pointer hover:text-zinc-950"
+                        }`} onClick={handleNextContact} disabled={currentIndex >= contacts.length - 1 && page == totalPages} >Next <ArrowRight className="inline" /></button>
+                </div>
                 <Tabs defaultValue="notes" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="notes">Notes ({notes.length})</TabsTrigger>
                         <TabsTrigger value="logs">Contact Logs ({logs.length})</TabsTrigger>
                     </TabsList>
+
 
                     <TabsContent value="notes" className="mt-6">
                         <div className="space-y-4">

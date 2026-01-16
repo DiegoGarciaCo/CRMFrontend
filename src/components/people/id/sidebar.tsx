@@ -12,6 +12,7 @@ import DetailsManagementModal from './DetailsManagementModal';
 import CreateAppointmentModal from '@/components/dashboard/CreateAppointmentSheet';
 import { toast } from 'sonner';
 import { Collaborator } from '@/lib/definitions/backend/collaborators';
+import { useContactsNav } from '@/lib/hooks/UseContactsNav';
 
 
 interface SidebarProps {
@@ -26,8 +27,14 @@ interface SidebarProps {
 export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTags, allTags }: SidebarProps) {
     const router = useRouter();
 
+    // Zustand store for contacts navigation
+    const limit = useContactsNav((state) => state.limit);
+    const offset = useContactsNav((state) => state.offset);
+    const listId = useContactsNav((state) => state.listId);
+
+    const listParam = listId ? `list=${listId}&` : '';
+
     const contactCollaborators = JSON.parse(contact.Collaborators) as Collaborator[];
-    console.log('Collaborators:', contactCollaborators);
 
 
     return (
@@ -36,7 +43,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
             <div className="p-6">
                 {/* Back Button */}
                 <button
-                    onClick={() => router.push('/people')}
+                    onClick={() => router.push(`/people?${listParam}limit=${limit}&offset=${offset}`)}
                     className="mb-6 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
                 >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

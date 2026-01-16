@@ -2,7 +2,7 @@
 
 import { Contact } from '@/lib/definitions/backend/contacts';
 import { SmartList } from '@/lib/definitions/backend/smartList';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SmartListSidebar from '@/components/people/SmartListSidebar';
 import ContactsTable from '@/components/people/ContactsTable';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import ImportContactsModal from '@/components/people/ImportContactsModal';
 import { Tag } from '@/lib/definitions/backend/tag';
 import { DeleteContacts } from '@/lib/data/backend/clientCalls';
+import { useContactsNav } from '@/lib/hooks/UseContactsNav';
 
 interface PeoplePageClientProps {
     userId: string;
@@ -26,12 +27,28 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     const [isLoading, setIsLoading] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
+    // Zustand store for contacts navigation
+    const setListId = useContactsNav((state) => state.setListId);
+    const setContactIds = useContactsNav((state) => state.setContactIds);
+    const setLimit = useContactsNav((state) => state.setLimit);
+    const setOffset = useContactsNav((state) => state.setOffset);
+    const setTotalPages = useContactsNav((state) => state.setTotalPages);
+
+
+    useEffect(() => {
+        setContactIds(contacts.map((contact, i) => ({ index: i, id: contact.ID })));
+        setTotalPages(totalContacts / Number(limit || 25) || 1);
+    }, [contacts, setContactIds]);
+
     const handleListClick = (listId: string | null) => {
+        setListId(listId || '');
         router.push(listId ? `/people/?list=${listId}` : '/people');
     };
 
     const handlePageChange = (newPage: number) => {
         // Update URL with new page
+        setOffset((newPage - 1) * Number(limit || 25));
+        setLimit(Number(limit || 25));
         router.push(`?limit=${limit || 25}&offset=${(newPage - 1) * Number(limit || 25)}`);
     }
 
@@ -39,6 +56,8 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     const totalPages = totalContacts / Number(limit || 25) || 1;
     const o = Number(offset);
     const l = Number(limit) || 20;
+
+
 
     const page = Number.isFinite(o) ? Math.floor(o / l) + 1 : 1;
 

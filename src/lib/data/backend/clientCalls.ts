@@ -945,4 +945,24 @@ export async function DeleteContacts(contactIds: string[]): Promise<void> {
     }
 
     return;
-}       
+}
+
+// ----------------------------------------------
+// Get All Contacts
+// ----------------------------------------------
+
+export async function GetAllContacts(limit: string, offset: string): Promise<Contact[]> {
+    const res = await fetch(`${BASE_URL}/contacts?limit=${limit}&offset=${offset}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error fetching contacts: ${res.statusText}`);
+    }
+
+    return res.json();
+}

@@ -29,6 +29,7 @@ import { formatPhoneNumber } from '@/lib/utils/formating';
 import { ContactsPagination } from './pagination';
 import { Trash2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useContactsNav } from '@/lib/hooks/UseContactsNav';
 
 interface ContactsTableProps {
     contacts: Contact[];
@@ -54,6 +55,12 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Pagination state from Zustand
+    const setLimit = useContactsNav((state) => state.setLimit);
+    const setOffset = useContactsNav((state) => state.setOffset);
+    const setCurrentIndex = useContactsNav((state) => state.setCurrentIndex);
+    const stateContacts = useContactsNav((state) => state.contactIds);
+
     const handleSort = (field: SortField) => {
         if (sortField === field) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -64,13 +71,17 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
     };
     const LIMIT_OPTIONS = ['10', '25', '50', '100']
 
-    const currentLimit = searchParams.get('limit') ?? '25'
+    const limit = useContactsNav((state) => state.limit);
+
+    const currentLimit = searchParams.get('limit') ?? limit.toString();
 
     const handleLimitChange = (value: string) => {
         const params = new URLSearchParams(searchParams.toString())
 
         params.set('limit', value)
         params.set('offset', '0') // reset pagination when limit changes
+        setLimit(Number(value))
+        setOffset(0)
 
         router.push(`${pathname}?${params.toString()}`)
     }
@@ -224,7 +235,10 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
                                 <TableRow
                                     key={contact.ID}
                                     className="cursor-pointer bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                                    onClick={() => router.push(`/people/${contact.ID}`)}
+                                    onClick={() => {
+                                        setCurrentIndex(Math.max(0, stateContacts.findIndex((stateContact) => stateContact.id === contact.ID)))
+                                        router.push(`/people/${contact.ID}`)
+                                    }}
                                 >
                                     <TableCell onClick={(e) => e.stopPropagation()}>
                                         <Checkbox
