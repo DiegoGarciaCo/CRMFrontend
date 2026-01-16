@@ -28,7 +28,6 @@ import { SessionManagement } from "@/components/profile/sessionManagement"
 import { ChangePasswordForm } from "@/components/profile/changePasswordForm"
 import { SetPasswordButton } from "@/components/profile/setPasswordButton"
 import { TwoFactorAuth } from "@/components/profile/twoFactorAuth"
-import { PasskeyManagement } from "@/components/profile/passkeyManagement"
 import AvatarUpload from "@/components/profile/AvatarUploadButton"
 import { APIKeyManagement } from "@/components/profile/apiKeyManagement"
 
@@ -165,8 +164,7 @@ async function SecurityTab({
     email: string
     isTwoFactorEnabled: boolean
 }) {
-    const [passkeys, accounts, apiKeys] = await Promise.all([
-        auth.api.listPasskeys({ headers: await headers() }),
+    const [accounts, apiKeys] = await Promise.all([
         auth.api.listUserAccounts({ headers: await headers() }),
         auth.api.listApiKeys({ headers: await headers() }),
     ])
@@ -214,14 +212,6 @@ async function SecurityTab({
                 </Card>
             )}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Passkeys</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <PasskeyManagement passkeys={passkeys} />
-                </CardContent>
-            </Card>
 
             <Card>
                 <CardHeader>
