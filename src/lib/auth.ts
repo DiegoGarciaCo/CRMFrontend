@@ -3,7 +3,6 @@ import { Pool } from "pg";
 import { admin, apiKey, organization, twoFactor } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { sendDeleteAccountVerificationEmail, sendEmailVerificationEmail, sendOrganizationInviteEmail, sendPasswordResetEmail } from "./data/emails/sendEmails";
-import { passkey } from "@better-auth/passkey";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { STRIPE_PLANS } from "./stripe";
@@ -93,7 +92,6 @@ export const auth = betterAuth({
     plugins: [
         twoFactor(),
         nextCookies(),
-        passkey(),
         admin(),
         stripe({
             stripeClient,

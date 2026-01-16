@@ -10,7 +10,6 @@ import { LoadingSwap } from '../ui/loading-swap';
 import { Button } from '../ui/button';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
-import { PasskeyButton } from './passkeyButton';
 import { useRouter } from 'next/navigation';
 
 const LoginSchema = z.object({
@@ -116,7 +115,6 @@ export default function LoginTab({ openEmailVerificationTab, openForgotPassword 
 
                 </form>
             </Form>
-            <PasskeyButton />
         </div>
     )
 }
