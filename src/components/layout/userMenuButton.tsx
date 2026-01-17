@@ -76,6 +76,14 @@ export function UserMenuButton() {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
+                    onClick={() => router.push("/integrations")}
+                    className="cursor-pointer"
+                >
+                    <User className="mr-2 h-4 w-4" />
+                    Integrations/Apps
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
                     onClick={() => router.push("/settings")}
                     className="cursor-pointer"
                 >
