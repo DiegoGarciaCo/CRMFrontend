@@ -8,7 +8,6 @@ import { CreateContactLog, CreateContactNote, CreateNotification, GetAllContacts
 import { ContactLog } from "@/lib/definitions/backend/contactLogs";
 import { ContactWithDetails } from "@/lib/definitions/backend/contacts";
 import { ContactNote } from "@/lib/definitions/backend/notes";
-import { formatDate } from "@/lib/utils/formating";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import { createSuggestion } from "./suggestion";
 import { authClient } from "@/lib/auth-client";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useContactsNav } from "@/lib/hooks/UseContactsNav";
+import { FormatDateTimeForInput } from "@/lib/utils/formating";
 
 
 interface logNoteCreationProps {
@@ -314,7 +314,7 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
                                     {notes.map(note => (
                                         <div key={note.ID} className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-600 dark:bg-yellow-950/20">
                                             <NoteDisplay content={note.Note} />
-                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{note.CreatedAt.Valid && formatDate(note.CreatedAt.Time)}</div>
+                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{note.CreatedAt.Valid && FormatDateTimeForInput(new Date(note.CreatedAt.Time))}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -350,7 +350,7 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
                                         <div key={log.ID} className="rounded-lg border-l-4 border-green-400 bg-green-50 p-4 dark:border-green-600 dark:bg-green-950/20">
                                             <Badge className="mb-2">{log.ContactMethod}</Badge>
                                             {log.Note.Valid && <p className="text-sm text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap">{log.Note.String}</p>}
-                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{log.CreatedAt.Valid && formatDate(log.CreatedAt.Time)}</div>
+                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{log.CreatedAt.Valid && FormatDateTimeForInput(new Date(log.CreatedAt.Time))}</div>
                                         </div>
                                     ))}
                                 </div>

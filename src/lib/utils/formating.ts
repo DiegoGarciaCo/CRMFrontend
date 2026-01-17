@@ -16,17 +16,53 @@ export function formatPhoneNumber(phoneNumber: string): string {
     return phoneNumber;
 }
 
-export const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-};
+export function FormatDateForInput(date: Date): string {
+    if (!date) return "";
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${month}/${day}/${year}`;
+}
 
-export function CombineDateTime(date: string, time: string) {
-    if (!date || !time) return ""; // or null
-    return `${date}T${time}`;
+export function FormatDateTimeForInput(date: Date): string {
+    if (!date) return "";
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    const hoursUTC = date.getUTCHours();
+    const minutesUTC = date.getUTCMinutes();
+
+    // Build date string
+    let dateStr = `${month}/${day}/${year}`;
+
+    // Only render time if UTC time is non-zero
+    if (hoursUTC !== 0 || minutesUTC !== 0) {
+        // format using local time for display
+        let hoursLocal = date.getHours(); // still show local time
+        const minutesLocal = String(date.getMinutes()).padStart(2, "0");
+        const ampm = hoursLocal >= 12 ? "PM" : "AM";
+        hoursLocal = hoursLocal % 12;
+        if (hoursLocal === 0) hoursLocal = 12;
+        const hoursStr = String(hoursLocal).padStart(2, "0");
+
+        dateStr += ` ${hoursStr}:${minutesLocal} ${ampm}`;
+    }
+
+    return dateStr;
+}
+
+export function CombineDateTime(dateStr: string, timeStr: string): string {
+    if (!dateStr || !timeStr) return "";
+
+    // Split the date and time
+    const [year, month, day] = dateStr.split("-").map(Number); // "YYYY-MM-DD"
+    const [hours, minutes] = timeStr.split(":").map(Number);   // "HH:MM"
+
+    // Create a JS Date in local time
+    const localDate = new Date(year, month - 1, day, hours, minutes);
+
+    // Convert to UTC ISO string
+    return localDate.toISOString(); // e.g. "2026-02-02T17:30:00.000Z"
 }

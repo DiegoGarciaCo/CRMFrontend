@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { ContactWithDetails } from '@/lib/definitions/backend/contacts';
 import { Email } from '@/lib/definitions/backend/emails';
 import { PhoneNumber } from '@/lib/definitions/backend/phoneNumbers';
-import { formatDate, formatPhoneNumber } from '@/lib/utils/formating';
+import { FormatDateForInput, formatPhoneNumber } from '@/lib/utils/formating';
 import { useRouter } from 'next/navigation';
 import TagsSection from '../tagSection';
 import { Tag } from '@/lib/definitions/backend/tag';
@@ -65,7 +65,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                         {contact.FirstName} {contact.LastName}
                     </h1>
                     {contact.LastContactedAt.Valid ? (
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Last contacted on {formatDate(contact.LastContactedAt.Time)}</span>
+                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Last contacted on {FormatDateForInput(new Date(contact.LastContactedAt.Time))}</span>
                     ) : (
                         <span className="text-sm text-zinc-600 dark:text-zinc-400">Not contacted yet</span>
                     )}
@@ -189,7 +189,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                 </div>
                                 {contact.Birthdate.Valid && contact.Birthdate.Time && (
                                     <div className="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                                        {formatDate(contact.Birthdate.Time)}
+                                        {FormatDateForInput(new Date(contact.Birthdate.Time))}
                                     </div>
                                 )}
                             </div>
@@ -299,7 +299,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-zinc-500 dark:text-zinc-500">Created</span>
                                     <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                                        {formatDate(contact.CreatedAt.Time)}
+                                        {FormatDateForInput(new Date(contact.CreatedAt.Time))}
                                     </span>
                                 </div>
                             )}

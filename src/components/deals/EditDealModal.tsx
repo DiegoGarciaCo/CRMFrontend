@@ -43,6 +43,7 @@ const DealSchema = z.object({
     stage_id: z.string().min(1, "Stage is required"),
 });
 
+
 type DealFormValues = z.infer<typeof DealSchema>;
 
 interface EditDealModalProps {
@@ -190,7 +191,7 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
                                     <FormItem>
                                         <FormLabel>{d.label}</FormLabel>
                                         <FormControl>
-                                            <Input type="datetime-local" {...field} />
+                                            <Input type="date" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

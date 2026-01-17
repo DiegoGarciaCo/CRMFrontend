@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EditDealModal } from './EditDealModal';
 import { Stage } from '@/lib/definitions/backend/stage';
+import { FormatDateForInput } from '@/lib/utils/formating';
 
 interface DealCardProps {
     deal: Deal;
@@ -34,12 +35,6 @@ export default function DealCard({ deal, stages }: DealCardProps) {
             minimumFractionDigits: 0,
         }).format(amount);
 
-    const formatDate = (dateString: string) =>
-        new Date(dateString).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
 
     const commissionAmount = deal.Commission?.Valid ? deal.CommissionSplit.Valid ? (Number(deal.Commission.String) / 100) * (Number(deal.CommissionSplit.String) / 100) * deal.Price : (Number(deal.Commission.String) / 100) * deal.Price : 0;
 
@@ -76,7 +71,7 @@ export default function DealCard({ deal, stages }: DealCardProps) {
 
             {deal.ClosingDate?.Valid && (
                 <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
-                    Close: {formatDate(deal.ClosingDate.Time)}
+                    Close: {FormatDateForInput(new Date(deal.ClosingDate.Time))}
                 </p>
             )}
 

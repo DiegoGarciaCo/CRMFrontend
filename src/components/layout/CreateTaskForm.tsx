@@ -48,7 +48,14 @@ export default function CreateTaskForm() {
     const handleCreate = async () => {
         if (!selectedContact) return toast.error("Please select a contact");
 
-        const scheduledAt = CombineDateTime(scheduledDate, scheduledTime);
+        let scheduledAt = null;
+        if (scheduledTime === "") {
+            scheduledAt = scheduledDate;
+        } else {
+            scheduledAt = CombineDateTime(scheduledDate, scheduledTime);
+        }
+
+
 
         try {
             await CreateTask(selectedContact, title, type, scheduledAt, status, priority, note);
