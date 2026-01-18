@@ -1015,3 +1015,51 @@ export async function DeleteAppointment(appointment_id: string): Promise<void> {
 
     return;
 }
+
+// ----------------------------------------------
+// Update Task
+// ----------------------------------------------
+
+export async function UpdateTask(task_id: string, contact_id: string, assigned_to_id: string, title: string, type: string, date: string, status: string, priority: string, note: string): Promise<Task> {
+    const res = await fetch(`${BASE_URL}/tasks/${task_id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contact_id,
+            assigned_to_id,
+            title,
+            type,
+            date,
+            status,
+            priority,
+            note,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating task: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Delete Task
+// ----------------------------------------------
+
+export async function DeleteTask(task_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/tasks/${task_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting task: ${res.statusText}`);
+    }
+}

@@ -6,8 +6,35 @@ import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TasksPage() {
+export default async function TasksPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
     const session = await auth.api.getSession({ headers: await headers() })
+
+    const selectedTabParam = await searchParams
+        .then(params => {
+            const src = params['tab'];
+            if (Array.isArray(src)) {
+                return src[0];
+            }
+            if (src === undefined) {
+                return "all";
+            }
+            return src;
+        })
+        .catch(() => { return "all"; });
+
+    type SelectedTab = "all" | "late" | "today";
+
+    const selectedTab: SelectedTab =
+        selectedTabParam === "late"
+            ? "late"
+            : selectedTabParam === "today"
+                ? "today"
+                : "all";
+
 
     if (session == null) return redirect("/auth/login")
     const userId = session?.user?.id as string;
@@ -38,6 +65,7 @@ export default async function TasksPage() {
                 allTasks={allTasks}
                 lateTasks={lateTasks}
                 todayTasks={todayTasks}
+                selectedTab={selectedTab}
             />
         </div>
     );

@@ -19,15 +19,15 @@ export function formatPhoneNumber(phoneNumber: string): string {
 export function FormatDateForInput(date: Date): string {
     if (!date) return "";
     const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    return `${month}/${day}/${year}`;
+    const month = String(date.getUTCMonth() + 1).padStart(1, "");
+    const day = String(date.getUTCDate()).padStart(1, "");
+    return `${month}/${day}/${year.toString().slice(-2)}`;
 }
 
 export function FormatDateTimeForInput(date: Date): string {
     if (!date) return "";
 
-    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(1, "");
     const day = String(date.getDate()).padStart(2, "0");
     const year = date.getFullYear();
 
@@ -35,7 +35,7 @@ export function FormatDateTimeForInput(date: Date): string {
     const minutesUTC = date.getUTCMinutes();
 
     // Build date string
-    let dateStr = `${month}/${day}/${year}`;
+    let dateStr = `${month}/${day}/${year.toString().slice(-2)}`;
 
     // Only render time if UTC time is non-zero
     if (hoursUTC !== 0 || minutesUTC !== 0) {
@@ -45,7 +45,7 @@ export function FormatDateTimeForInput(date: Date): string {
         const ampm = hoursLocal >= 12 ? "PM" : "AM";
         hoursLocal = hoursLocal % 12;
         if (hoursLocal === 0) hoursLocal = 12;
-        const hoursStr = String(hoursLocal).padStart(2, "0");
+        const hoursStr = String(hoursLocal).padStart(1, "");
 
         dateStr += ` ${hoursStr}:${minutesLocal} ${ampm}`;
     }

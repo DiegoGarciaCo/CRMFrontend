@@ -4,24 +4,42 @@ import { Task } from '@/lib/definitions/backend/tasks';
 import { useState, useMemo } from 'react';
 import TaskCard from '@/components/tasks/TaskCard';
 import CreateTaskModal from '@/components/dashboard/CreateTaskSheet';
+import { useRouter } from 'next/navigation';
 
 interface TasksPageClientProps {
     allTasks: Task[];
     lateTasks: Task[];
     todayTasks: Task[];
+    selectedTab: 'all' | 'late' | 'today';
 }
 
 type FilterStatus = 'all' | 'pending' | 'completed' | 'cancelled';
 type FilterPriority = 'all' | 'high' | 'normal' | 'low';
+type FilterType = 'all' | 'call' | 'email' | 'follow-up' | 'text' | 'showing' | 'closing' | 'open-house' | 'thank-you' | 'other';
 
-export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: TasksPageClientProps) {
+
+export default function TasksPageClient({ allTasks, lateTasks, todayTasks, selectedTab }: TasksPageClientProps) {
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
     const [filterPriority, setFilterPriority] = useState<FilterPriority>('all');
+    const [filterType, setFilterType] = useState<FilterType>('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    console.log(todayTasks)
+    console.log(allTasks)
+
+    const router = useRouter();
 
     const filteredTasks = useMemo(() => {
-        return allTasks.filter((task) => {
+        let tasks = {} as Task[];
+        console.log(selectedTab)
+        if (selectedTab === 'all') {
+            tasks = allTasks;
+        } else if (selectedTab === 'late') {
+            tasks = lateTasks;
+        } else if (selectedTab === 'today') {
+            tasks = todayTasks;
+        }
+
+        return tasks.filter((task) => {
             // Status filter
             if (filterStatus !== 'all' && task.Status.Valid) {
                 if (task.Status.TaskStatus !== filterStatus) return false;
@@ -30,6 +48,11 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
             // Priority filter
             if (filterPriority !== 'all' && task.Priority.Valid) {
                 if (task.Priority.TaskPriority !== filterPriority) return false;
+            }
+
+            // Type filter
+            if (filterType !== 'all' && task.Type.Valid) {
+                if (task.Type.TaskType !== filterType) return false;
             }
 
             // Search filter
@@ -44,9 +67,100 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
         });
     }, [allTasks, filterStatus, filterPriority, searchTerm]);
 
-    const handleTaskClick = (task: Task) => {
-        setSelectedTask(task);
-    };
+    const groupedTasks = useMemo(() => {
+        const thisWeek: Task[] = [];
+        const thisMonth: Task[] = [];
+        const futureByMonth: Record<string, { date: Date; tasks: Task[] }> = {};
+
+        filteredTasks.forEach(task => {
+            if (!task.Date.Valid) return;
+
+            const taskDate = new Date(task.Date.Time);
+
+            if (isThisWeek(taskDate)) {
+                thisWeek.push(task);
+            }
+            else if (isThisMonth(taskDate)) {
+                thisMonth.push(task);
+            }
+            else {
+                const key = formatMonthYear(taskDate);
+
+                if (!futureByMonth[key]) {
+                    // normalize month start for sorting
+                    const monthStart = new Date(taskDate.getFullYear(), taskDate.getMonth(), 1);
+                    futureByMonth[key] = {
+                        date: monthStart,
+                        tasks: []
+                    };
+                }
+
+                futureByMonth[key].tasks.push(task);
+            }
+        });
+
+        // convert to sorted array
+        const sortedFutureMonths = Object.entries(futureByMonth)
+            .map(([label, value]) => ({
+                label,
+                date: value.date,
+                tasks: value.tasks
+            }))
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        return {
+            thisWeek,
+            thisMonth,
+            futureMonths: sortedFutureMonths
+        };
+    }, [filteredTasks]);
+
+    const taskType = [
+        { label: "All Types", value: "all" },
+        { label: "Call", value: "call" },
+        { label: "Email", value: "email" },
+        { label: "Follow Up", value: "follow-up" },
+        { label: "Text", value: "text" },
+        { label: "Showing", value: "showing" },
+        { label: "Closing", value: "closing" },
+        { label: "Open House", value: "open-house" },
+        { label: "Thank You", value: "thank-you" },
+        { label: "Other", value: "other" },
+    ]
+
+    function startOfWeek(date: Date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+        return new Date(d.setDate(diff));
+    }
+
+    function endOfWeek(date: Date) {
+        const start = startOfWeek(date);
+        return new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6, 23, 59, 59);
+    }
+
+    function isThisWeek(date: Date) {
+        const now = new Date();
+        const start = startOfWeek(now);
+        const end = endOfWeek(now);
+        return date >= start && date <= end;
+    }
+
+    function isThisMonth(date: Date) {
+        const now = new Date();
+        return (
+            date.getMonth() === now.getMonth() &&
+            date.getFullYear() === now.getFullYear()
+        );
+    }
+
+    function formatMonthYear(date: Date) {
+        return date.toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+        });
+    }
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -60,7 +174,7 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
 
             {/* Stats Cards */}
             <div className="mb-6 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer hover:shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => router.push(`/tasks?tab=late`)}>
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Late Tasks</p>
@@ -74,7 +188,7 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
                     </div>
                 </div>
 
-                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer hover:shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => router.push(`/tasks?tab=today`)}>
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Due Today</p>
@@ -88,7 +202,7 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
                     </div>
                 </div>
 
-                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer hover:shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => router.push(`/tasks?tab=all`)}>
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Tasks</p>
@@ -128,6 +242,17 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
                         className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
                     />
                 </div>
+
+                {/* Type Filter */}
+                <select
+                    value={filterType}
+                    onChange={(e) => { setFilterType(e.target.value as FilterType); router.refresh() }}
+                    className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                >
+                    {taskType.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                </select>
 
                 {/* Status Filter */}
                 <select
@@ -183,10 +308,57 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks }: Tas
                         Try adjusting your filters or create a new task
                     </p>
                 </div>
-            ) : (
+            ) : selectedTab != "all" ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredTasks.map((task) => (
-                        <TaskCard key={task.ID} task={task} onClick={handleTaskClick} />
+                        <TaskCard key={task.ID} task={task} />
+                    ))}
+                </div>
+            ) : (
+
+                <div className="space-y-10">
+
+                    {/* This Week */}
+                    {groupedTasks.thisWeek.length > 0 && (
+                        <section>
+                            <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                                This Week
+                            </h2>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {groupedTasks.thisWeek.map(task => (
+                                    <TaskCard key={task.ID} task={task} />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* This Month */}
+                    {groupedTasks.thisMonth.length > 0 && (
+                        <section>
+                            <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                                This Month
+                            </h2>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {groupedTasks.thisMonth.map(task => (
+                                    <TaskCard key={task.ID} task={task} />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Future Months */}
+                    {groupedTasks.futureMonths.map(month => (
+                        <section key={month.label}>
+                            <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                                {month.label}
+                            </h2>
+
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {month.tasks.map(task => (
+                                    <TaskCard key={task.ID} task={task} />
+                                ))}
+                            </div>
+                        </section>
                     ))}
                 </div>
             )}

@@ -16,16 +16,6 @@ interface RecentContactsProps {
 }
 
 export default function RecentContactsTable({ contacts }: RecentContactsProps) {
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) return "N/A";
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
-    };
-
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case "new":

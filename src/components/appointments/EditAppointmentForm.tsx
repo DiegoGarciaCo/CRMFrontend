@@ -23,7 +23,6 @@ export function EditAppointmentForm({ appointment }: EditAppointmentFormProps) {
 
     const date = scheduledAt.toISOString().split("T")[0]; // YYYY-MM-DD
     const time = scheduledAt.toTimeString().slice(0, 5);  // HH:MM (24-hour)
-    console.log("Date:", date, "Time:", time);
 
     // ---- State ----
     const [title, setTitle] = useState(appointment.Title);
