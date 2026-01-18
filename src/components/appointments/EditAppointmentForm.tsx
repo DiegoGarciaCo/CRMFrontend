@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { CombineDateTime } from "@/lib/utils/formating";
-import { UpdateAppointment } from "@/lib/data/backend/clientCalls";
+import { DeleteAppointment, UpdateAppointment } from "@/lib/data/backend/clientCalls";
 import { Appointment, AppointmentOutcome } from "@/lib/definitions/backend/appointments";
 
 interface EditAppointmentFormProps {
@@ -80,6 +80,16 @@ export function EditAppointmentForm({ appointment }: EditAppointmentFormProps) {
             toast.error("Failed to update appointment.");
         }
     };
+
+    const handleDelete = async () => {
+        try {
+            await DeleteAppointment(appointment.ID);
+            toast.success("Appointment deleted!");
+            router.refresh();
+        } catch {
+            toast.error("Failed to delete appointment.");
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -173,9 +183,14 @@ export function EditAppointmentForm({ appointment }: EditAppointmentFormProps) {
             </div>
 
             {/* SUBMIT */}
-            <Button className="w-full" onClick={handleUpdate}>
-                Update Appointment
-            </Button>
+            <div className="flex items-center w-full gap-4">
+                <Button onClick={handleUpdate} className="flex-1">
+                    Update Appointment
+                </Button>
+                <Button type="button" variant="destructive" className="flex-1" onClick={handleDelete}>
+                    Delete Appointment
+                </Button>
+            </div>
         </div>
     );
 }

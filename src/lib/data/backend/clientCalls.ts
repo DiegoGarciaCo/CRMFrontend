@@ -995,3 +995,23 @@ export async function UpdateAppointment(appointment_id: string, contact_id: stri
 
     return res.json();
 }
+
+// ----------------------------------------------
+// Delete Appointment
+// ----------------------------------------------
+
+export async function DeleteAppointment(appointment_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error(`Error deleting appointment: ${res.statusText}`);
+    }
+
+    return;
+}
