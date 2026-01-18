@@ -8,6 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import EditAppointmentModal from '../appointments/EditAppointmentModal';
 
 interface UpcomingAppointmentsProps {
     appointments: Appointment[];
@@ -68,48 +69,12 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
                             <TableHead>Type</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Time</TableHead>
-                            <TableHead>Location</TableHead>
-                            <TableHead>Note</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {appointments.map((a) => {
-                            const { date, time } = formatDateTime(a.ScheduledAt);
-
-                            return (
-                                <TableRow
-                                    key={a.ID}
-                                    className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                                >
-                                    <TableCell className="font-medium">
-                                        {a.Title}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {a.Type.Valid && (
-                                            <span
-                                                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getAppointmentTypeColor(
-                                                    a.Type.AppointmentType
-                                                )}`}
-                                            >
-                                                {a.Type.AppointmentType.replace("-", " ")}
-                                            </span>
-                                        )}
-                                    </TableCell>
-
-                                    <TableCell>{date}</TableCell>
-                                    <TableCell>{time}</TableCell>
-
-                                    <TableCell>
-                                        {a.Location.Valid ? a.Location.String : "-"}
-                                    </TableCell>
-
-                                    <TableCell className="max-w-xs truncate">
-                                        {a.Note.Valid ? a.Note.String : ""}
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                        {appointments.map((a) => (
+                            <EditAppointmentModal key={a.ID} appointment={a} variant="table-cell" />
+                        ))}
                     </TableBody>
                 </Table>
             )}

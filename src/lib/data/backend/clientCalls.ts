@@ -966,3 +966,32 @@ export async function GetAllContacts(limit: string, offset: string): Promise<Con
 
     return res.json();
 }
+
+// ----------------------------------------------
+// Update Appointment
+// ----------------------------------------------
+
+export async function UpdateAppointment(appointment_id: string, contact_id: string, title: string, scheduled_at: string, notes: string, outcome: string, location: string, type: string): Promise<Appointment> {
+    const res = await fetch(`${BASE_URL}/appointments/${appointment_id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contact_id,
+            title,
+            scheduled_at,
+            notes,
+            outcome,
+            location,
+            type,
+        }),
+    });
+
+    if (!res.ok) {
+        throw new Error(`Error updating appointment: ${res.statusText}`);
+    }
+
+    return res.json();
+}

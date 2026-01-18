@@ -61,8 +61,6 @@ export default function RecentContactsTable({ contacts }: RecentContactsProps) {
                         <TableHead>Name</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Source</TableHead>
-                        <TableHead>Price Range</TableHead>
-                        <TableHead>Added</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -104,19 +102,6 @@ export default function RecentContactsTable({ contacts }: RecentContactsProps) {
                                     {contact.Source.Valid ? contact.Source.String : "—"}
                                 </TableCell>
 
-                                {/* Price Range */}
-                                <TableCell>
-                                    {contact.PriceRange.Valid ? contact.PriceRange.String : "—"}
-                                </TableCell>
-
-                                {/* Created At */}
-                                <TableCell>
-                                    {formatDate(
-                                        contact.CreatedAt.Valid
-                                            ? contact.CreatedAt.Time
-                                            : null
-                                    )}
-                                </TableCell>
                             </TableRow>
                         ))
                     )}

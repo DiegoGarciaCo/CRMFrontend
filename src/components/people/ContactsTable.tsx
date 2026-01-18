@@ -75,6 +75,7 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
 
     const currentLimit = searchParams.get('limit') ?? limit.toString();
 
+
     const handleLimitChange = (value: string) => {
         const params = new URLSearchParams(searchParams.toString())
 

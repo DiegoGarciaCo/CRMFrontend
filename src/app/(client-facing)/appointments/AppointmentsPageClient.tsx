@@ -1,5 +1,6 @@
 'use client';
 
+import EditAppointmentModal from '@/components/appointments/EditAppointmentModal';
 import CreateAppointmentModal from '@/components/dashboard/CreateAppointmentSheet';
 import { Appointment } from '@/lib/definitions/backend/appointments';
 import { useState, useMemo } from 'react';
@@ -19,7 +20,6 @@ export default function AppointmentsPageClient({
 }: AppointmentsPageClientProps) {
     const [viewMode, setViewMode] = useState<ViewMode>('week');
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
     const getAppointmentTypeColor = (type: string) => {
         switch (type.toLowerCase()) {
@@ -37,10 +37,6 @@ export default function AppointmentsPageClient({
         return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     };
 
-    const formatDate = (dateTimeString: string) => {
-        const date = new Date(dateTimeString);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    };
 
     const appointmentsByDate = useMemo(() => {
         const grouped: { [key: string]: Appointment[] } = {};
@@ -236,18 +232,7 @@ export default function AppointmentsPageClient({
                                     className="min-h-[200px] border-r border-zinc-200 p-2 last:border-r-0 dark:border-zinc-800"
                                 >
                                     <div className="space-y-2">
-                                        {dayAppointments.map((appointment) => (
-                                            <div
-                                                key={appointment.ID}
-                                                onClick={() => setSelectedAppointment(appointment)}
-                                                className={`cursor-pointer rounded-lg border p-2 text-xs transition-all hover:shadow-md ${getAppointmentTypeColor(
-                                                    appointment.Type.Valid ? appointment.Type.AppointmentType : 'no-type'
-                                                )}`}
-                                            >
-                                                <div className="font-medium">{formatTime(appointment.ScheduledAt)}</div>
-                                                <div className="mt-1 truncate">{appointment.Title}</div>
-                                            </div>
-                                        ))}
+                                        {dayAppointments.map((appointment) => <EditAppointmentModal variant="week" appointment={appointment} key={appointment.ID} />)}
                                     </div>
                                 </div>
                             );
@@ -280,52 +265,7 @@ export default function AppointmentsPageClient({
                             </p>
                         </div>
                     ) : (
-                        allAppointments.map((appointment) => (
-                            <div
-                                key={appointment.ID}
-                                onClick={() => setSelectedAppointment(appointment)}
-                                className="cursor-pointer rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="font-medium text-zinc-900 dark:text-zinc-50">{appointment.Title}</h3>
-                                            {appointment.Type.Valid && (
-                                                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${getAppointmentTypeColor(appointment.Type.AppointmentType).split(' ').slice(0, 2).join(' ')}`}>
-                                                    {appointment.Type.AppointmentType.replace('-', ' ')}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="mt-2 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                            <div className="flex items-center gap-1">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                <span>{formatDate(appointment.ScheduledAt)}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <span>{formatTime(appointment.ScheduledAt)}</span>
-                                            </div>
-                                            {appointment.Location.Valid && (
-                                                <div className="flex items-center gap-1">
-                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    </svg>
-                                                    <span>{appointment.Location.String}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {appointment.Note.Valid && appointment.Note.String && (
-                                            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{appointment.Note.String}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+                        allAppointments.map((appointment) => <EditAppointmentModal variant="upcoming" appointment={appointment} key={appointment.ID} />)
                     )}
                 </div>
             )}
