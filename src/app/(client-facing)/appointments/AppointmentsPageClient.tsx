@@ -21,47 +21,32 @@ export default function AppointmentsPageClient({
     const [viewMode, setViewMode] = useState<ViewMode>('week');
     const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const getAppointmentTypeColor = (type: string) => {
-        switch (type.toLowerCase()) {
-            case 'listing-appointment':
-                return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700';
-            case 'buyer-appointment':
-                return 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700';
-            default:
-                return 'bg-zinc-100 text-zinc-700 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700';
-        }
-    };
-
-    const formatTime = (dateTimeString: string) => {
-        const date = new Date(dateTimeString);
-        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    };
-
-
+    // Group appointments by day
     const appointmentsByDate = useMemo(() => {
         const grouped: { [key: string]: Appointment[] } = {};
 
         allAppointments.forEach((appointment) => {
             const date = new Date(appointment.ScheduledAt).toDateString();
-            if (!grouped[date]) {
-                grouped[date] = [];
-            }
+            if (!grouped[date]) grouped[date] = [];
             grouped[date].push(appointment);
         });
 
-        // Sort appointments within each day by time
+        // Sort appointments within each day
         Object.keys(grouped).forEach((date) => {
-            grouped[date].sort((a, b) =>
-                new Date(a.ScheduledAt).getTime() - new Date(b.ScheduledAt).getTime()
+            grouped[date].sort(
+                (a, b) =>
+                    new Date(a.ScheduledAt).getTime() -
+                    new Date(b.ScheduledAt).getTime()
             );
         });
 
         return grouped;
     }, [allAppointments]);
 
+    // Get week days for week view
     const getWeekDays = () => {
         const start = new Date(selectedDate);
-        start.setDate(start.getDate() - start.getDay()); // Start from Sunday
+        start.setDate(start.getDate() - start.getDay()); // Sunday
 
         return Array.from({ length: 7 }, (_, i) => {
             const day = new Date(start);
@@ -69,8 +54,35 @@ export default function AppointmentsPageClient({
             return day;
         });
     };
-
     const weekDays = getWeekDays();
+
+    const dayAppointments = allAppointments.filter(
+        (a) => new Date(a.ScheduledAt).toDateString() === selectedDate.toDateString()
+    );
+
+    // Month view: all days including empty cells before the 1st
+    const getMonthDays = (date: Date) => {
+        const start = new Date(date.getFullYear(), date.getMonth(), 1);
+        const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const startDay = start.getDay();
+
+        const days: (Date | null)[] = [];
+
+        // Empty cells before first day
+        for (let i = 0; i < startDay; i++) days.push(null);
+
+        // Actual month days
+        for (let i = 1; i <= end.getDate(); i++)
+            days.push(new Date(date.getFullYear(), date.getMonth(), i));
+
+        return days;
+    };
+    const monthDays = getMonthDays(selectedDate);
+
+    const appointmentsForDay = (day: Date | null) => {
+        if (!day) return [];
+        return appointmentsByDate[day.toDateString()] || [];
+    };
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -134,31 +146,19 @@ export default function AppointmentsPageClient({
             <div className="mb-6 flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(newDate.getDate() - 7);
-                            setSelectedDate(newDate);
-                        }}
+                        onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1)))}
                         className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                     >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
+                        ◀
                     </button>
                     <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                         {selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </h2>
                     <button
-                        onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(newDate.getDate() + 7);
-                            setSelectedDate(newDate);
-                        }}
+                        onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() + 1)))}
                         className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                     >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                        ▶
                     </button>
                     <button
                         onClick={() => setSelectedDate(new Date())}
@@ -199,24 +199,58 @@ export default function AppointmentsPageClient({
                 </div>
             </div>
 
-            {/* Week View */}
+            {/* Month View */}
+            {viewMode === 'month' && (
+                <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                    {/* Weekday Header */}
+                    <div className="grid grid-cols-7 border-b border-zinc-200 dark:border-zinc-800">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                            <div
+                                key={day}
+                                className="p-2 text-center text-xs font-medium uppercase text-zinc-600 dark:text-zinc-400"
+                            >
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Days Grid */}
+                    <div className="grid grid-cols-7 gap-1">
+                        {monthDays.map((day, idx) => (
+                            <div
+                                key={idx}
+                                className={`min-h-[100px] border border-zinc-200 p-1 dark:border-zinc-800 ${day?.toDateString() === new Date().toDateString() ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
+                            >
+                                {day && (
+                                    <>
+                                        <div className="text-right text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                            {day.getDate()}
+                                        </div>
+                                        <div className="mt-1 space-y-1">
+                                            {appointmentsForDay(day).map((appointment) => (
+                                                <EditAppointmentModal
+                                                    key={appointment.ID}
+                                                    variant="week"
+                                                    appointment={appointment}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Week & Day Views (unchanged) */}
             {viewMode === 'week' && (
                 <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                     <div className="grid grid-cols-7 border-b border-zinc-200 dark:border-zinc-800">
                         {weekDays.map((day) => (
-                            <div
-                                key={day.toISOString()}
-                                className="border-r border-zinc-200 p-4 text-center last:border-r-0 dark:border-zinc-800"
-                            >
-                                <div className="text-xs font-medium uppercase text-zinc-600 dark:text-zinc-400">
-                                    {day.toLocaleDateString('en-US', { weekday: 'short' })}
-                                </div>
-                                <div className={`mt-1 text-lg font-semibold ${day.toDateString() === new Date().toDateString()
-                                    ? 'text-blue-600 dark:text-blue-400'
-                                    : 'text-zinc-900 dark:text-zinc-50'
-                                    }`}>
-                                    {day.getDate()}
-                                </div>
+                            <div key={day.toISOString()} className="border-r border-zinc-200 p-4 text-center last:border-r-0 dark:border-zinc-800">
+                                <div className="text-xs font-medium uppercase text-zinc-600 dark:text-zinc-400">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                                <div className={`mt-1 text-lg font-semibold ${day.toDateString() === new Date().toDateString() ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-50'}`}>{day.getDate()}</div>
                             </div>
                         ))}
                     </div>
@@ -227,12 +261,11 @@ export default function AppointmentsPageClient({
                             const dayAppointments = appointmentsByDate[dayKey] || [];
 
                             return (
-                                <div
-                                    key={dayKey}
-                                    className="min-h-[200px] border-r border-zinc-200 p-2 last:border-r-0 dark:border-zinc-800"
-                                >
+                                <div key={dayKey} className="min-h-[200px] border-r border-zinc-200 p-2 last:border-r-0 dark:border-zinc-800">
                                     <div className="space-y-2">
-                                        {dayAppointments.map((appointment) => <EditAppointmentModal variant="week" appointment={appointment} key={appointment.ID} />)}
+                                        {dayAppointments.map((appointment) => (
+                                            <EditAppointmentModal key={appointment.ID} variant="week" appointment={appointment} />
+                                        ))}
                                     </div>
                                 </div>
                             );
@@ -241,35 +274,17 @@ export default function AppointmentsPageClient({
                 </div>
             )}
 
-            {/* Day/List View */}
             {viewMode === 'day' && (
                 <div className="space-y-4">
-                    {allAppointments.length === 0 ? (
+                    {dayAppointments.length === 0 ? (
                         <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
-                            <svg
-                                className="mx-auto h-12 w-12 text-zinc-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                />
-                            </svg>
                             <h3 className="mt-4 text-lg font-medium text-zinc-900 dark:text-zinc-50">No appointments</h3>
-                            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                                Get started by creating a new appointment
-                            </p>
                         </div>
                     ) : (
-                        allAppointments.map((appointment) => <EditAppointmentModal variant="upcoming" appointment={appointment} key={appointment.ID} />)
+                        allAppointments.map((appointment) => <EditAppointmentModal key={appointment.ID} variant="upcoming" appointment={appointment} />)
                     )}
                 </div>
             )}
         </div>
     );
 }
-
