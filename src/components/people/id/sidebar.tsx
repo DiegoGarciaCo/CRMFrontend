@@ -44,7 +44,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
                 {/* Back Button */}
                 <button
                     onClick={() => router.push(`/people?${listParam}limit=${limit}&offset=${offset}`)}
-                    className="mb-6 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+                    className="mb-6 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 cursor-pointer"
                 >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

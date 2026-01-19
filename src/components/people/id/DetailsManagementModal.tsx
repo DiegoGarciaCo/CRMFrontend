@@ -215,7 +215,6 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                         if (!organizations) return setOrganizationCollaborators([])
                         const members = await GetOrganizationMembers(organizations.map(org => org.id))
                         setOrganizationCollaborators(members)
-                        console.log('Fetched organization members:', members)
                     } catch (error) {
                         console.log('Error fetching organization members:', error)
                     }
@@ -223,7 +222,6 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                     setOrganizationCollaborators([])
                 }
             }
-            console.log('selectedOrganization changed:', selectedOrganization)
             fetchCollaborators()
         }
     }, [variant, selectedOrganization])
@@ -683,12 +681,20 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                             <div>
                                 <label className="text-xs text-zinc-500">Price Range</label>
                                 {isEditingDetails ? (
-                                    <Input
+                                    <select
                                         value={detailsDraft.priceRange}
                                         onChange={(e) =>
                                             setDetailsDraft({ ...detailsDraft, priceRange: e.target.value })
                                         }
-                                    />
+                                        className="w-full rounded-md border px-2 py-2 text-sm"
+                                    >
+                                        <option value="">None</option>
+                                        <option value="Under $250k">Under 250k</option>
+                                        <option value="$250k - $499k">$250k-$499k</option>
+                                        <option value="$500k - $749k">$500k-$749k</option>
+                                        <option value="$750k - $1M">$750k-$1M</option>
+                                        <option value="+$1M">+$1M</option>
+                                    </select>
                                 ) : (
                                     <p className="text-sm">{detailsDraft.priceRange || '—'}</p>
                                 )}
@@ -708,8 +714,9 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                         <option value="">None</option>
                                         <option value="Immediate">Immediate</option>
                                         <option value="1–3 Months">1–3 Months</option>
-                                        <option value="3–6 Months">3–6 Months</option>
-                                        <option value="6+ Months">6+ Months</option>
+                                        <option value="4–6 Months">4–6 Months</option>
+                                        <option value="7-12 Months">7-12 Months</option>
+                                        <option value="12+ Months">12+ Months</option>
                                     </select>
                                 ) : (
                                     <p className="text-sm">{detailsDraft.timeframe || '—'}</p>

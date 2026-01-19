@@ -82,7 +82,6 @@ export default async function PeoplePage({
     } else {
         contacts = safe(contactsResult);
     }
-    console.log("Contacts fetched:", contacts);
 
     return (
         <div className="h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950 overflow-hidden">

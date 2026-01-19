@@ -202,76 +202,106 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
                 </div>
             </div>
 
-            {/* TABLE */}
-            <div className="rounded-lg border flex-1 overflow-auto">
-                <Table>
-                    <TableHeader className="bg-zinc-100 dark:bg-zinc-800">
-                        <TableRow>
-                            <TableHead className="w-10 bg-zinc-50 dark:bg-zinc-900">
-                                <Checkbox
-                                    checked={allSelectedOnPage}
-                                    onCheckedChange={toggleSelectAllOnPage}
-                                />
-                            </TableHead>
-                            <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
-                                Name
-                            </TableHead>
-                            <TableHead>Phone Number</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Source</TableHead>
-                            <TableHead>Created</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {contacts.map((contact) => {
-                            // Compute primary phone once
-                            const phoneNumbers = typeof contact.PhoneNumbers === 'string'
-                                ? JSON.parse(contact.PhoneNumbers)
-                                : contact.PhoneNumbers;
-                            const primaryPhone =
-                                Array.isArray(phoneNumbers)
-                                    ? phoneNumbers.find((pn: any) => pn.is_primary)?.phone_number ?? 'N/A'
-                                    : 'N/A';
-                            return (
-                                <TableRow
-                                    key={contact.ID}
-                                    className="cursor-pointer bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                                    onClick={() => {
-                                        setCurrentIndex(Math.max(0, stateContacts.findIndex((stateContact) => stateContact.id === contact.ID)))
-                                        router.push(`/people/${contact.ID}`)
-                                    }}
-                                >
-                                    <TableCell onClick={(e) => e.stopPropagation()}>
+            {contacts.length === 0 ? (
+                <div className="rounded-lg border flex-1 overflow-auto">
+                    <Table>
+                        <TableHeader className="bg-zinc-100 dark:bg-zinc-800">
+                            <TableRow>
+                                <TableHead className="w-10 bg-zinc-50 dark:bg-zinc-900">
+                                    <Checkbox disabled />
+                                </TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Phone Number</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Source</TableHead>
+                                <TableHead>Created</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={6} className="p-4 text-center">
+                                    <p className="text-zinc-500">No contacts found.</p>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+            ) : (
+                <>
+                    {/* TABLE */}
+                    <div className="rounded-lg border flex-1 overflow-auto">
+                        <Table>
+                            <TableHeader className="bg-zinc-100 dark:bg-zinc-800">
+                                <TableRow>
+                                    <TableHead className="w-10 bg-zinc-50 dark:bg-zinc-900">
                                         <Checkbox
-                                            checked={selectedIds.has(contact.ID)}
-                                            onCheckedChange={() => toggleSelect(contact.ID)}
+                                            checked={allSelectedOnPage}
+                                            onCheckedChange={toggleSelectAllOnPage}
                                         />
-                                    </TableCell>
-                                    <TableCell className="font-medium capitalize">
-                                        {contact.FirstName} {contact.LastName}
-                                    </TableCell>
-                                    <TableCell>{formatPhoneNumber(primaryPhone)}</TableCell>
-                                    <TableCell className="capitalize">
-                                        {contact.Status.Valid && (
-                                            <Badge className={getStatusColor(contact.Status.String)}>
-                                                {contact.Status.String}
-                                            </Badge>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="capitalize">
-                                        {contact.Source.Valid ? contact.Source.String : 'N/A'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {contact.CreatedAt.Valid
-                                            ? formatDate(contact.CreatedAt.Time)
-                                            : 'N/A'}
-                                    </TableCell>
+                                    </TableHead>
+                                    <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
+                                        Name
+                                    </TableHead>
+                                    <TableHead>Phone Number</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Source</TableHead>
+                                    <TableHead>Created</TableHead>
                                 </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </div>
+                            </TableHeader>
+                            <TableBody>
+                                {contacts.map((contact) => {
+                                    // Compute primary phone once
+                                    const phoneNumbers = typeof contact.PhoneNumbers === 'string'
+                                        ? JSON.parse(contact.PhoneNumbers)
+                                        : contact.PhoneNumbers;
+                                    const primaryPhone =
+                                        Array.isArray(phoneNumbers)
+                                            ? phoneNumbers.find((pn: any) => pn.is_primary)?.phone_number ?? 'N/A'
+                                            : 'N/A';
+                                    return (
+                                        <TableRow
+                                            key={contact.ID}
+                                            className="cursor-pointer bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                                            onClick={() => {
+                                                setCurrentIndex(Math.max(0, stateContacts.findIndex((stateContact) => stateContact.id === contact.ID)))
+                                                router.push(`/people/${contact.ID}`)
+                                            }}
+                                        >
+                                            <TableCell onClick={(e) => e.stopPropagation()}>
+                                                <Checkbox
+                                                    checked={selectedIds.has(contact.ID)}
+                                                    onCheckedChange={() => toggleSelect(contact.ID)}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="font-medium capitalize">
+                                                {contact.FirstName} {contact.LastName}
+                                            </TableCell>
+                                            <TableCell>{formatPhoneNumber(primaryPhone)}</TableCell>
+                                            <TableCell className="capitalize">
+                                                {contact.Status.Valid && (
+                                                    <Badge className={getStatusColor(contact.Status.String)}>
+                                                        {contact.Status.String}
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="capitalize">
+                                                {contact.Source.Valid ? contact.Source.String : 'N/A'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {contact.CreatedAt.Valid
+                                                    ? formatDate(contact.CreatedAt.Time)
+                                                    : 'N/A'}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </>
+
+            )}
+
 
             {/* PAGINATION CONTROLS */}
             <div className="flex-shrink-0">

@@ -22,9 +22,9 @@ interface PeoplePageClientProps {
     offset?: string;
 }
 
+
 export default function PeoplePageClient({ userId, contacts, smartLists, tags, activeListId, limit, offset }: PeoplePageClientProps) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     // Zustand store for contacts navigation
@@ -35,6 +35,8 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     const setTotalPages = useContactsNav((state) => state.setTotalPages);
 
 
+
+    console.log(smartLists);
     useEffect(() => {
         setContactIds(contacts.map((contact, i) => ({ index: i, id: contact.ID })));
         setTotalPages(totalContacts / Number(limit || 25) || 1);
@@ -116,23 +118,13 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                 {/* Scrollable Content Area */}
                 <div className="flex-1 overflow-y-auto p-6">
                     {/* Loading State */}
-                    {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="flex flex-col items-center gap-3">
-                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-blue-600 dark:border-zinc-700 dark:border-t-blue-500"></div>
-                                <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading contacts...</p>
-                            </div>
-                        </div>
-                    ) : (
-                        /* Contacts Table */
-                        <ContactsTable
-                            contacts={contacts}
-                            currentPage={page}
-                            totalPages={totalPages ? Math.ceil(totalPages) : 1}
-                            onPageChange={handlePageChange}
-                            onDeleteContacts={onDeleteContacts}
-                        />
-                    )}
+                    <ContactsTable
+                        contacts={contacts}
+                        currentPage={page}
+                        totalPages={totalPages ? Math.ceil(totalPages) : 1}
+                        onPageChange={handlePageChange}
+                        onDeleteContacts={onDeleteContacts}
+                    />
                 </div>
             </div>
 

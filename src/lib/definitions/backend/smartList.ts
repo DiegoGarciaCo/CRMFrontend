@@ -24,6 +24,7 @@ export interface SmartList {
     FilterCriteria: any; // json.RawMessage → arbitrary JSON
     SortBy: NullString;
     SortOrder: NullSortOrder;
+    ContactCount: number;
     CreatedAt: NullTime;
     UpdatedAt: NullTime;
 }
