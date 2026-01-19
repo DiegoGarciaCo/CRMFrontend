@@ -1063,3 +1063,24 @@ export async function DeleteTask(task_id: string): Promise<void> {
         toast.error(`Error deleting task: ${res.statusText}`);
     }
 }
+
+// ----------------------------------------------
+// Reorder Smart Lists
+// ----------------------------------------------
+
+export async function ReorderSmartLists(smartLists: SmartList[]): Promise<void> {
+    const res = await fetch(`${BASE_URL}/smart-lists/reorder`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(smartLists),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error reordering smart lists: ${res.statusText}`);
+    }
+
+    return;
+}   

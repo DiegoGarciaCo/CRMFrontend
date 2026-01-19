@@ -125,7 +125,6 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
 
         setIsDeleting(true);
         try {
-            console.log('Deleting contacts with IDs:', Array.from(selectedIds));
             await onDeleteContacts(Array.from(selectedIds));
             setSelectedIds(new Set()); // Clear selection after successful delete
             setShowDeleteDialog(false);

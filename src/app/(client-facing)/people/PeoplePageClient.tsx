@@ -4,13 +4,13 @@ import { Contact } from '@/lib/definitions/backend/contacts';
 import { SmartList } from '@/lib/definitions/backend/smartList';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import SmartListSidebar from '@/components/people/SmartListSidebar';
 import ContactsTable from '@/components/people/ContactsTable';
 import { Button } from '@/components/ui/button';
 import ImportContactsModal from '@/components/people/ImportContactsModal';
 import { Tag } from '@/lib/definitions/backend/tag';
 import { DeleteContacts } from '@/lib/data/backend/clientCalls';
 import { useContactsNav } from '@/lib/hooks/UseContactsNav';
+import SmartListSidebarNew from '@/components/people/smartlistSidebarNew';
 
 interface PeoplePageClientProps {
     userId: string;
@@ -77,7 +77,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
 
     return (
         <div className="flex h-full w-full">
-            <SmartListSidebar
+            <SmartListSidebarNew
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
