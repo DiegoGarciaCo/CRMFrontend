@@ -36,7 +36,6 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
 
 
 
-    console.log(smartLists);
     useEffect(() => {
         setContactIds(contacts.map((contact, i) => ({ index: i, id: contact.ID })));
         setTotalPages(totalContacts / Number(limit || 25) || 1);
@@ -84,7 +83,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
-                totalContacts={totalContacts}
+                totalContacts={smartLists[0].TotalContacts}
                 Tags={tags}
             />
 

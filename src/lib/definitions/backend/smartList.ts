@@ -18,6 +18,7 @@ export interface NullSortOrder {
 export interface SmartList {
     ID: string; // uuid.UUID
     Name: string;
+    TotalContacts: number;
     Description: NullString;
     UserID: NullUUID;
     TeamID: NullUUID;
