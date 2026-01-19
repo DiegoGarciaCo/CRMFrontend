@@ -929,7 +929,7 @@ export async function GetNotificationsForUser(): Promise<any[]> {
 // ----------------------------------------------
 
 export async function DeleteContacts(contactIds: string[]): Promise<void> {
-    const res = await fetch(`${BASE_URL}/contacts/bulk-delete`, {
+    const res = await fetch(`${BASE_URL}/contacts`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {

@@ -19,6 +19,7 @@ export interface SmartList {
     ID: string; // uuid.UUID
     Name: string;
     TotalContacts: number;
+    ListIndex: number;
     Description: NullString;
     UserID: NullUUID;
     TeamID: NullUUID;

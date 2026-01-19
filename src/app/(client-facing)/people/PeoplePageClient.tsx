@@ -71,9 +71,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     };
 
     const onDeleteContacts = async (contactIds: string[]) => {
-        // Implement contact deletion logic here
         await DeleteContacts(contactIds);
-        // After deletion, refresh the contacts list
         router.refresh();
     }
 
