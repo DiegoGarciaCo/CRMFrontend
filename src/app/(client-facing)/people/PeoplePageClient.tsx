@@ -63,7 +63,6 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
 
 
     const page = Number.isFinite(o) ? Math.floor(o / l) + 1 : 1;
-    console.log({ page, o, l, totalContacts, totalPages });
 
     const activeList = smartLists.find((list) => list.ID === activeListId);
 
@@ -84,7 +83,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                 smartLists={smartLists}
                 activeListId={activeListId}
                 onListClick={handleListClick}
-                totalContacts={smartLists[0].TotalContacts}
+                totalContacts={smartLists.length != 0 ? smartLists[0].TotalContacts : contacts.length}
                 Tags={tags}
             />
 
