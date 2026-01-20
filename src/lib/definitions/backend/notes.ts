@@ -11,4 +11,5 @@ export interface ContactNote {
     CreatedAt: NullTime; // sql.NullTime
     UpdatedAt: NullTime; // sql.NullTime
     CreatedBy: NullUUID; // uuid.NullUUID
+    CreatedByName: string; // Name of the user who created the note
 }

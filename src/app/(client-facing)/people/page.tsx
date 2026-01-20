@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { GetAllTags } from '@/lib/data/backend/tags';
+import { Contact } from '@/lib/definitions/backend/contacts';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,12 +77,18 @@ export default async function PeoplePage({
     const smartLists = safe(smartListsResult);
     const tags = safe(tagsResult);
 
-    let contacts = [];
+    let contacts: Contact[] = [];
     if (listID != undefined) {
         contacts = await GetContactsBySmartListID(listID, contactLimit, contactOffset);
     } else {
         contacts = safe(contactsResult);
     }
+
+    contacts = contacts.sort((a, b) => {
+        const aTime = a.CreatedAt?.Time ? new Date(a.CreatedAt.Time).getTime() : 0;
+        const bTime = b.CreatedAt?.Time ? new Date(b.CreatedAt.Time).getTime() : 0;
+        return bTime - aTime;
+    });
 
     return (
         <div className="h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-950 overflow-hidden">

@@ -314,7 +314,10 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
                                     {notes.map(note => (
                                         <div key={note.ID} className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-600 dark:bg-yellow-950/20">
                                             <NoteDisplay content={note.Note} />
-                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{note.CreatedAt.Valid && FormatDateTimeForInput(new Date(note.CreatedAt.Time))}</div>
+                                            <div className="flex justify-between items-center mt-2">
+                                                <div className="text-xs text-zinc-600 dark:text-zinc-400">{note.CreatedAt.Valid && FormatDateTimeForInput(new Date(note.CreatedAt.Time))}</div>
+                                                <div className="text-xs text-zinc-600 dark:text-zinc-400">- {note.CreatedByName}</div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -350,7 +353,11 @@ export default function LogNoteCreation(props: logNoteCreationProps) {
                                         <div key={log.ID} className="rounded-lg border-l-4 border-green-400 bg-green-50 p-4 dark:border-green-600 dark:bg-green-950/20">
                                             <Badge className="mb-2">{log.ContactMethod}</Badge>
                                             {log.Note.Valid && <p className="text-sm text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap">{log.Note.String}</p>}
-                                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{log.CreatedAt.Valid && FormatDateTimeForInput(new Date(log.CreatedAt.Time))}</div>
+
+                                            <div className="flex justify-between items-center mt-2">
+                                                <div className="text-xs text-zinc-600 dark:text-zinc-400">{log.CreatedAt.Valid && FormatDateTimeForInput(new Date(log.CreatedAt.Time))}</div>
+                                                <div className="text-xs text-zinc-600 dark:text-zinc-400">- {log.CreatedByName}</div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

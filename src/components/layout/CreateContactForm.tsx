@@ -208,7 +208,19 @@ export default function CreateContactForm({
 
                 <div>
                     <Label>Price Range</Label>
-                    <Input className="mt-2" value={priceRange} onChange={(e) => setPriceRange(e.target.value)} />
+                    <select
+                        className="w-full rounded-md border px-2 py-2 text-sm mt-2"
+                        value={priceRange}
+                        onChange={(e) => setPriceRange(e.target.value)}
+                    >
+
+                        <option value="">None</option>
+                        <option value="Under $250k">Under 250k</option>
+                        <option value="$250k - $499k">$250k-$499k</option>
+                        <option value="$500k - $749k">$500k-$749k</option>
+                        <option value="$750k - $1M">$750k-$1M</option>
+                        <option value="+$1M">+$1M</option>
+                    </select>
                 </div>
 
                 <div>

@@ -33,12 +33,14 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     const setLimit = useContactsNav((state) => state.setLimit);
     const setOffset = useContactsNav((state) => state.setOffset);
     const setTotalPages = useContactsNav((state) => state.setTotalPages);
+    const stateLimit = useContactsNav((state) => state.limit);
+    const stateOffset = useContactsNav((state) => state.offset);
 
 
 
     useEffect(() => {
         setContactIds(contacts.map((contact, i) => ({ index: i, id: contact.ID })));
-        setTotalPages(totalContacts / Number(limit || 25) || 1);
+        setTotalPages(totalContacts / stateLimit || Number(limit || 25));
     }, [contacts, setContactIds]);
 
     const handleListClick = (listId: string | null) => {
@@ -54,13 +56,14 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
     }
 
     const totalContacts = contacts[0]?.TotalCount || 0;
-    const totalPages = totalContacts / Number(limit || 25) || 1;
-    const o = Number(offset);
-    const l = Number(limit) || 20;
+    const totalPages = totalContacts / (stateLimit || Number(limit || 25));
+    const o = stateLimit || Number(offset);
+    const l = stateOffset || Number(limit);
 
 
 
     const page = Number.isFinite(o) ? Math.floor(o / l) + 1 : 1;
+    console.log({ page, o, l, totalContacts, totalPages });
 
     const activeList = smartLists.find((list) => list.ID === activeListId);
 

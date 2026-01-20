@@ -12,6 +12,7 @@ export interface ContactLog {
     ContactMethod: string;
 
     CreatedBy: NullUUID; // uuid.NullUUID
+    CreatedByName: string; // Name of the user who created the log
 
     Note: NullString; // sql.NullString
 
