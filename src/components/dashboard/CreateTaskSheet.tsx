@@ -13,8 +13,12 @@ import {
 import CreateTaskForm from "../layout/CreateTaskForm";
 
 
+interface CreateTaskModalProps {
+    variant: "button" | "action" | "plus";
+    contactId?: string;
+}
 
-export default function CreateTaskModal({ variant }: { variant: "button" | "action" | "plus" }) {
+export default function CreateTaskModal({ variant, contactId }: CreateTaskModalProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -64,8 +68,7 @@ export default function CreateTaskModal({ variant }: { variant: "button" | "acti
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* The form lives in its own component now */}
-                <CreateTaskForm />
+                <CreateTaskForm contactId={contactId} />
 
                 <DialogFooter />
             </DialogContent>

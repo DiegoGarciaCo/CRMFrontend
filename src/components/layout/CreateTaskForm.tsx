@@ -13,7 +13,7 @@ import { CombineDateTime } from "@/lib/utils/formating";
 import { useRouter } from "next/navigation";
 
 
-export default function CreateTaskForm() {
+export default function CreateTaskForm({ contactId }: { contactId?: string }) {
     const [contactSearch, setContactSearch] = useState("");
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState("");
@@ -46,7 +46,7 @@ export default function CreateTaskForm() {
     };
 
     const handleCreate = async () => {
-        if (!selectedContact) return toast.error("Please select a contact");
+        if (!selectedContact && !contactId) return toast.error("Please select a contact");
 
         let scheduledAt = null;
         if (scheduledTime === "") {
@@ -58,7 +58,8 @@ export default function CreateTaskForm() {
 
 
         try {
-            await CreateTask(selectedContact, title, type, scheduledAt, status, priority, note);
+            const contact = contactId || selectedContact;
+            await CreateTask(contact, title, type, scheduledAt, status, priority, note);
             toast.success("Task created!");
             router.refresh();
         } catch {
@@ -93,32 +94,39 @@ export default function CreateTaskForm() {
     return (
         <div className="mt-6 space-y-6">
             {/* CONTACT SEARCH */}
-            <div className="space-y-2">
-                <Label>Select Contact</Label>
-                <Input
-                    placeholder="Search contacts..."
-                    value={contactSearch}
-                    onChange={(e) => handleSearch(e.target.value)}
-                />
+            {!contactId && (
+                <div className="space-y-2">
+                    {/* CONTACT SEARCH */}
+                    <Label>Select Contact</Label>
 
-                {contacts.length > 0 && (
-                    <div className="rounded-md border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
-                        {contacts.map((c) => (
-                            <button
-                                key={c.ID}
-                                className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID ? "bg-zinc-100 dark:bg-zinc-800" : ""}`}
-                                onClick={() => {
-                                    setSelectedContact(c.ID);
-                                    setContactSearch(`${c.FirstName} ${c.LastName}`);
-                                    setContacts([]);
-                                }}
-                            >
-                                {c.FirstName} {c.LastName}
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </div>
+                    <Input
+                        placeholder="Search contacts..."
+                        value={contactSearch}
+                        onChange={(e) => handleSearch(e.target.value)}
+                    />
+
+                    {contacts.length > 0 && (
+                        <div className="rounded-md border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
+                            {contacts.map((c) => (
+                                <button
+                                    key={c.ID}
+                                    className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
+                                        ? "bg-zinc-100 dark:bg-zinc-800"
+                                        : ""
+                                        }`}
+                                    onClick={() => {
+                                        setSelectedContact(c.ID);
+                                        setContactSearch(`${c.FirstName} ${c.LastName}`);
+                                        setContacts([]);
+                                    }}
+                                >
+                                    {c.FirstName} {c.LastName}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* TITLE */}
             <div>

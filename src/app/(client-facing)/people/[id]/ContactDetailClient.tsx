@@ -56,6 +56,7 @@ export default function ContactDetailClient(props: ContactDetailClientProps) {
                 appointments={props.appointments}
                 tasks={props.tasks}
                 stages={stages}
+                contactId={contact.ID}
             />
         </div>
     );

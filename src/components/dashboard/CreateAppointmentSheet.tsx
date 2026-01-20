@@ -11,8 +11,12 @@ import {
 import { useState } from "react";
 import { CreateAppointmentForm } from "../layout/CreateAppointmentForm";
 
+interface CreateAppointmentModalProps {
+    variant: "button" | "action" | "plus" | "quick-action";
+    contactId?: string;
+}
 
-export default function CreateAppointmentModal({ variant }: { variant: "button" | "action" | "plus" | "quick-action" }) {
+export default function CreateAppointmentModal({ variant, contactId }: CreateAppointmentModalProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -74,6 +78,7 @@ export default function CreateAppointmentModal({ variant }: { variant: "button" 
                 </DialogHeader>
 
                 <CreateAppointmentForm
+                    contactId={contactId}
                 />
             </DialogContent>
         </Dialog>

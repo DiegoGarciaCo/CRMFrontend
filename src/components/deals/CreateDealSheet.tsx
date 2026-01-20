@@ -22,7 +22,13 @@ import type { Stage } from "@/lib/definitions/backend/stage";
 import { CreateDeal, SearchContacts } from "@/lib/data/backend/clientCalls";
 import { useRouter } from "next/navigation";
 
-export default function CreateDealModal({ stages, variant }: { stages: Stage[]; variant: "button" | "action" | "plus" }) {
+interface CreateDealModalProps {
+    stages: Stage[];
+    variant: "button" | "action" | "plus";
+    contactId?: string;
+}
+
+export default function CreateDealModal({ stages, variant, contactId }: CreateDealModalProps) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -81,12 +87,14 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
     }, [contactSearch]);
 
     const handleCreate = async () => {
-        if (!selectedContact) return toast.error("Please select a contact");
+        if (!selectedContact && !contactId) return toast.error("Please select a contact");
         if (!selectedStage) return toast.error("Please select a stage");
 
         try {
+            console.log(contactId)
+            const contact = contactId || selectedContact;
             await CreateDeal(
-                selectedContact,
+                contact,
                 title,
                 Number(price),
                 closingDate,
@@ -140,43 +148,47 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
 
                 <div className="mt-6 space-y-6 overflow-y-auto flex-1 pr-2">
                     {/* CONTACT SEARCH */}
-                    <div className="space-y-2">
-                        <Label>Select Contact</Label>
-                        <Input
-                            placeholder="Search contacts..."
-                            value={contactSearch}
-                            onChange={(e) => setContactSearch(e.target.value)}
-                        />
+                    {!contactId && (
+                        <div className="space-y-2">
+                            <Label>Select Contact</Label>
 
-                        {contacts.length > 0 ? (
-                            <div className="rounded border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
-                                {contacts.map((c) => (
-                                    <button
-                                        key={c.ID}
-                                        className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID ? "bg-zinc-100 dark:bg-zinc-800" : ""
-                                            }`}
-                                        onClick={() => {
-                                            setSelectedContact(c.ID);
-                                            setContactSearch(`${c.FirstName} ${c.LastName}`);
-                                            setContacts([]);
-                                        }}
-                                    >
-                                        {c.FirstName} {c.LastName}
-                                    </button>
-                                ))}
-                            </div>
-                        ) : (
-                            // Show "No contacts found" *only if* user typed something AND results came back empty
-                            contactSearch.length > 0 && !loading && (
+                            <Input
+                                placeholder="Search contacts..."
+                                value={contactSearch}
+                                onChange={(e) => setContactSearch(e.target.value)}
+                            />
+
+                            {contacts.length > 0 ? (
                                 <div className="rounded border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
-                                    <p className="block w-full text-left p-2 rounded text-zinc-500">
-                                        No contacts found.
-                                    </p>
+                                    {contacts.map((c) => (
+                                        <button
+                                            key={c.ID}
+                                            className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
+                                                ? "bg-zinc-100 dark:bg-zinc-800"
+                                                : ""
+                                                }`}
+                                            onClick={() => {
+                                                setSelectedContact(c.ID);
+                                                setContactSearch(`${c.FirstName} ${c.LastName}`);
+                                                setContacts([]);
+                                            }}
+                                        >
+                                            {c.FirstName} {c.LastName}
+                                        </button>
+                                    ))}
                                 </div>
-                            )
-                        )}
-                    </div>
-
+                            ) : (
+                                // Show "No contacts found" *only if* user typed something AND results came back empty
+                                contactSearch.length > 0 && !loading && (
+                                    <div className="rounded border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
+                                        <p className="block w-full text-left p-2 rounded text-zinc-500">
+                                            No contacts found.
+                                        </p>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
                     {/* STAGE SELECT */}
                     <div className="space-y-2">
                         <Label>Stage</Label>
@@ -206,38 +218,38 @@ export default function CreateDealModal({ stages, variant }: { stages: Stage[]; 
                     </div>
 
                     {/* DATES */}
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 gap-4 space-y-2 sm:grid-cols-2 lg:grid-cols-3">
                         <div>
                             <Label>Closing Date</Label>
-                            <Input type="datetime-local" value={closingDate} onChange={(e) => setClosingDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={closingDate} onChange={(e) => setClosingDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Earnest Money Due</Label>
-                            <Input type="datetime-local" value={earnestDate} onChange={(e) => setEarnestDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={earnestDate} onChange={(e) => setEarnestDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Mutual Acceptance</Label>
-                            <Input type="datetime-local" value={mutualDate} onChange={(e) => setMutualDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={mutualDate} onChange={(e) => setMutualDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Inspection</Label>
-                            <Input type="datetime-local" value={inspectionDate} onChange={(e) => setInspectionDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={inspectionDate} onChange={(e) => setInspectionDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Appraisal</Label>
-                            <Input type="datetime-local" value={appraisalDate} onChange={(e) => setAppraisalDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={appraisalDate} onChange={(e) => setAppraisalDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Final Walkthrough</Label>
-                            <Input type="datetime-local" value={walkthroughDate} onChange={(e) => setWalkthroughDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={walkthroughDate} onChange={(e) => setWalkthroughDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Possession</Label>
-                            <Input type="datetime-local" value={possessionDate} onChange={(e) => setPossessionDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={possessionDate} onChange={(e) => setPossessionDate(e.target.value)} />
                         </div>
                         <div>
                             <Label>Closed</Label>
-                            <Input type="datetime-local" value={closedDate} onChange={(e) => setClosedDate(e.target.value)} />
+                            <Input className="mt-2" type="date" value={closedDate} onChange={(e) => setClosedDate(e.target.value)} />
                         </div>
                     </div>
 

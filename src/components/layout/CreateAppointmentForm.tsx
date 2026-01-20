@@ -15,7 +15,7 @@ import {
 import { CombineDateTime } from "@/lib/utils/formating";
 import { useRouter } from "next/navigation";
 
-export function CreateAppointmentForm() {
+export function CreateAppointmentForm({ contactId }: { contactId?: string }) {
     // ---- State ----
     const [contactSearch, setContactSearch] = useState("");
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -73,13 +73,14 @@ export function CreateAppointmentForm() {
 
     // ---- Submit ----
     const handleCreate = async () => {
-        if (!selectedContact) return toast.error("Please select a contact");
+        if (!selectedContact && !contactId) return toast.error("Please select a contact");
 
         const scheduledAt = CombineDateTime(scheduledDate, scheduledTime);
 
         try {
+            const contact = contactId || selectedContact;
             await CreateAppointment(
-                selectedContact,
+                contact,
                 title,
                 scheduledAt,
                 notes,
@@ -112,37 +113,39 @@ export function CreateAppointmentForm() {
     return (
         <div className="space-y-6">
 
-            {/* CONTACT SEARCH */}
-            <div className="space-y-2">
-                <Label>Select Contact</Label>
+            {!contactId && (
+                <div className="space-y-2">
+                    {/* CONTACT SEARCH */}
+                    <Label>Select Contact</Label>
 
-                <Input
-                    placeholder="Search contacts..."
-                    value={contactSearch}
-                    onChange={(e) => setContactSearch(e.target.value)}
-                />
+                    <Input
+                        placeholder="Search contacts..."
+                        value={contactSearch}
+                        onChange={(e) => setContactSearch(e.target.value)}
+                    />
 
-                {(contacts ?? []).length > 0 && (
-                    <div className="rounded-md border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
-                        {(contacts ?? []).map((c) => (
-                            <button
-                                key={c.ID}
-                                className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
-                                    ? "bg-zinc-100 dark:bg-zinc-800"
-                                    : ""
-                                    }`}
-                                onClick={() => {
-                                    setSelectedContact(c.ID);
-                                    setContactSearch(`${c.FirstName} ${c.LastName}`);
-                                    setContacts([]);
-                                }}
-                            >
-                                {c.FirstName} {c.LastName}
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </div>
+                    {(contacts ?? []).length > 0 && (
+                        <div className="rounded-md border p-2 bg-white dark:bg-zinc-900 max-h-40 overflow-y-auto">
+                            {(contacts ?? []).map((c) => (
+                                <button
+                                    key={c.ID}
+                                    className={`block w-full text-left p-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${selectedContact === c.ID
+                                        ? "bg-zinc-100 dark:bg-zinc-800"
+                                        : ""
+                                        }`}
+                                    onClick={() => {
+                                        setSelectedContact(c.ID);
+                                        setContactSearch(`${c.FirstName} ${c.LastName}`);
+                                        setContacts([]);
+                                    }}
+                                >
+                                    {c.FirstName} {c.LastName}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* TITLE */}
             <div>

@@ -8,14 +8,17 @@ import CreateTaskModal from "@/components/dashboard/CreateTaskSheet";
 import CreateAppointmentModal from "@/components/dashboard/CreateAppointmentSheet";
 import CreateDealModal from "@/components/deals/CreateDealSheet";
 import { Stage } from "@/lib/definitions/backend/stage";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import EditTaskModal from "@/components/tasks/UpdateTaskModal";
 
 interface RightSidebarProps {
     deals: Deal[];
     appointments: Appointment[];
     tasks: Task[];
     stages: Stage[];
+    contactId: string;
 }
-export default function RightSidebar({ deals, appointments, tasks, stages }: RightSidebarProps) {
+export default function RightSidebar({ deals, appointments, tasks, stages, contactId }: RightSidebarProps) {
 
 
     const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -32,27 +35,36 @@ export default function RightSidebar({ deals, appointments, tasks, stages }: Rig
     };
 
     return (
-        <div className="w-80 flex-shrink-0 flex flex-col border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="w-100 flex-shrink-0 flex flex-col border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             {/* Tasks */}
             <div className="flex-1 overflow-y-auto border-b border-zinc-200 dark:border-zinc-800">
                 <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-between">
-                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">Tasks ({tasks.length})</h3>
-                    <CreateTaskModal variant="plus" />
+                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">
+                        Tasks ({tasks.length})
+                    </h3>
+                    <CreateTaskModal variant="plus" contactId={contactId} />
                 </div>
-                <div className="p-4 space-y-3">
+
+                <div>
                     {tasks.length === 0 ? (
-                        <p className="text-sm text-zinc-500 text-center py-8">No tasks yet</p>
+                        <p className="text-sm text-zinc-500 text-center py-8">
+                            No tasks yet
+                        </p>
                     ) : (
-                        tasks.map(task => (
-                            <div key={task.ID} className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
-                                <div className="flex items-start justify-between gap-2 mb-2">
-                                    <h4 className="font-medium text-sm text-zinc-900 dark:text-zinc-50">{task.Title}</h4>
-                                    {task.Priority.Valid && <Badge className={getPriorityColor(task.Priority.TaskPriority)}>{task.Priority.TaskPriority}</Badge>}
-                                </div>
-                                {task.Type.Valid && <Badge variant="outline" className="text-xs mb-2">{task.Type.TaskType}</Badge>}
-                                {task.Date.Valid && <p className="text-xs text-zinc-600 dark:text-zinc-400">{formatDateShort(task.Date.Time)}</p>}
-                            </div>
-                        ))
+                        <div className="bg-white dark:bg-zinc-900 h-full">
+                            <Table>
+
+                                <TableBody>
+                                    {tasks.map((task) => (
+                                        <EditTaskModal
+                                            key={task.ID}
+                                            task={task}
+                                            variant="table-cell"
+                                        />
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     )}
                 </div>
             </div>
@@ -61,7 +73,7 @@ export default function RightSidebar({ deals, appointments, tasks, stages }: Rig
             <div className="flex-1 overflow-y-auto border-b border-zinc-200 dark:border-zinc-800">
                 <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-between">
                     <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">Appointments ({appointments.length})</h3>
-                    <CreateAppointmentModal variant="plus" />
+                    <CreateAppointmentModal variant="plus" contactId={contactId} />
                 </div>
                 <div className="p-4 space-y-3">
                     {appointments.length === 0 ? (
@@ -83,7 +95,7 @@ export default function RightSidebar({ deals, appointments, tasks, stages }: Rig
             <div className="flex-1 overflow-y-auto">
                 <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-between">
                     <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">Deals ({deals.length})</h3>
-                    <CreateDealModal variant="plus" stages={stages} />
+                    <CreateDealModal variant="plus" stages={stages} contactId={contactId} />
                 </div>
                 <div className="p-4 space-y-3">
                     {deals.length === 0 ? (

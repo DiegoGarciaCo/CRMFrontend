@@ -23,14 +23,11 @@ export default function TasksPageClient({ allTasks, lateTasks, todayTasks, selec
     const [filterPriority, setFilterPriority] = useState<FilterPriority>('all');
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [searchTerm, setSearchTerm] = useState('');
-    console.log(todayTasks)
-    console.log(allTasks)
 
     const router = useRouter();
 
     const filteredTasks = useMemo(() => {
         let tasks = {} as Task[];
-        console.log(selectedTab)
         if (selectedTab === 'all') {
             tasks = allTasks;
         } else if (selectedTab === 'late') {
