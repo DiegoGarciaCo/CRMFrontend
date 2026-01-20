@@ -45,20 +45,22 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
 
     const handleListClick = (listId: string | null) => {
         setListId(listId || '');
-        router.push(listId ? `/people/?list=${listId}` : '/people');
+        router.push(listId ? `/people/?list=${listId}&limit=${stateLimit}` : '/people');
     };
 
     const handlePageChange = (newPage: number) => {
         // Update URL with new page
+        document.cookie = `people_limit=${Number(limit)}; path=/; max-age=31536000`;
         setOffset((newPage - 1) * Number(limit || 25));
         setLimit(Number(limit || 25));
         router.push(`?limit=${limit || 25}&offset=${(newPage - 1) * Number(limit || 25)}`);
     }
 
+
     const totalContacts = contacts[0]?.TotalCount || 0;
     const totalPages = totalContacts / (stateLimit || Number(limit || 25));
-    const o = stateLimit || Number(offset);
-    const l = stateOffset || Number(limit);
+    const o = stateOffset
+    const l = stateLimit
 
 
 

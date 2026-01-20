@@ -79,6 +79,7 @@ export default function ContactsTableNew({ contacts, onDeleteContacts, totalPage
     const handleLimitChange = (value: string) => {
         const params = new URLSearchParams(searchParams.toString())
 
+        document.cookie = `people_limit=${value}; path=/; max-age=31536000`;
         params.set('limit', value)
         params.set('offset', '0') // reset pagination when limit changes
         setLimit(Number(value))

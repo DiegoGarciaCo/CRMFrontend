@@ -2,7 +2,7 @@ import { GetAllContacts, GetContactsBySmartListID } from '@/lib/data/backend/con
 import { GetAllSmartLists } from '@/lib/data/backend/smartLists';
 import PeoplePageClient from './PeoplePageClient';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { GetAllTags } from '@/lib/data/backend/tags';
 import { Contact } from '@/lib/definitions/backend/contacts';
@@ -22,19 +22,21 @@ export default async function PeoplePage({
     if (!userId) {
         throw new Error('User not authenticated');
     }
+    const cookieStore = await cookies();
+    const preferredLimit = cookieStore.get("people_limit")?.value ?? "25";
 
     const contactLimit = await searchParams
         .then(params => {
             const src = params['limit'];
             if (Array.isArray(src)) {
-                return "25";
+                return preferredLimit;
             }
             if (src === undefined) {
-                return "25";
+                return preferredLimit;
             }
             return src;
         })
-        .catch(() => { return "25"; });
+        .catch(() => { return preferredLimit; });
 
     const contactOffset = await searchParams
         .then(params => {
