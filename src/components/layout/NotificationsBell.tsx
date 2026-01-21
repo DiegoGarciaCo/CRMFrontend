@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell, Check, X } from 'lucide-react';
 import { Notification } from '@/lib/definitions/backend/mentions';
+import { useRouter } from 'next/navigation';
 
 
 interface NotificationsDropdownProps {
@@ -18,6 +19,7 @@ export default function NotificationsDropdown({
 }: NotificationsDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     const unreadCount = notifications ? notifications?.filter(n => !n.Read.Bool).length : 0;
 
@@ -110,11 +112,19 @@ export default function NotificationsDropdown({
                                 {notifications.map((notification) => (
                                     <div
                                         key={notification.ID}
-                                        className={`group relative p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${!notification.Read ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
+                                        onClick={() => {
+                                            if (notification.ContactID) {
+                                                router.push(`/people/${notification.ContactID}`);
+                                            }
+                                        }}
+                                        className={`group relative cursor-pointer p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${!notification.Read ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
                                             }`}
                                     >
                                         <div className="flex gap-3">
-                                            <div className="text-2xl">{getNotificationIcon(notification.Type)}</div>
+                                            <div className="text-2xl">
+                                                {getNotificationIcon(notification.Type)}
+                                            </div>
+
                                             <div className="flex-1">
                                                 <p className="text-sm text-zinc-900 dark:text-zinc-100">
                                                     {notification.Message}
@@ -123,20 +133,28 @@ export default function NotificationsDropdown({
                                                     {formatTimeAgo(notification.CreatedAt.Time)}
                                                 </p>
                                             </div>
+
                                             <div className="flex gap-1">
                                                 {!notification.Read && onMarkAsRead && (
                                                     <button
-                                                        onClick={() => onMarkAsRead(notification.ID)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onMarkAsRead(notification.ID);
+                                                        }}
                                                         className="rounded p-1 text-zinc-400 opacity-0 hover:bg-zinc-200 hover:text-zinc-600 group-hover:opacity-100 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
                                                         title="Mark as read"
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
                                                 )}
+
                                                 {onDelete && (
                                                     <button
-                                                        onClick={() => onDelete(notification.ID)}
-                                                        className="rounded p-1 text-zinc-400 opacity-0 hover:bg-zinc-200 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-zinc-700 dark:hover:text-red-400"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onDelete(notification.ID);
+                                                        }}
+                                                        className="cursor-pointer rounded p-1 text-zinc-400 opacity-0 hover:bg-zinc-200 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-zinc-700 dark:hover:text-red-400"
                                                         title="Delete"
                                                     >
                                                         <X className="h-4 w-4" />

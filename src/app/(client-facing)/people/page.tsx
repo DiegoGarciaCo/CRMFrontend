@@ -97,7 +97,6 @@ export default async function PeoplePage({
             <PeoplePageClient
                 userId={userId}
                 limit={contactLimit}
-                offset={contactOffset}
                 activeListId={listID || null}
                 contacts={contacts}
                 smartLists={smartLists}

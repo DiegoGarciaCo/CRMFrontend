@@ -10,7 +10,7 @@ export interface Notification {
     UserID: string;
     Type: string;
     Message: string;
-    ContactID: NullString;
+    ContactID: string
     AppointmentID: NullString;
     TaskID: NullString;
     Read: NullBool;
