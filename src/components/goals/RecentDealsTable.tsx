@@ -16,8 +16,6 @@ export default function RecentDealsTable({ deals }: RecentDealsTableProps) {
     };
 
     const getStatusBadge = (deal: Deal) => {
-        // This is a simplified version - you'd want to look up the actual stage name
-        // For now, we'll use a placeholder logic
         return deal.ClosedDate.Valid ? (
             <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 Closed

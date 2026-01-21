@@ -21,6 +21,7 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { Deal } from "@/lib/definitions/backend/deals";
 import { Pencil } from "lucide-react";
+import { TableCell, TableRow } from "../ui/table";
 
 const DealSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -49,11 +50,12 @@ type DealFormValues = z.infer<typeof DealSchema>;
 interface EditDealModalProps {
     deal: Deal;
     stages: { id: string; name: string }[];
+    variant?: "default" | "table-cell";
 }
 
 
 
-export function EditDealModal({ deal, stages }: EditDealModalProps) {
+export function EditDealModal({ deal, stages, variant = "default" }: EditDealModalProps) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -126,12 +128,64 @@ export function EditDealModal({ deal, stages }: EditDealModalProps) {
         }
     }
 
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    const getStatusBadge = (deal: Deal) => {
+        return deal.ClosedDate.Valid ? (
+            <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Closed
+            </span>
+        ) : deal.ClosingDate.Valid ? (
+            <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                Under Contract
+            </span>
+        ) : (
+            <span className="inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                Active
+            </span>
+        );
+    };
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                    <Pencil className="h-4 w-4" />
-                </Button>
+                {variant === "table-cell" ? (
+                    <TableRow className="cursor-pointer">
+                        <TableCell>
+                            <div className="flex items-start gap-3">
+                                <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                                    {deal.Title}
+                                </div>
+                                <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    {getStatusBadge(deal)}
+                                </div>
+                                <div>
+                                    {deal.Commission.Valid ? (
+                                        <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            {formatCurrency(
+                                                (deal.Price * Number(deal.Commission.String)) / 100
+                                            )}{" "}
+                                        </div>
+                                    ) : null}
+                                </div>
+                                <div className="text-green-600 dark:text-green-400 font-bold">
+                                    ${deal.Price.toLocaleString()}
+                                </div>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                ) : (
+
+                    <Button variant="outline" size="sm">
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                )}
             </DialogTrigger>
 
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto flex flex-col">

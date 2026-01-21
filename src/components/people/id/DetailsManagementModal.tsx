@@ -41,6 +41,7 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
     const [phoneDraft, setPhoneDraft] = useState({
         phone_number: '',
         type: 'Mobile',
+        is_primary: false,
     })
     const [isAddingPhone, setIsAddingPhone] = useState(false)
     const [isPhoneSaving, setIsPhoneSaving] = useState(false)
@@ -177,13 +178,14 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
         setPhoneDraft({
             phone_number: phone.phone_number,
             type: phone.type,
+            is_primary: phone.is_primary,
         })
     }
 
     const cancelPhoneEdit = () => {
         setEditingPhoneId(null)
         setIsAddingPhone(false)
-        setPhoneDraft({ phone_number: '', type: 'mobile' })
+        setPhoneDraft({ phone_number: '', type: 'mobile', is_primary: false })
     }
 
     const savePhone = async (phoneId?: string) => {
@@ -193,11 +195,11 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
 
         if (phoneId) {
             // UPDATE
-            await UpdatePhoneNumber(phoneId, phoneDraft.phone_number, phoneDraft.type, false)
+            await UpdatePhoneNumber(phoneId, phoneDraft.phone_number, phoneDraft.type, phoneDraft.is_primary)
             setEditingPhoneId(null)
         } else {
             // CREATE
-            await CreatePhoneNumber(contact.ID, phoneDraft.phone_number, phoneDraft.type, false)
+            await CreatePhoneNumber(contact.ID, phoneDraft.phone_number, phoneDraft.type, phoneDraft.is_primary)
         }
 
         setIsPhoneSaving(false)
@@ -399,15 +401,24 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                             className="flex items-center justify-between rounded-lg border p-4"
                                         >
                                             {isEditing ? (
-                                                <div className="flex w-full items-center gap-2">
-                                                    <Input
-                                                        value={phoneDraft.phone_number}
-                                                        onChange={(e) =>
-                                                            setPhoneDraft({ ...phoneDraft, phone_number: e.target.value })
-                                                        }
-                                                        placeholder="Phone number"
-                                                    />
+                                                <div className="flex flex-col w-full gap-2">
+                                                    <div className="flex w-full items-center gap-2">
+                                                        <Input
+                                                            value={phoneDraft.phone_number}
+                                                            onChange={(e) =>
+                                                                setPhoneDraft({ ...phoneDraft, phone_number: e.target.value })
+                                                            }
+                                                            placeholder="Phone number"
+                                                        />
 
+
+                                                        <Button size="sm" onClick={() => savePhone(phone.id)} disabled={isPhoneSaving}>
+                                                            Save
+                                                        </Button>
+                                                        <Button size="sm" variant="outline" onClick={cancelPhoneEdit}>
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
                                                     <select
                                                         value={phoneDraft.type}
                                                         onChange={(e) =>
@@ -420,17 +431,26 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                                         <option value="Personal">Personal</option>
                                                     </select>
 
-                                                    <Button size="sm" onClick={() => savePhone(phone.id)} disabled={isPhoneSaving}>
-                                                        Save
-                                                    </Button>
-                                                    <Button size="sm" variant="outline" onClick={cancelPhoneEdit}>
-                                                        Cancel
-                                                    </Button>
+                                                    <select
+                                                        value={phoneDraft.is_primary ? 'true' : 'false'}
+                                                        onChange={(e) =>
+                                                            setPhoneDraft({ ...phoneDraft, is_primary: e.target.value === 'true' ? true : false })
+                                                        }
+                                                        className="rounded-md border px-2 py-1 text-sm"
+                                                    >
+                                                        <option value="true">Primary</option>
+                                                        <option value="false">Not Primary</option>
+                                                    </select>
                                                 </div>
                                             ) : (
                                                 <>
                                                     <div>
-                                                        <p className="font-medium">{formatPhoneNumber(phone.phone_number)}</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="font-medium">{formatPhoneNumber(phone.phone_number)}</p>
+                                                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${phone.is_primary ? 'bg-blue-100 text-blue-700' : ''}`}>
+                                                                {phone.is_primary ? 'Primary' : ''}
+                                                            </span>
+                                                        </div>
                                                         <p className="text-sm text-zinc-500">{phone.type}</p>
                                                     </div>
 
@@ -468,15 +488,24 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                         )}
 
                         {isAddingPhone && (
-                            <div className="mt-4 flex items-center gap-2 rounded-lg border p-4">
-                                <Input
-                                    value={phoneDraft.phone_number}
-                                    onChange={(e) =>
-                                        setPhoneDraft({ ...phoneDraft, phone_number: e.target.value })
-                                    }
-                                    placeholder="Phone number"
-                                />
+                            <div className="flex flex-col w-full gap-2 rounded-lg border p-4">
+                                <div className="mt-4 flex items-center gap-2">
+                                    <Input
+                                        value={phoneDraft.phone_number}
+                                        onChange={(e) =>
+                                            setPhoneDraft({ ...phoneDraft, phone_number: e.target.value })
+                                        }
+                                        placeholder="Phone number"
+                                    />
 
+
+                                    <Button onClick={() => savePhone()} disabled={isPhoneSaving}>
+                                        Add
+                                    </Button>
+                                    <Button variant="outline" onClick={cancelPhoneEdit}>
+                                        Cancel
+                                    </Button>
+                                </div>
                                 <select
                                     value={phoneDraft.type}
                                     onChange={(e) =>
@@ -484,17 +513,21 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                                     }
                                     className="rounded-md border px-2 py-1 text-sm"
                                 >
-                                    <option value="Primary">Primary</option>
+                                    <option value="Mobile">Mobile</option>
                                     <option value="Work">Work</option>
                                     <option value="Personal">Personal</option>
                                 </select>
 
-                                <Button onClick={() => savePhone()} disabled={isPhoneSaving}>
-                                    Add
-                                </Button>
-                                <Button variant="outline" onClick={cancelPhoneEdit}>
-                                    Cancel
-                                </Button>
+                                <select
+                                    value={phoneDraft.is_primary ? 'true' : 'false'}
+                                    onChange={(e) =>
+                                        setPhoneDraft({ ...phoneDraft, is_primary: e.target.value === 'true' ? true : false })
+                                    }
+                                    className="rounded-md border px-2 py-1 text-sm"
+                                >
+                                    <option value="true">Primary</option>
+                                    <option value="false">Not Primary</option>
+                                </select>
                             </div>
                         )}
 
@@ -504,7 +537,7 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                             onClick={() => {
                                 setIsAddingPhone(true)
                                 setEditingPhoneId(null)
-                                setPhoneDraft({ phone_number: '', type: 'Mobile' })
+                                setPhoneDraft({ phone_number: '', type: 'Mobile', is_primary: false })
                             }}
                         >
                             + Add Phone Number

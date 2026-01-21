@@ -29,6 +29,7 @@ export default function EditTaskModal({ variant, task }: EditTaskModalProps) {
     const [open, setOpen] = useState(false);
 
     const formatedDate = FormatDateTimeForInput(new Date(task.Date.Valid ? task.Date.Time : new Date()));
+    const date = formatedDate.split(' ')[0];
     const time = formatedDate.split(' ')[1] + ` ${formatedDate.split(' ')[2]}`;
 
     const renderTrigger = () => {
@@ -158,7 +159,7 @@ export default function EditTaskModal({ variant, task }: EditTaskModalProps) {
 
                         {/* Due Time */}
                         <TableCell>
-                            {task.Date.Valid ? time : "—"}
+                            {task.Date.Valid ? date : "—"}
                         </TableCell>
                     </TableRow>
                 );

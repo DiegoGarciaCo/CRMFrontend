@@ -39,7 +39,7 @@ export default function Sidebar({ contact, emails, phoneNumbers, tags: initialTa
 
     return (
 
-        <div className="w-80 flex-shrink-0 overflow-y-auto border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="w-90 flex-shrink-0 overflow-y-auto border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             <div className="p-6">
                 {/* Back Button */}
                 <button
