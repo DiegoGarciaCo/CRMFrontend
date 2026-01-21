@@ -376,10 +376,6 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                         >
                             + Add Email
                         </Button>
-
-                        <DialogFooter className="mt-6">
-                            <Button onClick={() => saveEmail}>Save</Button>
-                        </DialogFooter>
                     </>
                 ) : variant === 'phone' ? (
                     <>
@@ -544,9 +540,6 @@ export default function DetailsManagementModal(props: DetailsManagementModalProp
                         </Button>
 
 
-                        <DialogFooter className="mt-6">
-                            <Button onClick={() => savePhone}>Save</Button>
-                        </DialogFooter>
                     </>
                 ) : variant === 'details' ? (
                     <>

@@ -11,6 +11,7 @@ import { Tag } from '@/lib/definitions/backend/tag';
 import { DeleteContacts } from '@/lib/data/backend/clientCalls';
 import { useContactsNav } from '@/lib/hooks/UseContactsNav';
 import SmartListSidebarNew from '@/components/people/smartlistSidebarNew';
+import EditSmartListModal from '@/components/people/EditSmartListModal';
 
 interface PeoplePageClientProps {
     userId: string;
@@ -19,11 +20,10 @@ interface PeoplePageClientProps {
     tags: Tag[];
     activeListId: string | null;
     limit?: string;
-    offset?: string;
 }
 
 
-export default function PeoplePageClient({ userId, contacts, smartLists, tags, activeListId, limit, offset }: PeoplePageClientProps) {
+export default function PeoplePageClient({ userId, contacts, smartLists, tags, activeListId, limit }: PeoplePageClientProps) {
     const router = useRouter();
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
@@ -93,16 +93,22 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                 <div className="flex-shrink-0 p-6 border-b border-zinc-200 dark:border-zinc-800">
                     {/* Header */}
                     <div className="mb-6 flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                                {activeListId ? activeList?.Name || 'People' : 'All Contacts'}
-                            </h1>
-                            {activeListId && activeList?.Description.Valid && (
-                                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                                    {activeList.Description.String}
-                                </p>
-                            )}
+                        <div className="flex flex-col items-start justify-between">
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+                                    {activeListId ? activeList?.Name || 'People' : 'All Contacts'}
+                                </h1>
+
+                                {activeListId && (
+                                    <EditSmartListModal smartList={activeList!} />
+                                )}
+                            </div>
+
+                            <p className="text-zinc-600 dark:text-zinc-400">
+                                {activeListId ? activeList?.Description.Valid ? activeList.Description.String : '' : `${totalContacts} contacts`}
+                            </p>
                         </div>
+
                         <Button
                             onClick={() => setIsImportModalOpen(true)}
                             className="flex items-center gap-2"
@@ -136,7 +142,7 @@ export default function PeoplePageClient({ userId, contacts, smartLists, tags, a
                 onSuccess={handleImportSuccess}
                 userId={userId}
             />
-        </div>
+        </div >
     );
 }
 

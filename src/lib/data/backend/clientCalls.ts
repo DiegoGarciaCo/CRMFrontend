@@ -1083,4 +1083,48 @@ export async function ReorderSmartLists(smartLists: SmartList[]): Promise<void> 
     }
 
     return;
-}   
+}
+
+// ----------------------------------------------
+// Update Smart List
+// ----------------------------------------------
+
+export async function UpdateSmartList(list_id: string, name: string, description: string): Promise<SmartList> {
+    const res = await fetch(`${BASE_URL}/smart-lists/${list_id}/name`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            description,
+        }),
+    });
+
+    if (!res.ok) {
+        toast.error(`Error updating smart list: ${res.statusText}`);
+    }
+
+    return res.json();
+}
+
+// ----------------------------------------------
+// Delete Smart List
+// ----------------------------------------------
+
+export async function DeleteSmartList(list_id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/smart-lists/${list_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        toast.error(`Error deleting smart list: ${res.statusText}`);
+    }
+
+    return;
+}
