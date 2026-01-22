@@ -6,12 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { SearchContacts } from '@/lib/data/backend/clientCalls';
-
-interface Contact {
-    ID: string;
-    FirstName: string;
-    LastName: string;
-}
+import { Contact } from '@/lib/definitions/backend/contacts';
 
 interface ContactSearchInputProps {
     ownerID: string;
@@ -47,6 +42,26 @@ export default function ContactSearchInput({ ownerID }: ContactSearchInputProps)
 
         return () => clearTimeout(timeout);
     }, [query, ownerID]);
+
+    function highlight(text: string, query: string) {
+        if (!query) return text;
+
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escaped})`, 'gi');
+
+        return text.split(regex).map((part, i) =>
+            regex.test(part) ? (
+                <mark
+                    key={i}
+                    className="rounded bg-yellow-200 px-0.5 text-zinc-900 dark:bg-yellow-500/30 dark:text-zinc-50"
+                >
+                    {part}
+                </mark>
+            ) : (
+                <span key={i}>{part}</span>
+            )
+        );
+    }
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -84,7 +99,28 @@ export default function ContactSearchInput({ ownerID }: ContactSearchInputProps)
                                 router.push(`/people/${contact.ID}`);
                             }}
                         >
-                            {contact.FirstName} {contact.LastName}
+                            <div>
+                                {highlight(`${contact.FirstName} ${contact.LastName}`, query)}
+                            </div>
+
+                            {contact.Address.Valid && (
+                                <div className="text-sm text-zinc-500">
+                                    {highlight(contact.Address.String, query)}
+                                </div>
+                            )}
+
+                            <div className="text-sm text-zinc-500">
+                                {highlight(
+                                    [
+                                        contact.City.Valid ? contact.City.String : '',
+                                        contact.State.Valid ? contact.State.String : '',
+                                        contact.ZipCode.Valid ? contact.ZipCode.String : '',
+                                    ]
+                                        .filter(Boolean)
+                                        .join(', '),
+                                    query
+                                )}
+                            </div>
                         </button>
                     ))}
                 </div>
